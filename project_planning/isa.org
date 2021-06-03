@@ -1,0 +1,96 @@
+* ISA (Investigation/Study/Assay) Loading
+** Data we need to handle
+  + ClinEpi Datasets
+  + Genomics Sites (DNASeq Samples, ICEMR Ab Microarray, ... )
+  + MicrobiomeDB
+  + MapVEu Datasets
+  + PopSet Isolates
+  + DIY ClinEpi User Datasets
+  + Cross Study Comparisons (intersection of ontologyterms)
+    + Intersection of graph hierarchy
+  + How to apply meta data for same dataset loaded for multiple projects? (union of ontology terms)
+    + How to handle chars for mbio loaded as "Source" characteristics?
+      + Need to use the same Graph Hierarchy in MBio as ClinEpi For shared studies
+      + MBio Will have access to any shared variables for the entities it knows about
+    + Will MBio get all ClinEpi characteristics?
+** Formats
+   + ISASimple (one file)
+   + ISASimple (Multi-file)
+   + ISATab (with Genotype/Phenotype)
+   + PopSet genbank format
+*** Variations 
+   + value mapping
+   + ontology mapping
+   + functions (dates, ...)
+** Replacement for GUS Schema ([[file:/home/jbrestel/project_home/ApiCommonData/Load/lib/sql/apidbschema/createPropertyGraphTables.sql][SQL File]] )
+   + Modified from [[https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/43287.pdf][SQLGraph]] ... and [[http://ceur-ws.org/Vol-2367/paper_8.pdf][Another Version]]
+*** PropertyGraph
+    + property_graph_id, name, external_database_release_id
+*** Entity (Should this just be SRes::OntologyTerm) 
+    + entity_id, name, material_type, isa_type, property_graph_id
+    + what to do about entity_abbrev??  should be added to the ontology
+    + what to do about parent_entity?  setting a parent in this table would disallow multiple inputs
+    + TODO:  Add fk to ontologyterm for the entity type
+
+*** VertexAttributes
+    + vertex_attribue_id, name, entity_id, atts
+    + should we add additional attributes for the "protocol name" and "entity type"
+*** VertexXRef (populated by separate plugin)
+    + vertex_xref_id, a_vertex_id, b_vertex_id
+    + what if the same sample crosses more than 2 datasets?
+*** EdgeLabel (should we reuse these across graphs??)
+    + name,description
+*** EdgeAttributes
+    + edge_attribute_id, edge_label_id, input_node_id, output_node_id, atts
+    + what to do with protocol series?  could put in as list of protocol_types (sres.ontologyterm)
+*** VertexAttributeUnit
+    vertex_attribute_unit_id, vertex_type_id, qualifier_id, unit_ontology_term_id
+*** EdgeAttributeUnit
+    edge_attribute_unit_id, edge_type_id, qualifier_id, unit_ontology_term_id
+** Loader
+   + validation for ontologyterms
+   + how to handle units?
+   + how to handle entity types?
+   + GUS Study schema allowed for reusing protocolappnodes ... do we need this?
+** Tuning
+   + wide, long, ontology, ...
+   + use plsql (foreach attribute in the json string)
+   + may not need wide table?  the json_table function may be enough
+   + ontology table should not have units
+     + can add the "type, is_range, precision" columns as we currently do in propertytype table
+     + units should be per pan_type/dataset/ontologyterm
+** JSON Functions
+    #+begin_src sql
+    -- simple use of json_value
+    select count(*) from VertexAttributes where json_value(atts, '$.PATO_0000047') = 'Female'
+    #+end_src
+    #+begin_src sql
+    -- count for one variable
+    select val, , count(*) 
+    from (select json_value(atts, '$.PATO_0000047') as val
+          from VertexAttributes 
+         )
+    group by val
+    #+end_src
+    #+begin_src sql
+    -- counting one var in MAL-ED:   5 seconds (1.3 mil observations)
+    SELECT jt.EUPATH_0000743, count(*)
+    FROM vertexattributes,
+    JSON_TABLE(atts, '$'
+               COLUMNS (EUPATH_0000743 PATH '$.EUPATH_0000743')
+               ) jt
+    group by EUPATH_0000743
+    #+end_src
+    #+begin_src sql
+    -- make wide table for wdk.
+    SELECT jt.*
+    FROM vertexattributes va, 
+    JSON_TABLE(va.atts, '$'
+               COLUMNS (PAN_TYPE PATH '$.PAN_TYPE', 
+                        PATO_0000047 PATH '$.PATO_0000047', 
+                        EUPATH_0011306 PATH '$.EUPATH_0011306', 
+                        EUPATH_0011267 PATH '$.EUPATH_0011267', 
+                        EUPATH_0010562 PATH '$.EUPATH_0010562'
+               )) jt
+      where va.pan_type = 'Participant';
+     #+end_src

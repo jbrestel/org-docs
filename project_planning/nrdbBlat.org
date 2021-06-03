@@ -1,0 +1,66 @@
+* Tasks
+** TODO Retrofit exonerate nextflow wf to use containers     
+** TODO Check if ApiDB.IntronLocaion can be used for intron size.  Why do data loaders need to configure maxintron length?
+
+* nr protein alignment to genomic sequence
+** Use Cases
+   + Gene Annotation :: most similar genomes
+   + Protein Function :: dierse genomes
+
+** OrthoMCL Worklfow
+   + proteomes are either uniprot,vb, or veupath
+   + deflines are pretty good
+   + could get set for gene model predition from orth peripherals 
+
+** Filtering strategies
+   + Gene Models
+     + filter away same genus (inform gene models)
+   + Protein Function
+     + always include some subset of model organisms??
+     + use taxa which makeup the "Core" orthomcl db?
+     + could we just use the protein fasta files (uniprot) from orthomcl?
+       + strip out bacteria (possibly other?)
+
+** What were we doing?
+   + NRDB dataset downloaded all nr proteins and did some unpacking
+   + for the swiss prot proteins, we ran BLASTP against the proteome.
+     + this was removed several releases ago
+   + All nr proteins were aligned to genome using blat
+     + BLAT uses gfserver and gfclient.  Each node should create a gfserver
+   + there were 2 filtering steps applied before loading the similarities into the db
+   + during vectorbase merger, i rewrote this graph to use "toplevel" sequence.  I also changed to make gff files instead of loading into gus instance
+     + The cluster jobs took much too long for Vector genomes;  decided to punt for the first merged release
+
+** exonerate
+   + use softmasked genome
+   + only run on "top level" sequence
+   + filter nr by taxon (do this in reflow so the file i transfer to cluster is small)
+     + should dependencies be already on cluster?
+   + use exonerate in client/server mode
+   
+** Benchmarking
+| Time       | Server | FSMMemory | Genome | QuerySize | component | Intron Size | Mode  |
+| 49sec      | no     |        no | 1chr   |       500 | Plas      | 20K         | p2g   |
+| 43sec      | no     |      1026 | 1chr   |       500 | Plas      | 20K         | p2g   |
+| 11min      | no     |      1026 | 1chr   |      5000 | Plas      | 20K         | p2g   |
+| 18sec      | yes    |        no | 1chr   |       500 | Plas      | 20K         | p2g   |
+| 15sec      | yes    |      1026 | 1chr   |       500 | Plas      | 20K         | p2g   |
+| 3min 29sec | yes    |      1026 | 1chr   |      5000 | Plas      | 20K         | p2g   |
+| 23min      | yes    |      1026 | ALL    |      5000 | Plas      | 20K         | p2g   |
+| 20sec      | yes    |      1026 | 1chr   |       500 | Plas      | 5K          | p2g   |
+| 17sec      | yes    |      1026 | 1chr   |       500 | Plas      | 1K          | p2g   |
+| 2min 42sec | yes    |      1026 | 1chr   |      5000 | Plas      | 5K          | p2g   |
+| 1min 59sec | yes    |      1026 | 1chr   |      5000 | Plas      | 5K          | p2dna |
+|            |        |           |        |           |           |             |       |
+
+** nextflow
+   + should "resume" be turned on automatically?
+   + set cpu's, queue, executor and memory per process
+   + configuration in separate file
+   + workflow can be a git project; no need to install/build
+   + run with-trace
+   + add container option to nextflow config
+** Reflow
+   + add step for filtering by taxon list
+   + upgrade RunOnCluster step to handle nextflow
+   + copy to webservices

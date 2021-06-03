@@ -1,0 +1,82 @@
+* Phase 1 (cleanup)
+  + ontology based categorization of attributes and tables
+    + Clinepi puts most everything under Data Provenance (should probably do the same for mbio and genomics)
+    + [[https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/wdk/ontology/commonIndividuals.txt][Individuals File For Datasets]]
+  + Provider version table should be removed from Datset Record page
+    + set scope=record_internal in individuals.txt to hide
+  + hide datasets which have many organisms (example: Pubmed from ncbi;  linkouts)
+    + keep the DatasetPresenter xml element for the linkouts because the display_name is used by gene record page
+    + could do this by modifying the query "AllDatasets" in [[https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/wdk/model/questions/queries/datasetQueries.xml][datasetQueries.xml]] ;  could simply exclude 'Link out' or come up with better way of figuring out which datasets we want to exclude
+      #+BEGIN_SRC sql
+	select dataset_presenter_id as dataset_id
+	from apidbTuning.DatasetPresenter
+	where category != 'Link out'
+      #+END_SRC
+  + pfal3D7_Hagai_ECAssociations_RSRC why is the category "Function Prediction" and not "Link outs"
+  + bug on mbio sample record page.  "Description" attribute was showing up at bottom of page.
+  + JohnI clean up "HyperLinks" v "HyperLink".
+    + rename "HyperLinks" to "GenomicsHyperLink" and provide an additional field to indicate whether the row is internal (based on macro) or external.  
+  + Why is the type/category for "%primary_genome%" datasets  "Annotation, curation and identifiers"
+    #+BEGIN_SRC sql
+     select distinct category
+     from apidbtuning.datasetpresenter
+     where name like '%primary_genome%';
+    #+END_SRC
+  
+* Phase 2 (organism vs dataset; genomic sites)
+   + Existing Organism Record
+     + take interesting things from organism page (Gene Types and Sequence Types Tables) and move those to the dataset record page
+     + organism results summary page should not link to organism record.  should link to the dataset record page
+   + Dataset Record
+     + Need a mechanism to show/hide attributes and tables based on the category/type of page
+       + We do something like this already on the GeneRecord page.  The gene page only shows attributes and tables which are appropriate for the organism
+       + May not need something so fancy.  May be able to modify the Dataset jsx
+       + "Example Graphs" table should only show up on RNASeq, Microarray, Phenotype dataset pages
+     + Genome Datasets
+       + Better display name (currenlty they are all called "Genome Sequence and Annotation").  need to include the strain name
+       + "Source Version" and "Dataset Version" attributes are meaningless for genome datasets.  should not show these attributes for genome datasets
+       + create attributes for current genome version and current structural annotation version and functional annotation version
+       + The current DatasetHistory Table has version fields specific for genomes.  this table should continue to be shown for genome datasets as is
+       + Add "Gene Types" and "Sequence Types" Tables currently shown on Organism Record page
+       + Add XRefs Table.  We want to show which xref datasets are available for this organism dataset. 
+	 + union of xrefs from ebi core database AND xrefs from reflow datasets
+     + Hyperlinks
+       + Current table called "Relevant pages at PlasmoDB and external resources"
+         + Change display name to "External Resources"
+	 + For Genomic Sites modify sql to show only hyperlink rows which do not contain Macro
+	 + use johni's renamed table for Genomics Sites (should have a field indicating whether the row "is_internal"
+         #+BEGIN_SRC sql
+	   SELECT dataset_id, text, url, description
+	   FROM ApidbTuning.GenomicsDatasetHyperLink
+           WHERE is_internal  = 0
+         #+END_SRC
+       + Current table called "Explore this dataset" currently only shows the wdk Searches for this dataset
+	 + Change this to UNION searches and internal hyperlinks
+	 + The Datset jsx does something fancy for the searches to get the display name for the search from the wdk.
+	 + [[https://github.com/VEuPathDB/EbrcWebsiteCommon/blob/master/Client/src/components/records/DatasetRecordClasses.DatasetRecordClass.jsx][DatasetRecordClasses.DatasetRecordClass.jsx]]
+   
+* Phase 3 (how does a dataset relate to study/investigation?)
+   + currenlty in mbio and clinepi we are only showing datasets which are studies (there may be other datasets taxonomy, ontologies, who standards)
+   + How to find related studies/datasets;  need some mechanism for grouping datasets
+   + Think about how to tell the user when samples are used in multiple assays (could be cross component mbio/clinepi clinepi/plasmodb)
+   + How does this relate to the EDA?
+     + The Dataset Record will link to the EDA page / study
+     + A dataset can be either a study or investigation (multiple related studies)
+
+* PDB Example
+  + There are 2 kinds of datasets for PDB Sequences
+    + PDBProteinSequences :: sequences downloaded and loaded into tables; our proteins are aligned to these
+      + should continue to provide dataset page for pdb sequences
+    + _dbxref_pdb_from_annotation_RSRC :: xrefs included in genome annotation
+      + hide dbxref / Link out datasets from dataset list.
+      + Create new table which lists all xrefs per organism for display on the Genome Dataset Page
+  + Each dataset is configured in dataset xml files.  For Genomic sites these files are found in [[https://github.com/VEuPathDB/ApiCommonDatasets/tree/master/Datasets/lib/xml/datasets][ApiCommonDatasts/Datasets/lib/xml/datasets]]
+    + PDBProteinSequences dataset is in "global.xml"
+    + datasets conform to a dataset Class found in [[https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/xml/datasetClass/classes.xml][classes.xml]]
+  + Each dataset is required to be handled in Presenter xml Files (either visible datasetPresenter elements or hidden internalDataset elements).  For Genomic Sites the presenter files are found in [[https://github.com/VEuPathDB/ApiCommonPresenters/tree/master/Model/lib/xml/datasetPresenters][ApiCommonPresenters/Model/lib/xml/datasetPresenters]] and [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/datasetPresenters/global.xml][ApiCommonModel/Model/lib/xml/datasetPresenters/global.xml]]
+    #+BEGIN_SRC sql
+      select *
+      from apidbtuning.datasetpresenter
+      where name = 'PDBProteinSequences_RSRC'
+    #+END_SRC
+    

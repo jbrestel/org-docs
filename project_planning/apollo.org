@@ -1,0 +1,101 @@
+* Tasks
+** TODO could we automatically add all transcripts/genes to curation track at load time?
+** TODO add link to apollo from blast result page
+** TODO check on junction strand for apollo track
+** TODO Apollo Intron weak evidence Track
+
+   
+** TODO Add "score" as the glyph label
+** TODO filter junctions by count of isr (score)
+** TODO Add a few more genomes (ME49 and Asp)
+** TODO Dataset link broken
+** TODO single exon error?  try naming the exons?
+
+* Transcripts added in apollo that overlap an existing gene locus will be used in place of existing transcripts.  Same goes for Functional Annotations.
+  + Does the patch build expect apollo transcripts to have gene identifiers or is it using the genomic locations for existing genes?
+  + Confirm this process is strand aware as we do have genes which overlap on different strands
+  + Do we ever have a case where 2 genes overlap on same strand?
+  + Does the patch build system have a mechanism for retaining transcript ids if the gene structure hasn't changed?
+
+* Transcripts can be added in apollo in various ways.
+  + Any evidence track can be used to make a new apollo transcript (RNASeq Junctions, Protein Alignments, Transcript, Gene...)
+  + BUT Only Gene or Transcript Tracks can apply the existing transcript/gene source_ids which may be useful
+  + Draggable Transcript Tracks add one transcript at at time.  Does the Gene Track allow the user to add ALL transcripts for the Gene by right clicking on the gene?
+  + This seems like a bad UX as it would be very easy to create Apollo transcripts which clobber existing things.
+    
+* None of the functional annotations are applied to the Apollo Transcript by default.
+  + Currently the currator must remember to add all go terms, products, + anything else used by patch build
+  + I think it is a requirement to have the product, GO,... automatically set in the Apollo Transcript if the Apollo Transcript was created by an existing Transcript or Gene Evidence Track.
+  + The features in our Evidence tracks can contain the Functional Annotation.
+  + Nathan said it was hard to automatically apply to Apollo Features as they are created.  I think it's worth a second look.  At a minimum, any process which is able to add Functional Annotation to an APollo Transcript should be able to be called as a hook after the apollo feature is created.
+
+* QA
+  + The Curation team must have a way to check any locus that has missing transcipts (either from themselves or via community users)
+  + The genomic sites query apollo nightly to get a list of changes.  We should be able to provide a report back to users to indicate if there are now missing transcripts in that region or missing functional annotation.  This same report may be what is needed for curator review.
+
+
+* SOPs
+how to manage updates?
+** swap out configs each release if the gene set annotation is the same
+** if the gene set annotation version changes... the assumption is that all annotations are included in the new version? is that correct?
+** Each Release
+   + Update JBrowse Configuration
+     + Need access to fasta file for the top level genomic sequences.  Currently the script uses workflow's topLevelSequence directory
+     + TODO figure out how to run this on server other than elm
+     + the "--website" should use the qa site.
+       + TODO:  allow an option to remove the subdomain prefix ( $website =~s/$prefix//)
+     + General refactoring of the scripts
+     + Add any new Organisms
+     + add additional config file for the "extra organisms"
+
+   + Add new organisms (groovy script)
+     + how do we identify which organisms are new in apollo this release?
+     + change the "makeGroovyAddOrganismCommands" script so that it gets the current list of organisms from apollo and skips them
+
+   + How to update organism names?
+     + is there a groovy script to update organism name?  we'll need to do this manually; updateOrganismInfo?
+     + if( $apolloOrganismName =~ /$organismFullName \[$version]/) {
+          # do nothing
+       } elsif( $apolloOrganismName =~ /$organismFullName \[.+\]/) {
+         # print groovy command to Update the organism name
+       } else {
+         # print groovy command to add new organism
+       }
+   + What happens if the underlying sequence changes?
+     + there would need to be a manual liftover mapping or remove the organism from apollo and discard any curations for that organism
+     + this will be rare if ever
+   + When we generate the configurations for build 49...
+     + Toxo,Amoeba,Piro,and VectorBase + extras for David
+
+
+
+
+
+* Data Dev Apollo meeting 8/6/2020
+Paul updated the data dev team this morning on some apollo things.  Here are my notes on some unresolved questions and todos:
+
+** Apollo Application
+   + How do users save functional edits?  been assuming these are stored in the chado instance.  Is that correct?
+   + Confirm there is a way for users to "push" functional or structural changes from their personal view to public apollo view.  Is there a mechanism to review and approve edits by curation team?
+   + Are there additional organisms for inclusion in b48 besides the VectorBase organisms?
+   + May be nice to include existing GO/product (other functional annotation) in apollo.  where?... gene popup?
+   + TODO for b49: add evidence track for combined RNASeq coverage
+
+** Incorporation of edits into VEuPath genomics sites
+*** How to visualize edits in real time
+    + Explore sending track data from apollo to VEuPathDB sites.  (analogous to what we do with evidence tracks but in the opposite direction).  This could be shown in the gene annotation section of the gene page and in the genome browser.
+    + Current VEuPathDB sites allow users to find all genes which have any edit.  We would need to create a service to use apollo instead of GeneDB.
+    + Current VEuPathDB sites show updated gene product from GeneDB.  We would need to create a service to use apollo
+*** How to incorporate edits into production
+    + structrual edits will be incorporated using ebi patch builds.  Will all structural edits be moved over or cherry picked (approved edits)?
+    + We are assuming that the patch build process will remove edits from the apollo instance (possibly recreate the organism?).
+    + How do we manage the process from the start of a patch build until the time the annotations have been incorporated into GUS?  Will this be an entire release cycle (2 months?) where users cannot make edits to an organism?
+    + Functional edits MUST be incorporated in the same release as a patch build.
+    + Functional edits may be incorporated on a more frequent release schedule.
+    + TODO: we need a way to dump functional edits from apollo and sop for sending to data load team.
+
+** Artemis migration
+   + Does the ebi patch build system work for artemis chado database?  ie. can we incorporate those edits using the patch build system? or do we need to first migrate to apollo?
+   + what is the timeframe for moving these organisms to apollo?
+
+

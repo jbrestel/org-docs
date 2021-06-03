@@ -1,0 +1,48 @@
+* Plasmo (compare pfal to some other groups)
+** rodent (yoe, bergh, chabaudi, vinckei)
+** other fal strains (dd2, hb3, ...)
+** other human (pviv, pove
+** knowlesi, coatneyi, cynomolgi, inui
+** fragile, adleri, gaboni
+   
+
+* Total count of ortholog pairs in fung-rbld is 370669874
+* Count where the pairs match to previous method is 368185722
+  + this is good. ~99% are the same 
+  #+begin_src sql
+  select count(*) from (
+   select source_id, ortho_source_id, syntenic from apidbtuning.oldorthologousgenes og
+   intersect
+   select source_id, ortho_source_id, syntenic from apidbtuning.orthologousgenes og
+   );
+  #+end_src
+* Count where syntenic is yes now but no previously 601
+  + wouldn't expect any here but there are 601
+  + Looks like previous code required the entire gene to be included in the span;  now we look for any overlap
+  + [[~/synteny_updates/PGTG_00590.png]]
+  #+begin_src sql
+  select count(*) from (
+   select source_id, ortho_source_id from apidbtuning.oldorthologousgenes og
+   where syntenic = 'no'
+   intersect
+   select source_id, ortho_source_id from apidbtuning.orthologousgenes og
+   where syntenic = 'yes'
+  );
+  #+end_src
+
+* Most differences are ones which are no longer considered syntenic: 2483542
+  + [[~/synteny_updates/ACLA_000690.png]]
+  + [[~/synteny_updates/PF3D7_0113100.png]]
+  + [[~/synteny_updates/AFUB_051150.png]]
+  + [[~/synteny_updates/AGR57_1789.png]]
+  #+begin_src sql
+  select count(*) from (
+    select source_id, ortho_source_id from apidbtuning.oldorthologousgenes og
+    where syntenic = 'yes'
+    intersect
+    select source_id, ortho_source_id from apidbtuning.orthologousgenes og
+    where syntenic = 'no'
+  )
+  #+end_src
+  
+

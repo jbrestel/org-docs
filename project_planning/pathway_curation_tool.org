@@ -1,0 +1,31 @@
+Curation Tool For Pathways
+
+What we need to allow people to do
+ * Create new nodes
+ * Create new edges
+ * add few attributes to the node (is reversible for edge)
+ 
+
+Implementation
+
+ 1. Cytoscape Desktop
+    - Let anyone download json, upload to cytoscape desktop, modify and submit
+    - cytoscape desktop too general.  Too hard to make changes.  
+    - Only Curators can submit for official data load
+
+ 2. Cytoscape JS
+    Leverage User Datasets
+      - Button on Pathway record page ("Modify this Pathway and Save") which would create a User Dataset
+      - We get for free Login protection and list of pathway user datasets
+    a. Test Instance we can create a Pathway UserDataset
+      ** 
+    b. new cytoscape js gui 
+       - could test out curator tool on new page or pathway record page
+    c. requires Steve's group to create UserDataset from Pathway Page
+    d. allow anyone to submit but how to integrate??
+       ** one option is like "user comment model" where we just show alternative views in a table on the pathway page
+          ** Use this for KEGG pathways
+       ** another is to have a curator look at all submissions and deterimine which should be integrated
+          ** someone like Hagaii could make changes to his pathways
+    e. do we need to build in all "painting options" into the user dataset page? or can we import user's version into the pathway record page?
+    *** JohnB will make mock ups present in UX

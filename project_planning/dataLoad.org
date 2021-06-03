@@ -1,0 +1,77 @@
+
+* TODO Patch for Interpro
+
+* TODO dbest mirror replace with eutil 
+  + replace insert externalnasequences with webservice.  
+  + "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
+  + replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
+
+
+* Managing GIT projects
+  + make a branch of ebibrc4 called "vectorbase_ebibrc4"
+  + sync merge master->ebibrc4 for subset of projects (CBIL,ApiCommonData)
+    ++ fresh install for new instance "toxo-inc" using ebibrc4 
+  + install whatever tables which are missing from vect-inc
+    ++ This is needed so jenkins tm can run
+
+* apiDataLoading
+  1. Each component will use a branch based on the projectName and the workflow version (ex. HostDB_51)
+  2. At the start of the release cycle data loaders will merge (or cherry pick) from master to each branch
+  3. Durning the release cycle each component can add whatever datasets/workflow graph is appropriate for it's project
+  4. When workflow finishes and datasets are qa'd and approved we:
+     1) Clone the inc instance
+     2) run UniDB workflow for that component
+     3) Merge from component branch to master (ApiCommonDatasets,ApiCommonData,GUS,ApiCommonData, CBIL, ...)
+  5. What about changes made to master mid cycle?  for example something which affects global or download files ....?
+     1) This type of change should be made in the master and cherry picked into all component branches
+* apiSite
+  
+
+
+  
+
+* Tuning Manager and Model
+** all inc instances use shared/master code
+
+* ApiCommonDatasets and ApiCommonPresenters
+** durning the release cycle we need master to be current with datasets loaded in inc instance
+
+* Branching
+  1. DONE double check all apiDataLoading projects have been branched ebibrc4
+  2. tsrc foreach -- git checkout ebibrc4
+     + switch to ebibrc4 branch
+  3. tsrc foreach -- git checkout -b vectorbase_ebibrc4
+     + this is your developer branch
+  4. tsrc foreach -- git push -u origin vectorbase_ebibrc4
+     + this makes your developer branch available to other developers
+     + only reason to do this is if you want to have 2 data loaders working on the same project/instance
+     + JB thinks we should do this only "as needed"
+  5. git merge ebibrc4
+     + sync merge into dev branch
+     + this does not commit anything
+     + you can delete and start over if you want
+     + you can cherry pick commits to bring over (need to research how to do this)
+  6. git commit
+  7. git checkout ebibrc4
+  8. git merge vectorbase_ebibrc4
+     + reintegration merge
+
+* sync merge ebibrc4 with master
+ 1. tsrc foreach -- git checkout ebibrc4
+ 2. tsrc foreach -- git pull
+ 3. tsrc foreach -- git merge master
+ 4. fix conflicts
+ 5. tsrc foreach -- git push
+    + this is the part that will affect other people
+
+
+# make sure you are using group "apiLoading"
+tsrc init git@github.com:EuPathDB/tsrc.git --group apiLoading
+tsrc foreach -- git checkout ebibrc4
+tsrc foreach -- git pull
+tsrc foreach -- git checkout -b vectorbase_ebibrc4
+
+# sync merge from ebibrc4 to dev branch
+tsrc foreach -- git pull
+tsrc foreach -- git merge ebibrc4
+

@@ -1,0 +1,16 @@
+Priorities:
+ 1. CoExpression Analysis:
+    * ability to compare 2 lists (more stat robust)
+    * evaluate workflow (rnaseq and microarray working group) for Dual (Host / Parasite analysis)
+    * How would the user interact with this data?  expression profile summaries (like vectorbase) 
+    * what would it take to enable the profile similarity question for host/pathogen? 
+      ** seems like low hanging fruit
+    * Prioritize datasets for various communities
+
+ 2.  Effectors: signalling pathways / signal peptides
+   * Need to pick representative datasets for benchmarking
+   * how to prioritize these?
+
+3. UniDB
+   * upgrade to ORTHOMCL to grab data instead of proteome upload
+   * 

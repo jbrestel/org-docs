@@ -1,0 +1,93 @@
+* TODO ISASimple Loader Error (then rerun tm)
+* TODO project name in jbrowse
+* TODO lots of gene page failures
+  + Need qa document
+
+** Use Cases
+   + fully functional portal (veupathdb.org)
+   + host / pathogen / vector
+   + user defined organism preferences
+   + Fewer prod db instances
+   + ebi2gus
+
+* Basics
+  + [[https://docs.google.com/document/d/1K3ckE6hwN9r-Dp1Av_zDH5Jcr7ApbBjQ-7yJM1zk0bQ/edit][UniDB Design Document December 2019]]
+  + [[https://wiki.apidb.org/index.php/UniDB%20Workflow][Wiki / Technical info about running workflow]]
+
+* Table Reader(s)
+  + [[~/project_home/ApiCommonData/Load/lib/perl/UniDBTableReader.pm][UniDB Table Reader]]
+    + initial thinking was that sql queries would map input->output
+  + [[~/project_home/ApiCommonData/Load/lib/perl/GUSTableReader.pm][GUSTableReader]]
+    + inpput is a GUS oracle instance
+    + queries here are like "select * from $table"
+  + [[~/project_home/ApiCommonData/Load/lib/perl/EBITableReader.pm][EBI Table Reader]]
+    + input is flat files
+    + no queries.  the translation from chado/mysql->GUS is done via [[https://github.com/VEuPathDB/ebi2gus/][ebi2gus]] and uses the E! perl API
+      + [[~/project_home/ebi2gus/Dockerfile]]
+      + [[~/project_home/ebi2gus/lib/perl/EBIParser.pm]]
+      + [[~/project_home/ebi2gus/lib/perl/GUS/DoTS/GeneFeature.pm]]
+
+* ebi2GUS
+  + given mysql dump (init.sql), the container will fire up mariadb server, run the init.sql, will run dumpGUS.pl which creates a set of files (one file per GUS Table)
+  + new branch needed
+    + change to GUS schema ( ~ 40 tables for "core genome")
+    + changes to input schema
+    + changes to the perl api
+
+* Workflow Status
+  + DONE empty instance 
+  + DONE configure workflow
+    + new props (can we now use cloned instances as input?)
+    + [[~/project_home/ApiCommonDatasets/Datasets/lib/xml/datasets/UniDB.xml]]
+  + DONE svn -> git
+    + commit automatically to the unidb_website branch
+    + [[~/project_home/ApiCommonData/Load/bin/unidbSnapshotDatasetsAndPresenters.bash][bash script]]
+  + DONE checkout master
+  + DONE bld GUS (object layer)
+  + DONE bld ApiCommonDatasets / generateFromDatasetes
+  + DONE better error messages
+    + plugin failure now points to the sql loader log file
+  + DONE Load from 051n instances
+    + piro,amoeb,toxo,plas,fung,giar
+  + TODO Load from inc instance as data loaders finish w/ b52
+    + micr,trich,tritryp,host,crypt
+  + TODO incremental addition of b52 data
+    + update database_orig name in databasemapping table
+    + piro,amoeb,toxo,plas,fung,giar
+  + DONE run tuning manager
+  + solr indexes??  probably nothing to do here
+
+* Other TODOs
+  + review if changes made to UniDB plugin for ebi may have had negative performance impact
+    + used sequences to get primary keys (get blocks of sequences for performance)
+    + used conventional loading instead of direct path
+    + undo's for global tables disabled; should only be disabled for ebi loading
+  + more automated undo mechanism for failures
+  + sort out the "database_orig" field in the mapping table.  How should that be populated / updated?
+  + JBrowse endpoints sometime use the "projectName"... need to remove that
+  + How to update Taxonomy?
+    + should unidb workflow load one version of taxonomy instead of pulling from other dbs?
+  + (Lin) wgcna (host /pathogen)
+  + use reflow instead of tuningTables
+    + DONE FeatureLocation
+    + DONE NRDB Similarities (flat file)
+    + DONE Removed loading of ORFs 
+    + TODO (Brian) IntronJunctions
+      + should consider not loading lob data as this is very slow for unidb loader
+    + DONEish OrthologousPairs
+    + TODO Review Others
+  + DNASeq Analysis
+    + new workflow for dnaseq will not load ApiDB.SequenceVariation (use VCF files instead)
+    + ~ 58 hours to load 633 mil rows
+   #+BEGIN_EXAMPLE
+  Sun Apr  4 18:22:17 2021	Begin ID Lookup for ApiDB::SequenceVariation from database plas051n
+Sun Apr  4 18:24:35 2021	Finished ID Lookup for ApiDB::SequenceVariation from database plas051n
+Sun Apr  4 18:29:19 2021	Processed 100000 from ApiDB::SequenceVariation
+Sun Apr  4 18:29:55 2021	Processed 200000 from ApiDB::SequenceVariation
+....
+Wed Apr  7 05:30:14 2021	Processed 633000000 from ApiDB::SequenceVariation
+Wed Apr  7 05:30:44 2021	Processed 633100000 from ApiDB::SequenceVariation
+Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
+Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
+   #+END_EXAMPLE
+  

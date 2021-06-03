@@ -1,0 +1,144 @@
+* TODO Test file for concat/merge
+* DONE add bw coverage file
+* DONE arrange output in correct directory structure
+* TODO down sample
+* TODO mapping stats
+* TODO jar files into container use $CLASSPATH
+* DONE  concat snp/indels
+* TODO merge vcfs
+* DONE rework output channels to use better convention
+
+* Sample Details
+  + chip chip
+  + chip seq
+  + ab microarray
+  + RNASeq/Microarray use GUS Study Schema for profiles
+  + dnaseq (SNP/CNV)
+    
+* Nextflow workflow
+** QUESTIONS
+   + What is the input?  One sample or full experiment? The existing reflow wf uses one dataset per sample but why do we need this?
+   + Sample Details - Should we use the new schema? eda
+     + Fiter param (per dataset, per organism, per all studies (mbio), user selected set of datasets (ST
+     + should we make materialized views (wf) OR views based on queries at run time?
+** DONE TEST Data
+   + 2 samples; hapoid and diploid and fastq files (paired and unpaired) and bam
+   + one chromosome genomic sequence?
+
+     Plasmo Broad 100 Genomes
+      SRR538819
+      SRX208839
+** DONE Container? Probably punt on this
+   + one container for all applicable software
+** PARAMS
+   + SRA numbers? or list of files?
+   + PAIRED or NOT
+   + OVERRIDE for Adaptors
+** hisat index config option for
+
+** CNV Steps
+   + DJob/DistribJobTasks/bin/runCNVTasks.pl
+   + need a few additional files
+     
+   #+BEGIN_EXAMPLE
+1. FastQC. Not required for preprocessing, but we use it to infer quality encoding in the fastq files and use this as a parameter for alignment. It can also be useful to look at if the output is not good. This is run once for each fastq files (so twice for paired end samples).
+Command line: fastqc $file -o $workingDir --extract
+This produces a file called fastqc_data.txt.  We extract the encoding from this with the following perl subroutine, which takes this file as an argument:
+sub phred {                                                                                                                                                          
+    (my $fastqcFile) = @_;
+    my %encoding = (
+    "sanger" => "phred33",
+    "illumina 1.3" => "phred64",
+    "illumina 1.4" => "phred64",
+    "illumina 1.5" => "phred64",
+    "illumina 1.6" => "phred64",
+    "illumina 1.7" => "phred64",
+    "illumina 1.8" => "phred33",
+    "illumina 1.9" => "phred33",
+    "illumina 2"   => "phred33",
+    "illumina 3"   => "phred33",
+    "solexa" => "phred64"
+    );
+    my $phred;
+    open (FH, $fastqcFile) or die "Cannot open $fastqcFile to determine phred encoding: $!\n";
+    while (<FH>) {
+        my $line = $_;
+        if ($line =~ /encoding/i) {
+            foreach my $format (keys %encoding) {
+                if ($line =~ /$format/i) {
+                    if (! defined $phred) {
+                        $phred = $encoding{$format};
+                    } elsif ($phred ne $encoding{$format}) {
+                        $phred = "Error: more than one encoding type";
+                    }
+                }
+            }
+            if (! defined $phred) {
+                $phred = "Error: format not recognized on encoding line";
+            }
+        }
+
+    if (! defined $phred) {
+        $phred = "Error: encoding line not found in file";
+    }
+    close(FH);
+    if ($phred =~ /error/i) {
+        die "ERROR: Could not determine phred encoding: $phred\n\n";
+    }
+    return $phred;
+}
+For paired end samples, the encoding should be the same for both files. We check that this is true, and then use the encoding for mateA in all downstream steps. For single-end this check is unecessary.
+2. Trimming reads. This step removes standard Illumina adaptors and poor quality bases from the ends of reads. It will not remove custom adaptorsi (but we could add these to the files if we require). The files of adaptors we are currently using live in DJob/DistribjobTasks/data. $mateAEncoding is the quality encoding inferred from parsing the fastq files above.
+Single end command:
+java -jar trimmomatic.jar SE -trimlog $workingDir/trimLog -$mateAEncoding $mateA $workingDir/trimmedReads/$sampleName_1P ILLUMINACLIP:\$GUS_HOME/data/DJob/DistribJobTasks/All_adaptors-SE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:20
+Paired end command:
+java -jar trimmomatic.jar PE -trimlog $workingDir/trimLog $mateA $mateB -$mateAEncoding -baseout $workingDir/trimmedReads/$sampleName ILLUMINACLIP:\$GUS_HOME/data/DJob/DistribJobTasks/All_adaptors-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:20
+3. Alignment. The EBI pipeline will use hisat2 in --no-splice-alignment mode. We will use the same for consistency. The -k 1 parameter gives us the multimapping behaviour we require for the CNV pipeline. $type is whether the input is fasta or fastq. We may not need this - I don't know if we still have any old datasets without quality scores or not... This should be -q for fastq input or -f for fasta input. $mateAEncoding is the quality encoding inferred by parsing the fastqc output above. $hisat2Index is the index of the genome. We should create this once per genome rather than creating it every time.
+Single end command:
+
+# CONFIGURE This process to request 4 processors and set -p = 4
+# $type is fasta vs fastq (-q or -f)
+
+hisat2 --no-spliced-alignment -k 1 -p $ppn $type --$mateAEncoding -x $hisat2Index -U $trimmedMateA | samtools view -bS - | samtools sort -T $workingDir/$sampleName - > $workingDir/$sampleName_sorted.bam
+Paired end command:
+hisat2 --no-spliced-alignment -k 1 -p $ppn $type --$mateAEncoding -x $hisat2Index -1 $trimmedMateA -2 $trimmedMateB | samtools view -bS - | samtools sort -T $workingDir/$sampleName - > $workingDir/$sampleName_sorted.bam
+Note that the examples above pipe the hisat output through samtools to create a sorted bam file directly without creating a large intermediate file in sam format. You could also run the three tools separately if required. This assumes an htslib version of samtools (version 1.x not 0.1.x)
+This should give us sorted bam files for downstream use. Other considerations are:
+We may need to create an index of the bam file. The command for this is samtools index $bamFile
+We should also think about whether we want to create bigwigs for coverage plots at this point.  I don't know whether we do any prior processing in our current workflow or whether we can just do this directly from the bam files (note, for datasets where we run CNVs we definitely do some extra processing, but that provides a second track in addition to the one created by the SNP workflow).
+
+#+END_EXAMPLE
+
+Indels
+ * Store indels in database table
+ * Include Indels in VCF File
+
+Consensus Sequence
+ * Alignment tool needs to incorporate indels
+ * use additional characters in consensus seq
+
+
+
+Process Sequence Variations Step
+ * read indels so we can calculate products better
+ * already use IUPAC (R=A or G) characteres in consensus sequence but BioPerl does not handle these correctly when translating codon to aa/product
+ 
+SNP Summary Tables
+ * Add some new fields to ApiDB.SNP
+   ** REF_CODON 
+   ** POSITION_IN_CODON 
+   ** ALLELE_TOTAL (is this used in apidb.sequenceVariations?) 
+   ** HAS_STOP_CODON  ((is this used in apidb.sequenceVariations?) 
+ * ApiDB.SNPAlleleSummary
+ * ApiDB.SNPProductSummary
+
+VCF file
+ * Write a VCF file per organism
+ * Run SNPEff (or other) and include in VCF
+
+Misc
+ CHECK where we calculate Minor Allele (related) 
+    ** Should use the second most abundant allele only
+
+** 
+

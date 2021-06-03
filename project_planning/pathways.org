@@ -1,0 +1,45 @@
+* Pathways
+
+** Current Record Page
+*** TODO Bug Reactions table doesn't sort as expected when clicking "Gene Count"
+    + https://redmine.apidb.org/issues/42346
+*** TODO Bug Pathway Enrichment tool Word cloud popup says "GO Enrichment
+    + https://redmine.apidb.org/issues/42347
+*** Loaded KEGG and BioCyc (LeishCyc and TrypCyc?)
+*** Pathway Record pages with ways to paint maps
+*** Xrefs to Genes (via EC) and compounds (CHEBI)
+*** Enrichment tools
+*** Transforms from Genes->Pathway (with highlighting)
+
+** MPMP
+*** Is it possible to make a cytoscape rendering with gif images as background and overlay EC nodes?
+    + can we create a big node for the gif and overlay enzyme/compound nodes;  none should be draggable
+*** is it possible to interact with the gif files more directly than using cytoscape?
+*** Should we continue trying to create a xml reproduction of his maps??
+
+** Curation tool for pathways
+*** easy option to enable User Comments
+    + should do this after discussions with curation team
+*** more complicated User Workspace for Pathways
+*** After apollo is stable, David wants curation team to get involved in curation of pathways
+
+** Other TODOs
+*** Load Reactome (Danielle)
+*** Load MPMP (Kathryn)
+*** Show Hierarchical Organization of Maps
+    + Low hanging fruit (available for MPMP and KEGG; MetaCyc??)
+    + https://metacyc.org/META/class-tree?object=Pathways
+*** View of all maps on one page (KEGG and Reactome have this)??
+    + View from Outer space;  can we integrate Reactome FireworksJS?
+*** Improve existing user experience
+    + adjust zooming params based on the size of the map?
+*** Show Signalling pathways (Reactome && MPMP)
+    + are these any different than what we already have?
+
+** Mbio Use Cases
+*** show pathway abundance
+*** view one map
+**** enzyme abundance per species per sample
+
+
+

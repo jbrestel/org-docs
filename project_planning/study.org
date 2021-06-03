@@ -1,0 +1,44 @@
+* what do we currently do for datasets?
+** Each component loads a "dataset" (apidb.datasource, sres.externaldatabse, apidbtuning.datasetpresenter)
+** Each dataset is required to provide attribution in the dataset presenter xml
+
+* what we currently do for ISA 
+** ISA Tab or ISA Simple
+
+* Use Cases
+** Cross Silo (sample bases).  
+   + connect samples across components.
+   + unified store for sample details will solve this
+** We still need to maintain existing dataset record.  There are many datasets which are not studies.
+   + list related datasets in a table
+   + perhaps a graphic which visually shows the ISA design?
+   + The bad part of this is if the study was the same for multiple datasets, the info in the dataset record is redundant
+** Sample Record or part of investigation record
+   + what assays were performed for each sample?
+** Investigation Record which will list what?
+   + This would show sample details for each study
+   + Might be nice to show a graphic (cytoscape?) for each study / sample details
+*** How does investigation record help with Networks?
+    + 
+*** How does investigation record hslp with Host Response?
+    +
+
+* Problems
+** we have very few studies organized into investigations (high cost to benefit)
+** people may have trouble understanding the graph/cytoscape view
+
+* TODO
+** Unified Sample Details store
+** Curation of ISA like files for all applicable datasets
+
+* Sample Details
+Investigation
+  Study A (Source,Sample, Extract)
+    Assay 1 (Assay, Data, Results, "Dataset")
+    Assay 2
+  Study B
+    Assay 3
+    Assay 4
+
+
+

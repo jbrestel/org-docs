@@ -1,0 +1,228 @@
+* Tasks
+** DONE will the  "static content" pages return a 200? or do they use ajax?
+** TODO Bindu will discuss with JohnI and Anna how to do regression test for install GUS/ApiDB/ApiDBTuning from empty instance (daily? weekly?)
+** TODO JBrowse test for unique track names
+** TODO JBrowse test for no weird characters in track names
+** TODO JBrowse test for dataset wdkreference match the model (union or component site?)
+   # urlSegment -> fullName
+   https://qa.plasmodb.org/a/service/record-types?format=expanded
+   # find referenced searches
+   https://qa.plasmodb.org/plasmo.b50/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B%22attributes%22%3A%5B%22primary_key%22%5D%2C%22tables%22%3A%5B%22References%22%5D%7D
+** TODO run selenium in jenkins! need container for browser
+
+
+** TODO Strand specific RNASeq should test the average coverage of sense/antisense
+** TODO RNASeq regression tests?  how to run these each release.
+     + Run after patches and rebuilds
+** TODO Changes to RNASeq regression tests so they can be run on a single db each release
+** TODO integratin into jenkins
+** TODO run headless and incorporate into jenkins
+** TODO 43163 (new test for dataset)
+** TODO JBRowse keys unique in json
+** TODO meeting with other developers who are interested to write one
+** TODO test for site search matches record count.  need wdk search with returns all records
+
+
+
+
+* General Thoughts
+
+** Smoke Tests
+   - Basic test like "is the application is running"
+   - I believe our integration sites are a form of smoke test.
+   - This could be enhanced as we used to have by trying to load the home page or the default gene page or any pages we want
+
+** End to End testing
+   - manual QA sessions into this category
+   - other manually written tests
+
+** Regression tests
+  - JUnit or TestNG
+  - Page Object Model (separate out the code which navigates the page from the tests)
+
+  - Selenium can use HTMLUnit driver (headless browser) and integrated into Jenkins;
+    - No Javascript when headless
+  - End to End Testing possible with Chrome/Firefox drivers
+  - Selenium IDE is a chrome/firefox plugin which records browser interaction
+
+* Other Testing
+
+** SQL Performance Testing
+  - SQL performance (can we capture consistent gets for queries we write?)
+
+** Unit Tests for new code where appropriate
+   - ebi2gus would have been a good candidate
+
+ * installGUS and apidb schema into Empty instance
+   - JohnI has this already in Jenkins i believe
+ * run a min workflow to create a sandbox instance
+   - MarkH has done this
+   - 
+
+
+
+* Implementation
+`** HTMLUnit
+   + Test response code
+   + json or xml pages
+** Selenium / TestNG
+*** Headless (HTMLUnit) builit into Jenkins
+*** Standalone with eclipse with browser of your choice (Chrome,Firefix,...)
+    + Start by running tests for reporting from eclipse
+    + we don't want the integration/qa sites breaking all the time.
+
+* Which tests, how often for TestPlan
+** Smoke Tests
+*** Home Page
+*** SiteSearch
+*** Help Form
+*** Model
+**** All Search Forms
+**** Default Record Pages (Gene,SNP,)
+**** Organism Record Results (DataSummary and Gene Metrics)
+*** WDK
+**** Public Strategies
+**** Basket
+**** Favorites
+**** My Datasets?? Require Login?
+*** Data Files
+**** Download Files
+**** User Uploaded Files
+*** Static Content
+**** Community
+     + News
+     + Workshops and training
+**** Publications
+     + Publications on VEuPathDB sites
+     + Publications that use our resources
+**** Submit data
+     + How to submit data to us
+     + Data submission and release policies
+**** Usage and citation
+     + Citing VEuPathDB in Publications and Presentations
+     + Data access policy
+     + Website privacy policy
+**** Who we are
+     + Personnel
+     + Acknowledgements
+     + Funding
+**** Technical information
+     + Accessibility VPAT
+     + Infrastructure
+     + Website usage statistics
+
+*** Tools
+**** SRT
+**** Galaxy
+**** JBrowse 
+     + Default organism
+**** Apollo
+
+** End To End 
+*** Each release we will list out new datasets and which manual tests were performed
+
+
+** systematic way to identify errors like these?
+https://beta.plasmodb.org/plasmo.beta/app/search/transcript/boolean_question_TranscriptRecordClasses_TranscriptRecordClass
+
+
+
+** Cheat Sheet
+
+   #+BEGIN_SRC java
+  @DataProvider(name = "datasets")
+  public Iterator<Object[]> createDatasets() {
+   
+    ArrayList<Object[]> datasetsArrayList = new ArrayList<Object[]>();
+    
+    JSONObject datasetsJson = parseEndpoint(baseurl + "/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B\"attributes\"%3A%5B\"primary_key\"%5D%2C\"tables\"%3A%5B%5D%7D", "datasets");
+    JSONObject datasetsObj = (JSONObject) datasetsJson.get("datasets");
+    JSONArray recordsArray = (JSONArray) datasetsObj.get("records");
+
+    for(int i = 0; i < recordsArray.length(); i++) {
+      JSONObject record = (JSONObject) recordsArray.get(i);
+      JSONArray idArray = (JSONArray) record.get("id");
+
+      JSONObject id = (JSONObject) idArray.get(0);
+      
+      String datasetId = id.getString("value"); 
+      
+      String queryPage = this.baseurl + "/app/record/dataset/" + datasetId;
+
+      Object[] da = new Object[2];
+      da[0] = queryPage;
+      da[1] = datasetId;
+      
+      datasetsArrayList.add(da);
+    }
+
+    return datasetsArrayList.iterator();
+  }
+
+  
+  @Test(dataProvider = "datasets",
+      description="Assert dataset page loads without error",
+      groups = {"functional_tests"})
+  public void datasetPage(String datasetPageUrl, String datasetId) {
+
+    driver.get(datasetPageUrl);
+
+      //driver.get("https://plasmodb.org/plasmo/app/record/dataset/DS_d8a863a76c");
+      //driver.get("https://qa.hostdb.org/hostdb.b51/app/record/dataset/DS_385ea4f5f9");
+    
+    DatasetPage datasetPage = new DatasetPage(driver);
+    datasetPage.waitForPageToLoad();
+    
+    assertTrue(!datasetPage.containsError(), "Dataset Page Contained Error for page:  " + "ds_xxxx");
+  }
+  
+   #+END_SRC
+
+   #+BEGIN_SRC java
+package org.apidb.eupathsitecommon.watar.pages;
+
+
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class DatasetPage extends AjaxPage {
+  
+  private By references = By.cssSelector("#References .wdk-CollapsibleSectionHeader");
+  
+  private By unhandledErrors = By.cssSelector(".UnhandledErrors");
+
+
+  public DatasetPage(WebDriver driver){
+    super(driver);
+    driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
+  }
+
+  @Override
+  public void waitForPageToLoad() {
+    
+    new WebDriverWait(driver, 30, 3)
+    .until(ExpectedConditions.presenceOfElementLocated(references)
+        );
+  }
+  
+ public boolean containsError() {
+   try {
+     if(driver.findElements(unhandledErrors).size() > 0) {
+       return true;
+     }
+   } catch (org.openqa.selenium.NoSuchElementException e) {
+     return false;
+   }  
+   return false;
+
+ }
+  
+  
+}
+
+   #+END_SRC

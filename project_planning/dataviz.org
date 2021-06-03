@@ -1,0 +1,320 @@
+* dataviz foothills
+  :PROPERTIES:
+  :CUSTOM_ID: dataviz-foothills
+  :END:
+
+* clinepi eda phase 1 (Sept)
+  :PROPERTIES:
+  :CUSTOM_ID: clinepi-eda-phase-1-sept
+  :END:
+
+- Vizs
+
+  - scatter
+
+    - consider removing smoothedMean option?
+    - pass errors during smoothing along to data service
+
+  - 2x2
+  - bar
+
+    - should possibly have some agg fxns similar to whats planned for
+      line plot?
+
+  - box
+  - histogram
+
+    - binning should use the annotated and/or inferred ranges
+
+      - for the subset tab (where we always have the full data set):
+        client must compare the annotated min to the inferred min and
+        use whichever is smaller. compare the annotated max to the
+        inferred max and use whichever is larger. pass the values to the
+        distribution endpoint.
+      - for the viz tab (where we have a subset):
+        [[http://github.com/VEuPathDB/plot.data][plot.data]] must
+        compare the annotated min to the min value in hand. if the min
+        value in hand is smaller, use the dataset min. compare the
+        annotated max to the max value in hand. if the max value in hand
+        is larger, use the dataset max.
+
+- facet constraints
+
+  - to be done by limiting total number of panels rather than values per
+    individual var
+
+- manually validate request params in plugins
+
+  - scatter should only take trend line options for numeric yaxes
+  - histo should only take units if xaxis is date
+
+- profiling w umsp
+
+* clinepi eda phase 2 (Dec?)
+  :PROPERTIES:
+  :CUSTOM_ID: clinepi-eda-phase-2-dec
+  :END:
+
+- Vizs
+
+  - map
+
+    - at least one custom viz, for the timeline plot. lots of questions
+      here..
+
+  - density
+
+  - rxc
+
+    - still need to get the chi sq stats working
+
+  - line
+
+    - need to decide agg fxns, minimally median
+    - need to convince clinepi ppl that a time series plot is a specific
+      type of line plot, and we should implement the more general case
+
+- derived vars
+
+  - probably easiest to start w categorical. they:
+
+    - can play in all vizs, through strata var
+    - can be made from any var, so all vars play in the derived var game
+    - dont require reporting of sample sizes to be reliable and clear
+
+  - numerics should possibly be limited to have all parents be numeric
+    and off the same entity (no reductions)
+  - not sure if we should allow reductions of reductions?
+    transformations probably fine..
+  - possible to know for a given derived var fxn that it always produces
+    cont numbers for ex? need to know type, shape and units to work in
+    plots
+
+- Time colocation.
+
+  - Maybe this is an app? I need to see ex plots/ vizs targeted at
+    answering this question..
+  - i can imagine an ex box plot w an xaxis like 'positive stool for
+    something in sept yes/no' and yvalues representing some zscore in
+    december.. if thats the idea those feel like an app rather than some
+    special subset/query
+  - im having a hard time imagining what story the plots might tell if
+    youre looking specifically at a subset like 'positive for something
+    and then a drop in some zscore over the next 3 months'
+
+* mbio eda phase 1 (Dec?)
+  :PROPERTIES:
+  :CUSTOM_ID: mbio-eda-phase-1-dec
+  :END:
+
+- planning
+
+  - [[https://docs.google.com/document/d/1K2aqAIt09GcD3eoPzKQIyQmxDvhxSwqEs8CdXv85nAI/edit][Planning
+    Document]]
+  - [[https://docs.google.com/presentation/d/1hR1eGD_7ImaFP3dFWn0VnVkneDo5I0ZdOHCWlEOxN84/edit][Mock-ups]]
+
+- plot.data
+
+  - needs to support continuous overlay vars, at least for scatter
+  - needs to return stats for boxplot groups
+  - needs scatter and box to take list of vars as a var
+
+- Apps/ computations (still need draft apis, and a compute service..)
+
+  - beta-div
+
+    - dissimilarity matrix (various methods, dont remember currently)
+    - ordination (pcoa)
+
+  - alpha-div
+
+    - one computation for all methods (shannon, simpson, eveness, etc)
+      to be cached together
+
+  - rel-abund
+
+    - user selected 10 taxa
+    - top ten taxa (median, mean, variance, etc)
+
+- Vizs (still need draft apis)
+
+  - rel-abund/boxplot
+
+    - list of vars as a var (for the taxa) on xaxis
+    - all else is standard boxplot
+
+  - rel-abund/scatterplot
+
+    - list of vars as a var (taxa) as overlay
+    - all else is standard scatterplot
+
+  - alpha-div/boxplot
+
+    - alpha div metric on yaxis
+    - all else is standard boxplot
+
+  - alpha-div/scatterplot
+
+    - alpha div metric on yaxis
+    - all else is standard scatterplot
+
+  - beta-div/scatterplot
+
+    - pcoa dimensions 1 and 2 as axes.
+    - need to make stats indicating accommodated variance visible on
+      plot
+    - gradient color scale for continuous vars
+    - no trend lines
+    - no facets
+
+  - beta-div/boxplot
+
+    - dissimilarity matrix values on yaxis
+    - all else standard boxplot
+
+- think all apps and vizs need to list projects they are valid for?
+
+  - mbio and clinepi both want pass app, but mbio doesnt want 2x2 for ex
+  - clinepi wont want the mbio specific apps
+
+- merge service
+
+  - needs to learn how to merge assays by taxon, similar to clinepis
+    need to merge by time
+
+* genomics eda (Dec?, ive no clue when really)
+  :PROPERTIES:
+  :CUSTOM_ID: genomics-eda-dec-ive-no-clue-when-really
+  :END:
+
+- general thoughts
+
+  - maybe genes play into vizs similarly to the taxa in mbio, where you
+    can make a list of genes as a var
+  - then merge service can merge across assays by gene id, again similar
+    to mbio?
+  - does this come to unidb too?
+  - does this need cross-study?
+  - can probably use the pass app, maybe correlation
+  - additional apps/vizs might be:
+
+    - tsne, pathway maps w cytoscape, umap, dedicated heatmap and violin
+      vizs (need spec'ing, ill try to get jb and mark to tell me more)
+    - Anything that helps pick out one or a few genes of potential
+      interest may be framed as a compute in eda. mbio rel abundance app
+      as ex..
+
+* mbio eda phase 2 (??)
+  :PROPERTIES:
+  :CUSTOM_ID: mbio-eda-phase-2
+  :END:
+
+- Apps/ computations (needs spec'ing yet)
+
+  - differential abundance
+  - correlation
+
+* dataplotter (??)
+  :PROPERTIES:
+  :CUSTOM_ID: dataplotter
+  :END:
+
+- thumbnail svgs
+
+  - specify height and width in presenter
+  - defaults in injector(s)
+  - injector passes values to both dataplotter and the model text
+    attribute
+
+- kill perl cgi-script in favor of the eda style infra
+
+  - impacts genomics mostly, but also clinepi. mbio has request for
+    similar plots in results pages to clinepi
+  - maybe phased
+
+    - start w clinepi (mbio can come along i guess)
+    - then transcription summary
+    - various tables on gene record page, order undecided yet
+
+  - need to figure how to capture all the configurations that are either
+    injected or hard coded in perl and R code
+  - [[http://plot.data][plot.data]] needed for some plots, others maybe
+    just a bit of reformatting of raw data to meet api
+
+    - this to me implies the data service, or a service very like it, w
+      plugins which can decide to use java or R as needed.
+
+  - data service? might be nice to keep all vizs in one place
+
+    - could be a new app?
+    - plug-able data store?
+
+  - do we want to revisit how the data are stored in the db at the same
+    time? i remember some frustrations while switching data plotter to
+    use a java service to supply data, dont remember details.
+
+* clinepi eda phase 3 (??)
+  :PROPERTIES:
+  :CUSTOM_ID: clinepi-eda-phase-3
+  :END:
+
+- vizs (all need spec'ing, underlying plot components dont yet exist)
+
+  - heatmaps
+
+    - many ways to configure one of these, need to decide what well
+      allow and how to make var constraints to match
+
+  - violin plot
+
+    - dont even know how to implement violin plots w pre-computed values
+      in plotly.. custom trace?
+
+  - correlogram
+
+    - most likely implemented using heatmap web component, so should
+      keep this in mind when spec'ing heatmap
+
+** my dreams (never, probably.. who has the time??)
+   :PROPERTIES:
+   :CUSTOM_ID: my-dreams-never-probably..-who-has-the-time
+   :END:
+
+- vizs rather than tables on results pages
+
+  - theyd be unique to the question asked. theres a lot of quality data
+    in there that could be easier to digest
+  - stand alone, representing the data in the existing table, rather
+    than plots as entries in the table..
+
+- make prettier, more complex and informative pathway record pages
+
+  - there are concepts in reactome that we cant currently represent
+    well, or at all
+  - maybe mbio or genomics eda will prioritize pathways and drag
+    genomics records along w it?
+
+- get more familiar/ comfortable w the web-components and web-eda repos
+
+  - where will vizs that dont belong to eda live?
+  - what all hands contribute to making these wo crc guys?
+
+- eda
+
+  - cross-study specific vizs, to support proper meta-analyses w
+    weighted values based on the dataset
+  - cross-component specific vizs, should it come to unidb for ex
+  - does this eventually get on board w the 2 month release cycle?
+  - Finding datasets to work w in eda? based on the data types and
+    values etc?
+
+- ortho
+
+  - there must be vizs there i dont know about, or vizs it needs and
+    doesnt have?
+  - there is at least one network graphic using cytoscape
+
+    - maybe should look at if/when i get to pathway records. if we
+      decide to have a general network graph plot component for ex..
+
+

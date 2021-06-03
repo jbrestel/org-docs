@@ -1,0 +1,38 @@
+
+* UniDB how to associate datasets which are common on RNASeq/Microarray Internal page?
+
+* Existing Similarity Search
+  + make a UniDB website
+  + in UniDB context ... make this search run on multiple datasets (Host/Pathogen)
+  + 
+
+
+* WGCNA
+
+** how to choose datasets?
+  + which datasets / how many do we have which qualify for wgcna? 
+  + there are ~ 9 in plasmo which qualify
+  + configuration can be done manually
+
+** Workflow
+  + power calculation
+  + iterative wgcna
+  + insert study results (new result table [na_feature_id, protocol_app_node_id (eigengene), correlation_coeefficient)
+
+** Single Dataset
+   + Gene set overabundance tool.. can stil return one row per "dataset" also need to identify which module/eigengene was enriched
+   + **First Deliverable** given a gene source_id && experiment && correlation, return the other genes in that same module
+     ++ graph gene and input gene on profile like we do for similarity
+   + on gene page, transcriptomics section add a link to the search to find other genes in the same module
+
+
+
+               sampleA         sampleB      ...        sampleZ
+hostGene1
+hostGene2
+..
+hostGenex
+parasiteGene1
+parasiteGene2
+..
+parasiteGeneX

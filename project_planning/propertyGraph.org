@@ -1,0 +1,69 @@
+* Use Cases
+** ClinEpi
+   + per dataset and cross study
+   + record for each entity type with all attributes
+   + User Data (Jay)
+** Microbiome
+   + per dataset and cross study
+   + Sample record with tables for sample details and OTU
+** Genomics
+   + cross organism (effectively cross study)
+   + Sample Record with tables for sample details
+** MapVEu
+   + query across all studies
+
+* Plugins
+** InsertEntityGraph
+   + ApiDB.Study
+   + ApiDB.EntityType
+   + ApiDB.ProcessType
+   + ApiDB.EntityAttributes
+   + ApiDB.ProcessAttributes
+   + ApiDB.AttributeUnit
+   + ApiDB.ProcessTypeComponent
+** LoadAttributesFromEntityGraph
+   + ApiDB.Attribute
+   + ApiDB.AttributeValue
+** LoadEntityTypeAndAttributeGraphs
+   + ApiDB.AttributeGraph
+   + ApiDB.EntityTypeGraph
+** LoadDatasetSpecificEntityGraph (for eda workspace)
+   + ApiDB.AttributeValue_${studyId}_${EntityTypeId}
+   + ApiDB.AttributeGraph_${studyId}_${EntityTypeId}
+   + ApiDB.Ancestors_${studyId}_${EntityTypeId}
+     ++ possibly a problem for x study ??
+
+* Load More Test Data
+** TODO SCORE_CrossSect
+   + need to incorporate the geohash file into the household file?
+   + need to stub in some onotlogyterms for geohash levels
+** TODO MALED?
+
+* TODO ClinEpi Production Loading (Jay/Lin/Ontology)
+** Each EntityType must be assigned a distinct OntologyTerm (ex.  HouseholdObservations can no longer be the same as parent "Household")
+** Units should be handled
+   + column headers could be made to specify unit of all values in column
+   + would we still do ontology mapping in ontologyMapping.xml for these?
+** "multifilter" and "termType" ontology terms need to be included in an owl file
+** what is the status of the "ontologyMapping.xml" for mapping variable names?  have we changed to use owl file for this purpose?
+   ** may not want to do this;  may slow down loading
+** need ontology terms for all geohash levels
+** rewrite clinepi workflow to use new plugins
+** rewrite clinepi model (records) to use new tables
+
+* How to integrate with Mbio and Genomics Results tables?
+** New EntityTypes with Characteristics can be grafted / added directly to "JSON" tables
+** New Characteristics to existing nodes can be added to "TALL" (attributevalue/attribute) tables
+   + example: mbio otu's
+   + example: geohash levels
+** Need something like dbxrefs to link records (study/dataset/entities)
+** Replace protocol_app_node fk in results tables 
+** Genomics workflow sometimes adds edges (Assay->Data) with some characteristics (ex. mapping stats)
+   ++ would create a new "ProfileSet" table instead of overloading Study
+** Configure each dataset in the workflow instead of processing a big directory
+
+* MapVEu
+** Investigation tab has info we need to capture
+   + could pull this out into datasetpresenter files?
+** Remaining Ontology Work
+
