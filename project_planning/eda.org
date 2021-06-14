@@ -1,41 +1,64 @@
-* Tasks
-** TODO figure out how Steph can fit into preprocessing and QA of ClinEpi
+#+STARTUP: indent
+* Things to do right now
+1. (Wojtek) units and scale (owl file or ISA??)
+2. (Jay) validate annotation properties
+3. (JohnB) createEntityGraph and dropEntityGraph sqls seem not to be working
+4. (JohnB) eda schema instead of apidb
+7. (JohnB) Binary inference has priority over ordinal
+8. (Jay) incorporate the geohash file into the samples or better calculate automatically whenever we have latitude/long
 
 * Unresolved Questions
-** Should study be new entity type?
-** can we use lat/long to make geohash
-** Units for cross study comparisons should convert to base unit
-** Binary inference has priority over ordinal
-   
-* EDA Workspace and MapVEU
-  + minor tweaks requested by Steve
-  + Map Data Mixed units within studies?
-  + Bob will provide ISATab for test loading
-  + Jay will write new workflow for ClinEpi
-    + would this be appropriate for Map data too?
-  + Jay will continue on with DIY workspace for ClinEpi
-   + ClinEpi EDA Workspace - replacement for Filter param + Shiny
-   + MBio - Wojtek loading test data and new plugin / subclass
-   + BobM - Map Components and ISA Loading of VB datasets including (ontology)
-   + Danielle - RServe and Plot components
-   + Jay - DIY ClinEpi (preprocessing done)..
-     + TODO: Form for users to upload files
-     + TODO: UserDataset Schema (mirror of eda schema)
+1. Should study be new entity type?
+   + may be needed for xstudy comparisons
+2. can we use lat/long to make geohash on the fly
+3. Units for cross study comparisons should convert to base unit
+4. do we need an additional plugin to uniion all studies and create a big "Meta study"??
+
+* Projects
+** ClinEpi
++ feature site from cloned instance
++ dev site from rm41910 instance
++ workflow development in progress
++ once backedn is stable, can begin loading all studies
+** Microbiome
++ some possible performance issues with EC levels / Pathways for functional shotgun data
++ Need analysis service (phase2 deliverable)
++ metabolite data
++ port of shiny applications
+** Genomics
+** MapVEU
+*** Loading issues
+1. Load 2 studies (Phenotype/Genotype) from ISA dumps.  Create plugin to make x study comparison with Units in base unit
+2. Map Data Mixed units within studies?
+
+** Cross study Comparison (and cross project)
++ same use case BobM has for the Map Applicatoin??
+** DIY
++ DONE Refactoring of ClinEpi preprocessing scripts
++ potentially some shared code (ClinEpi/Mbio)
+  + input for mbio is a biom file (table of otu and table of sample details)
+  + schema will be shared (entity graph)
++ Need to update User Datasets to work with eda schema
++ how to do inserts? can we reuse the existing plugins?
+  + mbio will need different reader due to the biom file input
++ what about ontology dependencies?
 
 
-
-
-* EDA Testing
-** variables/ ontologyterms for all of the geohash level (same ontology owl file as "multifilter")
-   + in short term i can add these in my test instance
-** jay needs to incorporate the geohash file into the samples
-** bob can send example isa tab file?
-   + waiting on ontology owl file
-
-
-
+* Preprocessing
++ All entities need ontology term
+  + Household,Participant,Observation, ...
++ can we use the owl file in place of the ontologymapping.xml?
+  + can we get rid of the ontologymapping.xml entirely??
+  
+* Workflow
++ Replaced InsertInvestigation and Tuning Table steps with the EDA Plugins Above
++ Each dataset should be able to add ontologysynonyms for entitytypes
++ Need new step to make the dowload files
+  + Need to retain any custom code for big merged file
++ apidb.study and apidb.entitytype have internal_abbrev columns which are used for naming of dataset specific tables
+  
 * Plugins
-** InsertEntityGraph
+1. InsertEntityGraph :: This plugin reads the ISA(Tab or Simple) files and populates normalized tables representing the EntityGraph
    + GUS::Model::ApiDB::Study;
    + GUS::Model::ApiDB::EntityType;
    + GUS::Model::ApiDB::ProcessType;
@@ -43,104 +66,16 @@
    + GUS::Model::ApiDB::ProcessAttributes;
    + GUS::Model::ApiDB::AttributeUnit;
    + GUS::Model::ApiDB::ProcessTypeComponent;
-** LoadAttributesFromEntityGraph
+2. LoadAttributesFromEntityGraph :: This plugin reads the Values from the EntityGraph Table and makes a big tall table (key/values).  We calculates stats at this point for each variable/dataset/entityType;  THe Attribute table is populated for the LEAF nodes in our "AttributeGraph";  We require the owl file at this point as a sanity check
    + GUS::Model::ApiDB::Attribute
    + GUS::Model::ApiDB::AttributeValue
-** LoadEntityTypeAndAttributeGraphs
+3. LoadEntityTypeAndAttributeGraphs :: Populate tables for parent-child relationships (EntityTypes and Attributes);  There is only one owl file per dataset.  The AttributeGraph table here does not care about EntityType;  AttributeGraph also stores annotation properties from the owl file
    + GUS::Model::ApiDB::AttributeGraph
    + GUS::Model::ApiDB::EntityTypeGraph
-** LoadDatasetSpecificEntityGraph
+4. LoadDatasetSpecificEntityGraph :: Join Attribute (LEAF) with AttributeGraph
    + GUS::Model::ApiDB::AttributeValue_${studyId}_${EntityTypeId}
    + GUS::Model::ApiDB::Ancestors_${studyId}_${EntityTypeId}
    + GUS::Model::ApiDB::AttributeGraph_${studyId}_${EntityTypeId}
 
 
 
-
-
-* How to add data
-
-For the most part this looks really good.  A few parts I don't understand and I'd like you to walk me through.  Those parts will need to be rewritten in ways so that anyone on the team can understand.  Comments in no particular order.
-1. I like the concept of adding data pre-CBIL Reader
-2. MapVEu data is ISATab not ISASimple.  The assay data for those is included in the ISATab dir so probably don't need this functionality for the map app.  The map may need to union all studies at the end somehow.
-3. Can we assume we are only adding data to ISASimple?  Or could it be possible to always add data in ISASimple format?  I think the only ISATab files we have are for the Map Application so probably not something we need to deal with in the short term.
-4. How are you ensuring that the rows in you tables match with the isa simple file(s)?  is there a consistency check (i didn't look hard for it).  Is this in the Table class?
-5. The ISASimple files are required to exist (ontology team dependency).  I guess the upstream workflow steps can all run and it will just fail at this point if the files don't exist
-6. I don't like the eval stuff on the command line.  instead make an abstract method in "InsertEntityGraph" and then make your MBioResultDir code subclass of InsertEntityGraph. something like:
-    #---------------------------------------------
-    package ApiCommonData::Load::Plugin::InsertEntityGraph;
-    @ISA = qw(GUS::PluginMgr::Plugin);
-    ...
-    sub run {
-      ...
-      my getAddMoreData = $self->getAddMoreData();
-      # confirm getAddMoreData is a function ref
-            ...
-    }
-    ...
-    sub getAddMoreData { }
-    ...
-    
-    #---------------------------------------------
-    package ApiCommonData::Load::Plugin::AddMBioResultsToStudy;
-    @ISA = qw(ApiCommonData::Load::Plugin::InsertEntityGraph);
-        ... 
-
-	sub getAddMoreData {
-           ....
-           return anonymousMethod?  
-        }
-    ... 
-    #---------------------------------------------
-
-7. I dont' like the function REF that returns a function REF.  Can we define what the CBIL code should expect regardless of the class which is adding data?  Maybe it is as simple as moving guts of the Table object into CBIL and passing a list of Table objects to the InvestigationSimple class.  This is the part i'm not quite understanding and need you to walk me through.
-
-
-
-
-
-------------
-size of the data files? are these all being read into memory?
-
-DIY MBIO (&& DIY Clinepi)
- ** Need to update User Datasets to work with eda schema
- ** ask Ana if there will be an issue with having lots of tables
- ** how to do inserts? can we reuse the existing plugins?
-    + mbio will need different reader due to the biom file input
- ** what about ontology dependencies?
- ** create "eda" and "eda_ud" table spaces
-    + additional sql commands to alter eda_ud to add user_dataset_id?
-
-
-    
-* Cross study Comparison
-  ** This seems like the same use case BobM has for the Map Applicatoin
-  ** do we need an additional plugin to uniion all studies and create a big "Meta study"??
-
-
-* EDA Preprocessing
-  + All entities need ontology term
-    + Household,Participant,Observation, ...
-    + Do we want one tab file or one per dataset?
-      + what if we have a different display name (ontologysynonym)?
-    + Need column in Sres.ontologysynonym for plural for each entityType
-  + Each dataset should be able to add ontologysynonyms for entitytypes
-
-  + can we use the owl file in place of the ontologymapping.xml?
-    + can we get rid of the ontologymapping.xml entirely??
-  
-* EDA Workflow
-  + TODO Replace InsertInvestigation and Tuning Table steps with the EDA Plugins Above
-  + TODO Need to make the dowload files
-    + Need to retain any custom code for big merged file
-  + apidb.study and apidb.entitytype have internal_abbrev columns which are used for naming of dataset specific tables
-  + make a Branch of ClinepiWorkflow (eda_branch)
-  + need empty rm instance (install fresh schema)
-  + changes to entitytype display names will cause reload of LoadEntityTypeAndAttributeGraphs
-  
-* DIY ClinEpi
-  + DONE Refactoring of preprocessing scripts
-  + potentially some shared code with MBio?
-    + input for mbio is a biom file (table of otu and table of sample details)
-    + schema will be shared (entity graph)
-  + 
