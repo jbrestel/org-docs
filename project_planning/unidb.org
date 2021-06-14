@@ -1,7 +1,38 @@
-* TODO ISASimple Loader Error (then rerun tm)
-* TODO project name in jbrowse
-* TODO lots of gene page failures
-  + Need qa document
+* QA for first release
+  + Path to fix database for missing data
+    1. (JohnB) Confirm problem due to missed undo of fung-inc an plas-inc
+    2. do inc addition for plas and fung
+    3. (may take up to a week?) Rerun tuning manager
+    4. webservices?? probably not an issue
+    5. rerun tuning manager for intronjunctions
+  + (Bindu/Cristina/JohnI/JohnB/Mark)Manual QA
+    + organisms and datasets missing (~500 / 516?)
+      + theory is missed fung and plas inc addition for b52
+    + (Cristina) [Reference] display in org param (client side)
+    + replace use of @PROJECT_ID@ macro with display name for the project
+    + initial qa resulted in some redmines [[https://redmine.apidb.org/issues/12567][Redmines]]
+    + includes/excludes  for project specific searches and tables
+    + Any searches/record tables which are site specific need to be
+    + Focus on gene page
+      + table content (compare component to uni)
+    + gene model characteristics / filter param not returning
+  + Automated QA Process
+    + (JohnB) use the federated portal (b52) to compare search results
+      + can we use webservices?
+      + does wdkSummary still work?
+      + anytime there is an organism param, 
+    + (JohnI) use the portal attribute tables;  those should be identical
+      + any table the eupa052n has should match with uni-inc
+    + (JohnB/Mark/JohnI) Record pages;  can test against individual components
+      + foreach organism, list out tables which are available for each record
+      + foreach record table, run the sql and compare counts (union for all components)
+  + Performance?
+    + punt
+  + Site Search
+    + indexes build from b52 instances
+    + (Cristina) change feature site to use prod solr (same for blast and buildNumber in the model should be 52)
+  + JBrowse
+    + intronjunction tuning table 
 
 ** Use Cases
    + fully functional portal (veupathdb.org)
@@ -34,30 +65,8 @@
     + changes to input schema
     + changes to the perl api
 
-* Workflow Status
-  + DONE empty instance 
-  + DONE configure workflow
-    + new props (can we now use cloned instances as input?)
-    + [[~/project_home/ApiCommonDatasets/Datasets/lib/xml/datasets/UniDB.xml]]
-  + DONE svn -> git
-    + commit automatically to the unidb_website branch
-    + [[~/project_home/ApiCommonData/Load/bin/unidbSnapshotDatasetsAndPresenters.bash][bash script]]
-  + DONE checkout master
-  + DONE bld GUS (object layer)
-  + DONE bld ApiCommonDatasets / generateFromDatasetes
-  + DONE better error messages
-    + plugin failure now points to the sql loader log file
-  + DONE Load from 051n instances
-    + piro,amoeb,toxo,plas,fung,giar
-  + TODO Load from inc instance as data loaders finish w/ b52
-    + micr,trich,tritryp,host,crypt
-  + TODO incremental addition of b52 data
-    + update database_orig name in databasemapping table
-    + piro,amoeb,toxo,plas,fung,giar
-  + DONE run tuning manager
-  + solr indexes??  probably nothing to do here
-
-* Other TODOs
+* TODOs
+  + TODO ISASimple Loader Error (then rerun tm)
   + review if changes made to UniDB plugin for ebi may have had negative performance impact
     + used sequences to get primary keys (get blocks of sequences for performance)
     + used conventional loading instead of direct path
