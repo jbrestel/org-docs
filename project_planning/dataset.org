@@ -44,7 +44,7 @@
        + Current table called "Relevant pages at PlasmoDB and external resources"
          + Change display name to "External Resources"
 	 + For Genomic Sites modify sql to show only hyperlink rows which do not contain Macro
-	 + use johni's renamed table for Genomics Sites (should have a field indicating whether the row "is_internal"
+	 + use renamed table for Genomics Sites (should have a field indicating whether the row "is_internal"
          #+BEGIN_SRC sql
 	   SELECT dataset_id, text, url, description
 	   FROM ApidbTuning.GenomicsDatasetHyperLink
@@ -80,3 +80,182 @@
       where name = 'PDBProteinSequences_RSRC'
     #+END_SRC
     
+* Queries for genome sequence / annotation
+  + Transcript Type Counts
+    #+begin_src sql
+     select dsp.dataset_presenter_id as dataset_id
+		, ta.gene_type
+	   , ta.transcript_type
+	   , count(*) as transcript_count
+      from apidbtuning.organismattributes oa
+	 , apidbtuning.transcriptattributes ta
+	 , apidbtuning.datasetpresenter dsp
+	 , apidbtuning.datasetnametaxon dnt
+      where oa.component_taxon_id = ta.taxon_id
+      and oa.project_id = ta.project_id
+      and oa.component_taxon_id = dnt.taxon_id
+      and dnt.dataset_presenter_id = dsp.dataset_presenter_id
+      and dsp.type = 'genome'
+      and dsp.dataset_presenter_id = 'DS_b08fa4ba88'
+      group by oa.project_id, dsp.dataset_presenter_id, ta.gene_type, ta.transcript_type
+      order by count(*) desc
+    #+end_src
+    #+RESULTS: no-hline
+      | DS_b08fa4ba88 | protein coding | gene          | mRNA | 13344 |
+      | DS_b08fa4ba88 | ncRNA gene     | tRNA          |  305 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | pre_miRNA     |   67 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | snRNA         |   36 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | rRNA          |    9 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | SRP_RNA       |    3 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | lnc_RNA       |    2 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | snoRNA        |    2 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | ncRNA         |    2 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | RNase_MRP_RNA |    1 |       |
+      | DS_b08fa4ba88 | ncRNA gene     | RNase_P_RNA   |    1 |       |
+  + Sequence Type Counts
+    #+begin_src sql
+      select dsp.dataset_presenter_id, sa.sequence_type, fl.feature_type, count(*) as feature_count
+	   from apidbtuning.organismattributes oa
+	 , ApidbTuning.GenomicSeqAttributes sa
+	 , apidb.featurelocation fl
+	 , apidbtuning.datasetpresenter dsp
+	 , apidbtuning.datasetnametaxon dnt
+      where oa.component_taxon_id = sa.taxon_id
+      and oa.project_id = sa.project_id
+      and sa.na_sequence_id = fl.na_sequence_id
+      and oa.component_taxon_id = dnt.taxon_id
+      and dnt.dataset_presenter_id = dsp.dataset_presenter_id
+      and dsp.type = 'genome'
+      and dsp.dataset_presenter_id = 'DS_b08fa4ba88'
+      group by dsp.dataset_presenter_id, sa.sequence_type, fl.feature_type
+      order by count(*) desc
+	    #+end_src
+    #+RESULTS: no-hline
+     | DS_b08fa4ba88 | supercontig | LowComplexityNAFeature | 439121 |
+     | DS_b08fa4ba88 | supercontig | Repeats                | 155973 |
+     | DS_b08fa4ba88 | supercontig | TandemRepeatFeature    | 102066 |
+     | DS_b08fa4ba88 | supercontig | TransposableElement    |  61046 |
+     | DS_b08fa4ba88 | supercontig | ExonFeature            |  55917 |
+     | DS_b08fa4ba88 | supercontig | CDS                    |  54114 |
+     | DS_b08fa4ba88 | supercontig | Intron                 |  43480 |
+     | DS_b08fa4ba88 | supercontig | UTR                    |  18081 |
+     | DS_b08fa4ba88 | supercontig | Transcript             |  13772 |
+     | DS_b08fa4ba88 | supercontig | GeneFeature            |  13578 |
+     | DS_b08fa4ba88 | supercontig | ScaffoldGapFeature     |  11084 |
+     | DS_b08fa4ba88 | supercontig | RNAFeature             |    353 |
+  + Other Data Associated with this Genome
+    #+begin_src sql
+
+	select dsp.dataset_presenter_id, o_dsp.category, count(*) as dataset_count
+	  from apidbtuning.organismattributes oa
+	     , apidbtuning.datasetpresenter o_dsp
+	     , apidbtuning.datasetnametaxon o_dnt
+	     , apidbtuning.datasetnametaxon dnt
+	     , apidbtuning.datasetpresenter dsp
+	  where oa.component_taxon_id = o_dnt.taxon_id
+	  and o_dnt.dataset_presenter_id = o_dsp.dataset_presenter_id
+	  and oa.component_taxon_id = dnt.taxon_id
+	  and dnt.dataset_presenter_id = dsp.dataset_presenter_id
+	  and dsp.type = 'genome'
+    and dsp.dataset_presenter_id = 'DS_b08fa4ba88'
+	  group by dsp.dataset_presenter_id, o_dsp.category
+    order by count(*) desc
+    #+end_src
+    #+RESULTS: no-hline
+       | DS_b08fa4ba88 | RNASeq                               | 5 |
+       | DS_b08fa4ba88 | Link outs                            | 2 |
+       | DS_b08fa4ba88 | Genetic variation                    | 2 |
+       | DS_b08fa4ba88 | Immunology                           | 1 |
+       | DS_b08fa4ba88 | Transcriptomics                      | 1 |
+       | DS_b08fa4ba88 | Annotation, curation and identifiers | 1 |
+  + External Databases/Resources
+    #+begin_src sql
+      select dsp.dataset_presenter_id
+	   , ext.dataset as name
+      from apidbtuning.datasetnametaxon dnt, apidbtuning.datasetpresenter dsp,
+
+      (select distinct * from (
+      SELECT 
+	edd.dataset_presenter_display_name AS dataset
+	,ga.taxon_id
+      FROM
+	 sres.dbref db
+      , DOTS.dbrefnafeature dbna
+      , apidbtuning.ExternalDbDatasetPresenter edd
+      , sres.externaldatabaserelease edr
+      , ApidbTuning.geneAttributes ga
+      WHERE
+	db.external_database_release_id = edd.external_database_release_id
+	AND edr.external_database_release_id = edd.external_database_release_id
+	AND dbna.db_ref_id = db.db_ref_id
+	AND ga.na_feature_id = dbna.na_feature_id
+	UNION
+      SELECT 
+	edd.dataset_presenter_display_name AS dataset
+	, ta.taxon_id
+      FROM
+	 sres.dbref db
+      , DOTS.dbrefnafeature dbna
+      , apidbtuning.ExternalDbDatasetPresenter edd
+      , sres.externaldatabaserelease edr
+      , ApidbTuning.transcriptAttributes ta
+      WHERE
+	db.external_database_release_id = edd.external_database_release_id
+	AND edr.external_database_release_id = edd.external_database_release_id
+	AND dbna.db_ref_id = db.db_ref_id
+	AND ta.na_feature_id = dbna.na_feature_id
+	UNION
+      SELECT d.name as dataset
+      , ga.taxon_id
+      FROM
+	 sres.dbref dbr
+      , DOTS.dbrefnafeature dbrf
+      , sres.externaldatabaserelease r
+      , sres.externaldatabase d
+      , ApidbTuning.geneAttributes ga
+      , APIDB.EXTERNALRESOURCEURL eru
+      WHERE dbr.external_database_release_id = r.external_database_release_id
+      and r.external_database_id = d.external_database_id
+      and dbr.db_ref_id = dbrf.db_ref_id
+      and dbrf.na_feature_id = ga.na_feature_id
+      and upper(d.name) = eru.database_name
+      UNION
+      SELECT d.name as dataset
+      , ta.taxon_id
+      FROM
+	 sres.dbref dbr
+      , DOTS.dbrefaafeature dbrf
+      , Dots.aafeature aaf
+      , sres.externaldatabaserelease r
+      , sres.externaldatabase d
+      , ApidbTuning.transcriptAttributes ta
+      , APIDB.EXTERNALRESOURCEURL eru
+      WHERE dbr.external_database_release_id = r.external_database_release_id
+      and r.external_database_id = d.external_database_id
+      and dbr.db_ref_id = dbrf.db_ref_id
+      and dbrf.aa_feature_id = aaf.aa_feature_id
+      and aaf.aa_sequence_id = ta.aa_sequence_id
+      and upper(d.name) = eru.database_name
+      )
+      ) ext
+      where ext.taxon_id = dnt.taxon_id
+      and dnt.dataset_presenter_id = dsp.dataset_presenter_id
+      and dsp.type = 'genome'
+      and dsp.dataset_presenter_id = 'DS_b08fa4ba88'
+      order by ext.dataset
+    #+end_src
+    #+RESULTS: no-hline
+     | DS_b08fa4ba88 | EMBL              |
+     | DS_b08fa4ba88 | HAMAP             |
+     | DS_b08fa4ba88 | KEGG_Enzyme       |
+     | DS_b08fa4ba88 | PFAM              |
+     | DS_b08fa4ba88 | PIRSF             |
+     | DS_b08fa4ba88 | PRINTS            |
+     | DS_b08fa4ba88 | RFAM              |
+     | DS_b08fa4ba88 | SMART             |
+     | DS_b08fa4ba88 | SUPERFAMILY       |
+     | DS_b08fa4ba88 | TIGRFAM           |
+     | DS_b08fa4ba88 | UniParc           |
+     | DS_b08fa4ba88 | Uniprot/SPTREMBL  |
+     | DS_b08fa4ba88 | Uniprot/SWISSPROT |
+     | DS_b08fa4ba88 | protein_id        |
