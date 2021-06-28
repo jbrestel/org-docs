@@ -100,6 +100,7 @@
       group by oa.project_id, dsp.dataset_presenter_id, ta.gene_type, ta.transcript_type
       order by count(*) desc
     #+end_src
+
     #+RESULTS: no-hline
       | DS_b08fa4ba88 | protein coding | gene          | mRNA | 13344 |
       | DS_b08fa4ba88 | ncRNA gene     | tRNA          |  305 |       |
@@ -112,6 +113,7 @@
       | DS_b08fa4ba88 | ncRNA gene     | ncRNA         |    2 |       |
       | DS_b08fa4ba88 | ncRNA gene     | RNase_MRP_RNA |    1 |       |
       | DS_b08fa4ba88 | ncRNA gene     | RNase_P_RNA   |    1 |       |
+
   + Sequence Type Counts
     #+begin_src sql
       select dsp.dataset_presenter_id, sa.sequence_type, fl.feature_type, count(*) as feature_count
@@ -129,7 +131,8 @@
       and dsp.dataset_presenter_id = 'DS_b08fa4ba88'
       group by dsp.dataset_presenter_id, sa.sequence_type, fl.feature_type
       order by count(*) desc
-	    #+end_src
+    #+end_src
+    
     #+RESULTS: no-hline
      | DS_b08fa4ba88 | supercontig | LowComplexityNAFeature | 439121 |
      | DS_b08fa4ba88 | supercontig | Repeats                | 155973 |
@@ -143,6 +146,7 @@
      | DS_b08fa4ba88 | supercontig | GeneFeature            |  13578 |
      | DS_b08fa4ba88 | supercontig | ScaffoldGapFeature     |  11084 |
      | DS_b08fa4ba88 | supercontig | RNAFeature             |    353 |
+
   + Other Data Associated with this Genome
     #+begin_src sql
 
@@ -161,6 +165,7 @@
 	  group by dsp.dataset_presenter_id, o_dsp.category
     order by count(*) desc
     #+end_src
+
     #+RESULTS: no-hline
        | DS_b08fa4ba88 | RNASeq                               | 5 |
        | DS_b08fa4ba88 | Link outs                            | 2 |
@@ -168,7 +173,9 @@
        | DS_b08fa4ba88 | Immunology                           | 1 |
        | DS_b08fa4ba88 | Transcriptomics                      | 1 |
        | DS_b08fa4ba88 | Annotation, curation and identifiers | 1 |
+
   + External Databases/Resources
+
     #+begin_src sql
       select dsp.dataset_presenter_id
 	   , ext.dataset as name
@@ -244,6 +251,7 @@
       and dsp.dataset_presenter_id = 'DS_b08fa4ba88'
       order by ext.dataset
     #+end_src
+
     #+RESULTS: no-hline
      | DS_b08fa4ba88 | EMBL              |
      | DS_b08fa4ba88 | HAMAP             |
