@@ -267,3 +267,19 @@
      | DS_b08fa4ba88 | Uniprot/SPTREMBL  |
      | DS_b08fa4ba88 | Uniprot/SWISSPROT |
      | DS_b08fa4ba88 | protein_id        |
+
+
+  + EBI Dataset Mappings (some dataset names were updated because EBI data load.  those should still be searchable)
+
+    #+begin_src sql
+      select dataset_presenter_id, name
+           , 'DS_' || lower(substr(standard_hash(replace(name, '_ebi_', '_'), 'SHA1'), 0, 10))  as previous_dataset_id
+           , replace(name, '_ebi_', '_') as previous_name
+      from apidbtuning.datasetpresenter where name like '%_ebi_%'
+    #+end_src
+
+    #+RESULTS: no-hline
+     | DS_aae60e6bf7 | pfal3D7_Tonkin_Hill_Malaria_ebi_rnaSeq_RSRC             | DS_601b15d9f7 | pfal3D7_Tonkin_Hill_Malaria_rnaSeq_RSRC             |
+     | DS_9c91e450ac | pfal3D7_Josling_Schizont_Transcriptomes_ebi_rnaSeq_RSRC | DS_044c11419a | pfal3D7_Josling_Schizont_Transcriptomes_rnaSeq_RSRC |
+     | DS_b9eaf20251 | pyoeyoelii17X_Kappe_ebi_rnaSeq_RSRC                     | DS_998f7032ed | pyoeyoelii17X_Kappe_rnaSeq_RSRC                     |
+     | DS_a239464cb4 | pfal3D7_Stunnenberg_ebi_rnaSeq_RSRC                     | DS_d57671ced8 | pfal3D7_Stunnenberg_rnaSeq_RSRC                     |
