@@ -2,8 +2,10 @@
   + ontology based categorization of attributes and tables
     + Clinepi puts most everything under Data Provenance (should probably do the same for mbio and genomics)
     + [[https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/wdk/ontology/commonIndividuals.txt][Individuals File For Datasets]]
+    [X] Noted in an early meeting that we are already organizing attributes and tables this way.
   + Provider version table should be removed from Datset Record page
     + set scope=record_internal in individuals.txt to hide
+    [X] Fixed wtih EbrcModelCommon [[https://github.com/VEuPathDB/EbrcModelCommon/commit/7b78b72d2e85be8fb7a8d63c6fd61c7cbf7a5cb1#diff-4f17aa4ebc0e1bc949f01be4c328ffce03b1356bcd404b3336ff10907cd5c99d][commit]].
   + hide datasets which have many organisms (example: Pubmed from ncbi;  linkouts)
     + keep the DatasetPresenter xml element for the linkouts because the display_name is used by gene record page
     + could do this by modifying the query "AllDatasets" in [[https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/wdk/model/questions/queries/datasetQueries.xml][datasetQueries.xml]] ;  could simply exclude 'Link out' or come up with better way of figuring out which datasets we want to exclude
@@ -12,10 +14,12 @@
 	from apidbTuning.DatasetPresenter
 	where category != 'Link out'
       #+END_SRC
+    [X] See commits [[https://github.com/VEuPathDB/EbrcModelCommon/commit/7036f05a65a3aac1c227a316833341010260d4a0#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf][1]], [[https://github.com/VEuPathDB/EbrcModelCommon/commit/1be55f20506fa5564af4d094d941a120b4c07b80#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf][2]].
   + pfal3D7_Hagai_ECAssociations_RSRC why is the category "Function Prediction" and not "Link outs"
   + bug on mbio sample record page.  "Description" attribute was showing up at bottom of page.
   + JohnI clean up "HyperLinks" v "HyperLink".
     + rename "HyperLinks" to "GenomicsHyperLink" and provide an additional field to indicate whether the row is internal (based on macro) or external.  
+    [X] See [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml][commit]]
   + Why is the type/category for "%primary_genome%" datasets  "Annotation, curation and identifiers"
     #+BEGIN_SRC sql
      select distinct category
@@ -34,9 +38,11 @@
        + "Example Graphs" table should only show up on RNASeq, Microarray, Phenotype dataset pages
      + Genome Datasets
        + Better display name (currenlty they are all called "Genome Sequence and Annotation").  need to include the strain name
+       [-] Check if we can handle italics in name
        + "Source Version" and "Dataset Version" attributes are meaningless for genome datasets.  should not show these attributes for genome datasets
        + create attributes for current genome version and current structural annotation version and functional annotation version
        + The current DatasetHistory Table has version fields specific for genomes.  this table should continue to be shown for genome datasets as is
+       [-] Possible solution - have jsx set columns to internal based on category.
        + Add "Gene Types" and "Sequence Types" Tables currently shown on Organism Record page
        + Add XRefs Table.  We want to show which xref datasets are available for this organism dataset. 
 	 + union of xrefs from ebi core database AND xrefs from reflow datasets
@@ -54,7 +60,7 @@
 	 + Change this to UNION searches and internal hyperlinks
 	 + The Datset jsx does something fancy for the searches to get the display name for the search from the wdk.
 	 + [[https://github.com/VEuPathDB/EbrcWebsiteCommon/blob/master/Client/src/components/records/DatasetRecordClasses.DatasetRecordClass.jsx][DatasetRecordClasses.DatasetRecordClass.jsx]]
-   
+     [X] See EbrcModelCommon [[https://github.com/VEuPathDB/EbrcModelCommon/pull/5][PR]] and EbrcWebsiteCommon [[https://github.com/VEuPathDB/EbrcWebsiteCommon/pull/55][PR]], [[https://github.com/VEuPathDB/EbrcWebsiteCommon/commit/88661d882c3176c713dc0882024282cdcfc4174c][commit]] for all Hyperlinks, Reference table updates.
 * Phase 3 (how does a dataset relate to study/investigation?)
    + currenlty in mbio and clinepi we are only showing datasets which are studies (there may be other datasets taxonomy, ontologies, who standards)
    + How to find related studies/datasets;  need some mechanism for grouping datasets
