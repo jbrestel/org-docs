@@ -14,8 +14,8 @@
   - [ ] Undo needs to work BOTH ways because of legacy data in genomics sites
   - [ ] Existing queries using databasemapping table need to be union of both ways because of legacy data in genomics sites
 ** Tuning Manager :JohnI:
-- [ ] SNPAttributes :: ok for b53 but will be missing some fields
-- [ ] SNPStrains :: update sql so it doesn't use SequenceVariation
+- [ ] SNPAttributes (ok for b53 but will be missing some fields)
+- [ ] SNPStrains (update sql so it doesn't use SequenceVariation)
 ** Model
 - [ ] Using include/exclude projects make the snpattributes which are missing internal for b53
 
