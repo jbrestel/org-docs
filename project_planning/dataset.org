@@ -30,20 +30,27 @@
 * Phase 2 (organism vs dataset; genomic sites)
    + Existing Organism Record
      + take interesting things from organism page (Gene Types and Sequence Types Tables) and move those to the dataset record page
+     [X] Both tables moved.
      + organism results summary page should not link to organism record.  should link to the dataset record page
+     []
    + Dataset Record
      + Need a mechanism to show/hide attributes and tables based on the category/type of page
        + We do something like this already on the GeneRecord page.  The gene page only shows attributes and tables which are appropriate for the organism
        + May not need something so fancy.  May be able to modify the Dataset jsx
        + "Example Graphs" table should only show up on RNASeq, Microarray, Phenotype dataset pages
+       [X] Pruning tree mechanism implemented. Example Graphs confirmed showing on RNASeq, Microarray, but not genome dataset pages.
      + Genome Datasets
        + Better display name (currenlty they are all called "Genome Sequence and Annotation").  need to include the strain name
-       [-] Check if we can handle italics in name
+       [-] Italics possible for display name.
+       + Update primary_genome category?
        + "Source Version" and "Dataset Version" attributes are meaningless for genome datasets.  should not show these attributes for genome datasets
+       [X] Source Version and Dataset Version removed in Record.js
        + create attributes for current genome version and current structural annotation version and functional annotation version
+       [-] Are we happy with them in the Dataset history table?
        + The current DatasetHistory Table has version fields specific for genomes.  this table should continue to be shown for genome datasets as is
-       [-] Possible solution - have jsx set columns to internal based on category.
+       [X] Made two tables, one for genomes and one for non-genomes. The non-genome one is called DatasetHistory and could possibly simply replace History table.
        + Add "Gene Types" and "Sequence Types" Tables currently shown on Organism Record page
+       [X] Added.
        + Add XRefs Table.  We want to show which xref datasets are available for this organism dataset. 
 	 + union of xrefs from ebi core database AND xrefs from reflow datasets
      + Hyperlinks
