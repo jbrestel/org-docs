@@ -1,45 +1,77 @@
+#+STARTUP: indent
+* B53 :JohnB:
+** Workflow Changes
+- [ ] Remove step copy to webservices and download files
+** Schema Changes
+- [ ] Add "database_orig" and "primary_key_orig" fields to every table in "Core.TableInfo"
+- [ ] Add Index on each table for 3 fields (pk, pk_orig, db_orig)
+** Plugin Changes
+- [ ] Skip ApiDB.SequenceVariation
+- [ ] Database Mapping Table
+  - [ ] Branch ApiCommon Data "unidb_mapping" 
+  - [ ] Global Rows still need to populate existing Database Mapping Table
+  - [ ] Component Specific Rows should populate the 2 new fields in the primary table
+  - [ ] Undo needs to work BOTH ways because of legacy data in genomics sites
+  - [ ] Existing queries using databasemapping table need to be union of both ways because of legacy data in genomics sites
+** Tuning Manager :JohnI:
+- [ ] SNPAttributes :: ok for b53 but will be missing some fields
+- [ ] SNPStrains :: update sql so it doesn't use SequenceVariation
+** Model
+- [ ] Using include/exclude projects make the snpattributes which are missing internal for b53
+
+* B54
+** Genomics Workflow Changes
+- [ ] Do not load ApiDB.SequenceVariation.  Instead add JSON clob to ApiDB.SNP for the variations which can be used to make the snp record page table
+- [ ] Add other 2 SNP Attributes which are being added by tuning manager
+- [ ] Required rebuild for all snp datasets 
+
 * QA for first release
-  + Path to fix database for missing data
-    1. (JohnB) Confirm problem due to missed undo of fung-inc an plas-inc
-    2. do inc addition for plas and fung
-    3. (may take up to a week?) Rerun tuning manager
-    4. webservices?? probably not an issue
-    5. rerun tuning manager for intronjunctions
-  + (Bindu/Cristina/JohnI/JohnB/Mark)Manual QA
-    + organisms and datasets missing (~500 / 516?)
-      + theory is missed fung and plas inc addition for b52
-    + (Cristina) [Reference] display in org param (client side)
-    + replace use of @PROJECT_ID@ macro with display name for the project
-    + initial qa resulted in some redmines [[https://redmine.apidb.org/issues/12567][Redmines]]
-    + includes/excludes  for project specific searches and tables
-    + Any searches/record tables which are site specific need to be
-    + Focus on gene page
-      + table content (compare component to uni)
-    + gene model characteristics / filter param not returning
-  + Automated QA Process
-    + (JohnB) use the federated portal (b52) to compare search results
-      + can we use webservices?
-      + does wdkSummary still work?
-      + anytime there is an organism param, 
-    + (JohnI) use the portal attribute tables;  those should be identical
-      + any table the eupa052n has should match with uni-inc
-    + (JohnB/Mark/JohnI) Record pages;  can test against individual components
-      + foreach organism, list out tables which are available for each record
-      + foreach record table, run the sql and compare counts (union for all components)
-  + Performance?
-    + punt
-  + Site Search
-    + indexes build from b52 instances
-    + (Cristina) change feature site to use prod solr (same for blast and buildNumber in the model should be 52)
-  + JBrowse
+** Path to fix database for missing data :JohnB:
+- [X] Confirm problem due to missed undo of fung-inc an plas-inc
+- [X] do inc addition for plas and fung
+- [X] (may take up to a week?) Rerun tuning manager
+- [X] webservices?? probably not an issue
+- rerun tuning manager for intronjunctions
+** Manual QA :Bindu:Cristina:JohnI:JohnB:Mark:
+- [ ] organisms and datasets missing (~500 / 516?)
+  - theory is missed fung and plas inc addition for b52
+- [ ] (Cristina) [Reference] display in org param (client side)
+- [ ] replace use of @PROJECT_ID@ macro with display name for the project
+- [ ] initial qa resulted in some redmines [[https://redmine.apidb.org/issues/12567][Redmines]]
+- [ ] includes/excludes  for project specific searches and tables
+- [ ] Any searches/record tables which are site specific need to be
+- [ ] Focus on gene page
+  - table content (compare component to uni)
+- [ ] gene model characteristics / filter param not returning
+** Automated QA Process :Mark:JohnI:JohnB:
+- [ ] use the webserive queries for Performance Tests
+  - [X] compare plasmodb.org (b52) to feature.veupathdb.org
+  - [ ] address faiures
+  - [ ] Record expected and Actual Results
+- [-] attribute tables
+  - [X] using sql minus operation, compare 052 attribute tables in eupa052n to uni-inc
+  - [ ] address faiures
+  - [ ] Record expected and Actual Results
+- [-] Record pages;  can test against individual components
+  - [X] foreach record table, run the sql and compare counts (union for all components)
+  - [ ] address faiures
+  - [ ] Record expected and Actual Results
+- (JohnB) compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
+  - [ ] Record expected and Actual Results
+** Performance
+- punt
+** Site Search
+- indexes build from b52 instances
+- (Cristina) change feature site to use prod solr (same for blast and buildNumber in the model should be 52)
+** JBrowse
     + intronjunction tuning table 
 
-** Use Cases
-   + fully functional portal (veupathdb.org)
-   + host / pathogen / vector
-   + user defined organism preferences
-   + Fewer prod db instances
-   + ebi2gus
+* Use Cases
++ fully functional portal (veupathdb.org)
++ host / pathogen / vector
++ user defined organism preferences
++ Fewer prod db instances
++ ebi2gus
 
 * Basics
   + [[https://docs.google.com/document/d/1K3ckE6hwN9r-Dp1Av_zDH5Jcr7ApbBjQ-7yJM1zk0bQ/edit][UniDB Design Document December 2019]]
@@ -65,38 +97,23 @@
     + changes to input schema
     + changes to the perl api
 
-* TODOs
-  + TODO ISASimple Loader Error (then rerun tm)
-  + review if changes made to UniDB plugin for ebi may have had negative performance impact
-    + used sequences to get primary keys (get blocks of sequences for performance)
-    + used conventional loading instead of direct path
-    + undo's for global tables disabled; should only be disabled for ebi loading
+* General TODOs
   + more automated undo mechanism for failures
-  + sort out the "database_orig" field in the mapping table.  How should that be populated / updated?
-  + JBrowse endpoints sometime use the "projectName"... need to remove that
   + How to update Taxonomy?
     + should unidb workflow load one version of taxonomy instead of pulling from other dbs?
   + (Lin) wgcna (host /pathogen)
-  + use reflow instead of tuningTables
-    + DONE FeatureLocation
-    + DONE NRDB Similarities (flat file)
-    + DONE Removed loading of ORFs 
-    + TODO (Brian) IntronJunctions
-      + should consider not loading lob data as this is very slow for unidb loader
-    + DONEish OrthologousPairs
-    + TODO Review Others
   + DNASeq Analysis
     + new workflow for dnaseq will not load ApiDB.SequenceVariation (use VCF files instead)
     + ~ 58 hours to load 633 mil rows
-   #+BEGIN_EXAMPLE
-  Sun Apr  4 18:22:17 2021	Begin ID Lookup for ApiDB::SequenceVariation from database plas051n
-Sun Apr  4 18:24:35 2021	Finished ID Lookup for ApiDB::SequenceVariation from database plas051n
-Sun Apr  4 18:29:19 2021	Processed 100000 from ApiDB::SequenceVariation
-Sun Apr  4 18:29:55 2021	Processed 200000 from ApiDB::SequenceVariation
-....
-Wed Apr  7 05:30:14 2021	Processed 633000000 from ApiDB::SequenceVariation
-Wed Apr  7 05:30:44 2021	Processed 633100000 from ApiDB::SequenceVariation
-Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
-Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
-   #+END_EXAMPLE
+       #+BEGIN_EXAMPLE
+      Sun Apr  4 18:22:17 2021	Begin ID Lookup for ApiDB::SequenceVariation from database plas051n
+    Sun Apr  4 18:24:35 2021	Finished ID Lookup for ApiDB::SequenceVariation from database plas051n
+    Sun Apr  4 18:29:19 2021	Processed 100000 from ApiDB::SequenceVariation
+    Sun Apr  4 18:29:55 2021	Processed 200000 from ApiDB::SequenceVariation
+    ....
+    Wed Apr  7 05:30:14 2021	Processed 633000000 from ApiDB::SequenceVariation
+    Wed Apr  7 05:30:44 2021	Processed 633100000 from ApiDB::SequenceVariation
+    Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
+    Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
+       #+END_EXAMPLE
   
