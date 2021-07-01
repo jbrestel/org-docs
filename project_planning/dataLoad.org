@@ -1,10 +1,4 @@
 
-* TODO Patch for Interpro
-
-* TODO dbest mirror replace with eutil 
-  + replace insert externalnasequences with webservice.  
-  + "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
-  + replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
 
 
 * Managing GIT projects

@@ -1,36 +1,21 @@
+#+STARTUP: indent
+* Redmine Project: Genome browser
+:PROPERTIES:
+:project_identifier: p110
+:project_name: Genome browser
+:project_id: 182
+:END:
+[[https://redmine.apidb.org/projects/p110][Project]]
+[[https://redmine.apidb.org/projects/p110/issues/new][New Issue]]
+*** Description
+#+BEGIN_DESCRIPTION
+Enhancements to GBrowse, or efforts to move to a different browser
 
-* TODO (b50/51) synteny subtrack ordering
-* TODO hostdb turn off synteny, proteinAlignment, isolate/popset tracks
+#+END_DESCRIPTION
 
-* Regression Testing?
+
+*  Regression Testing?
 *** Mock up various test cases 
 *** 3 level, tstarts/blocksizes, ...
 *** could do in selenium?
-
-* Existing issues assigned to UI Infra
-** Hide Track instead of close.  
-*** https://redmine.apidb.org/issues/37191
-** Save user track configurations for future use. 
-*** https://redmine.apidb.org/issues/37190
-
-** Lock L/R Scrolling (NOTE:  This was marked completed;  not sure why.  There were changes for this on the gene page but that was not all which was needed)
-*** https://redmine.apidb.org/issues/37192
-
-* Other issues (opened redmines)
-** regression testing
-*** This came up on a call with Steve.  Having seen this bug we could write a test for this specific case.  This would be done in Selenium.  I'm not sure about the "has data" bit as it would be very dificult to find a region that contained data for all tracks.  I added a redmine to ensure all configured tracks are available for selection.
-*** https://redmine.apidb.org/issues/41988
-
-** Ordering of Subtracks (assuming this means Synteny)
-*** for default order we use the ncbi taxonomy tree to show the closest neighbors then moving up the tree doing the same.  We floated the idea of using a phylogenetic distance to improve on this but I don't currently have access to those.  Is this something OrthoMCL could provide?  It would be needed for all of our Annotated Genomes.
-*** If we want to allow user configurable subtracks this will need to be a ticket for UI Infra.
-*** https://redmine.apidb.org/issues/41989
-
-* Other issues
-** nucleotide-level granularity to chromosomal locations?  When I try to specify a precise location and window size (e.g. TGME49_chrVIIb:1235001..1275000  … this is what is applied:  TGME49_chrVIIb:1237488..1275455 (37.97 Kb)
-*** This behavior is built into the browser.  I'm not sure why the visible region isn't always what is entered.  I do know that jbrowse need to add padding to enable smooth scrolling.  It may be related to that but i agree that it isn't useful to show the user padded regions which are not visible on the screen.
-*** I don't think there is anything we can do on this one.  Can you work around this issue by using the "Highlight" feature?  From the menubar choose "View >> Set Highlight".  The dialog allows you to enter exact locations
-** Do you have a plan in place for making sure that we can solve critical problems that arise regardless of who is available?
-*** We have some redunancy but a lot depends on how good people are at debugging.  not sure that we can do much better on this.
-
 

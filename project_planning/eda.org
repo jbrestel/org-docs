@@ -1,5 +1,12 @@
 #+STARTUP: indent
-* Things to do right now
+* TODO EDA Updates for Steve  <2021-06-14 Mon>
++ AttributeGraph table
+  1. ordinal_values -> ordered_values
+  2. in is_merge_key and is_repeated i am seeing null where in the other booleans i see 0.  i think we should be consistent, and use 0
+  3. for dates, distinct_values_count is 0.
+  4. for many number variables, precision is null.  i don't think it should ever be.
+
+* TODO Can do these now
 1. (Wojtek) units and scale (owl file or ISA??)
 2. (Jay) validate annotation properties
 3. (JohnB) createEntityGraph and dropEntityGraph sqls seem not to be working
@@ -77,5 +84,14 @@
    + GUS::Model::ApiDB::Ancestors_${studyId}_${EntityTypeId}
    + GUS::Model::ApiDB::AttributeGraph_${studyId}_${EntityTypeId}
 
-
-
+* Popset Sequences
++ Workflow
+  + Do we continue to do alignments to family?
++ Presentation
+  + Leave as WDK Records?
+  + Integrate into EDA?
+    + load as entitygraph (json)
+    + subset would be ok for things like Geographic Location
+    + other graphs?
++ 
+* 
