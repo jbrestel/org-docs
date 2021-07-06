@@ -30,10 +30,11 @@
   
 * Phase 2 (organism vs dataset; genomic sites)
    + Existing Organism Record
-     + take interesting things from organism page (Gene Types and Sequence Types Tables) and move those to the dataset record page
+     + take interesting things from organism page (Gene/Transcript Types and Sequence Types Tables) and move those to the dataset record page
      [X] Both tables moved.
+     [-] Additional attributes in progress. So far moved: Gene type (count) table
      + organism results summary page should not link to organism record.  should link to the dataset record page
-     []
+     [ ]
    + Dataset Record
      + Need a mechanism to show/hide attributes and tables based on the category/type of page
        + We do something like this already on the GeneRecord page.  The gene page only shows attributes and tables which are appropriate for the organism
@@ -53,6 +54,12 @@
        + Add "Gene Types" and "Sequence Types" Tables currently shown on Organism Record page
        [X] Added.
        + Add XRefs Table.  We want to show which xref datasets are available for this organism dataset. 
+       + Additional modifications after initial meeting with Omar and Susanne:
+         [X] Move Category to page summary.
+         [X] Remove organism page reference from References table.
+         [X] Remove self reference in Additional data types... table. Note since all the data im seeing only has one ref to "Annotation, curation and identifiers", i'm assuming that is itself and im removing it. This will have to be changed when we change the category name.
+         [X] Changed name of table to "Additional kinds of data associated with this genome"
+         [X] Remove Feature type from Sequence Type table
 	 + union of xrefs from ebi core database AND xrefs from reflow datasets
      + Hyperlinks
        + Current table called "Relevant pages at PlasmoDB and external resources"
