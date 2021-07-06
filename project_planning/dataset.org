@@ -17,6 +17,7 @@
     [X] See commits [[https://github.com/VEuPathDB/EbrcModelCommon/commit/7036f05a65a3aac1c227a316833341010260d4a0#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf][1]], [[https://github.com/VEuPathDB/EbrcModelCommon/commit/1be55f20506fa5564af4d094d941a120b4c07b80#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf][2]].
   + pfal3D7_Hagai_ECAssociations_RSRC why is the category "Function Prediction" and not "Link outs"
   + bug on mbio sample record page.  "Description" attribute was showing up at bottom of page.
+    [X] See [[https://github.com/VEuPathDB/MicrobiomeModel/commit/698f5d0260034f95ab5fa52a8b8f460b1ecbf97e][commit]]
   + JohnI clean up "HyperLinks" v "HyperLink".
     + rename "HyperLinks" to "GenomicsHyperLink" and provide an additional field to indicate whether the row is internal (based on macro) or external.  
     [X] See [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml][commit]]
