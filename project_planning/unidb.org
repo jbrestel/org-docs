@@ -1,5 +1,4 @@
 #+STARTUP: indent
-
 * Redmine PROJECT
 :PROPERTIES:
 :query_id: 298
@@ -25,9 +24,9 @@
 ** Workflow Changes
 - [X] Remove step copy to webservices and download files
 ** Schema Changes
-- [ ] Add "database_orig" and "primary_key_orig" fields to every table in "Core.TableInfo"
-- [ ] Add Index on each table for 3 fields (pk, pk_orig, db_orig)
-- [ ] new PLSQL script to add fields after apidbschema has been made.  last script when creating apidb schema
+- [X] Add "database_orig" and "primary_key_orig" fields to every table in "Core.TableInfo"
+- [X] Add Index on each table for 3 fields (pk, pk_orig, db_orig)
+- [X] new script to add fields after apidbschema has been made.  last script when creating apidb schema
   #+begin_src sql
    BEGIN
    FOR item in (select di.name || '.' || di.name as table_name
@@ -51,10 +50,12 @@
    END LOOP;
    END;
   #+end_src
-
+** ApiCommonDatasts
+- [X] configure only dbs which have been exported for b53
+- [X] bld ApiCommonDatasts and generateFromDatasets
 ** Plugin Changes
 - [X] Skip ApiDB.SequenceVariation
-  + ~ 58 hours to load 633 mil rows from Plasmo (fungi has > 1.3 billion rows)
+  - ~ 58 hours to load 633 mil rows from Plasmo (fungi has > 1.3 billion rows)
     #+BEGIN_EXAMPLE
     Sun Apr  4 18:22:17 2021	Begin ID Lookup for ApiDB::SequenceVariation from database plas051n
     Sun Apr  4 18:24:35 2021	Finished ID Lookup for ApiDB::SequenceVariation from database plas051n
@@ -66,22 +67,6 @@
     Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
     Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
     #+END_EXAMPLE
-- [-] Database Mapping Table
-  - [X] Branch ApiCommon Data "unidb_mapping" 
-  - [ ] Global Rows still need to populate existing Database Mapping Table
-  - [ ] Component Specific Rows should populate the 2 new fields in the primary table
-  - [ ] Undo needs to work BOTH ways because of legacy data in genomics sites
-  - [ ] Existing queries using databasemapping table need to be union of both ways because of legacy data in genomics sites
-- [-] Address cleanup steps for failures
-  - [X] Database Specific / Non Global we get for free as there is no clean up needed after above change
-  - [ ] For Global Rows, we must delete the apidb.databasetablemapping rows for this table + alg_invocation
-    #+begin_src sql
-	  delete apidb.databasetablemapping where database_orig = ? and table_name = ? and row_alg_invocation_id = ?
-    #+end_src
-  - [ ] update how we find unidb aware tables
-    #+begin_src sql
-	 
-    #+end_src
 ** Tuning Manager :JohnI:
 - [ ] SNPAttributes (ok for b53 but will be missing some fields)
 - [ ] SNPStrains (update sql so it doesn't use SequenceVariation)
@@ -96,6 +81,38 @@
 - [ ] Do not load ApiDB.SequenceVariation.  Instead add JSON clob to ApiDB.SNP for the variations which can be used to make the snp record page table
 - [ ] Add other 2 SNP Attributes which are being added by tuning manager
 - [ ] Required rebuild for all snp datasets 
+** Schema Changes
+- [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer
+- [ ] add 3 new fields to SRes.OntologySynonym
+** Plugin Changes
+- [ ] Database Mapping Table
+  - [ ] Global Rows still need to populate existing Database Mapping Table
+  - [ ] Component Specific Rows should populate the 2 new fields in the primary table
+  - [ ] Undo needs to work BOTH ways because of legacy data in genomics sites
+  - [ ] Existing queries using databasemapping table need to be union of both ways because of legacy data in genomics sites
+- [ ] Address cleanup steps for failures
+  - [ ] Database Specific / Non Global we get for free as there is no clean up needed after above change
+  - [ ] For Global Rows, we must delete the apidb.databasetablemapping rows for this table + alg_invocation
+    #+begin_src sql
+	  delete apidb.databasetablemapping where database_orig = ? and table_name = ? and row_alg_invocation_id = ?
+    #+end_src
+  - [ ] update how we find unidb aware tables
+    #+begin_src sql
+      select ti.name as table_name
+           , di.name as database_name
+           , ti.primary_key_column
+      from core.tableinfo ti, core.databaseinfo di,
+           (select owner, table_name
+           from all_tab_columns 
+           where column_name in ('DATABASE_ORIG', 'PRIMARY_KEY_ORIG')
+           and owner != 'EDA' -- TEMPORARY
+           group by owner, table_name
+           having count(*) = 2) wit
+      where ti.database_id = di.database_id
+      and upper(wit.owner) = upper(di.name)
+      and upper(wit.table_name) = upper(ti.name)
+      and ti.VIEW_ON_TABLE_ID is null
+    #+end_src
 
 * Future Releases :JohnI:Lin:
 - How to update Taxonomy?
@@ -120,8 +137,11 @@
 - [ ] Focus on gene page
   - table content (compare component to uni)
 - [ ] gene model characteristics / filter param not returning
-** Automated QA Process :Mark:JohnI:JohnB:
-- [ ] use the webserive queries for Performance Tests
+** Automated QA Process :Mark:JohnI:JohnB:Bindu:
+- compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
+  - [ ] Record expected and Actual Results
+- [ ] Selenium Tests
+- [-] use the webserive queries for Performance Tests
   - [X] compare plasmodb.org (b52) to feature.veupathdb.org
   - [ ] address faiures
   - [ ] Record expected and Actual Results
@@ -133,9 +153,7 @@
   - [X] foreach record table, run the sql and compare counts (union for all components)
   - [ ] address faiures
   - [ ] Record expected and Actual Results
-- (JohnB) compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
-  - [ ] Record expected and Actual Results
-** Performance
+Performance
 - punt
 ** Site Search
 - indexes build from b52 instances
@@ -174,4 +192,3 @@
   - changes to input schema
   - changes to the perl api
 
-  

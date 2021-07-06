@@ -1,4 +1,5 @@
 #+STARTUP: indent
+#+OPTIONS: with-tags t
 * Genomics Workflow
 ** ESTs :TODO:
 - [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
