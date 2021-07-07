@@ -32,9 +32,10 @@
    + Existing Organism Record
      + take interesting things from organism page (Gene/Transcript Types and Sequence Types Tables) and move those to the dataset record page
      [X] Both tables moved.
-     [-] Additional attributes in progress. So far moved: Gene type (count) table. Also should move
-       [ ] Megabase Pairs to Summary
-       [ ] Genes annotation (total count of genes)
+     [X] Additional attributes in progress. So far moved: Gene type (count) table. Also should move
+       [X] Megabase Pairs to Summary
+       [X] Genes annotation (total count of genes)
+       + Note could also incorporate this table into DatasetDisplayName since we're doing the same join?
      + organism results summary page should not link to organism record.  should link to the dataset record page
      [ ] See below
    + Dataset Record
@@ -45,8 +46,9 @@
        [X] Pruning tree mechanism implemented. Example Graphs confirmed showing on RNASeq, Microarray, but not genome dataset pages.
      + Genome Datasets
        + Better display name (currenlty they are all called "Genome Sequence and Annotation").  need to include the strain name
-       [-] Italics possible for display name.
+       [X] Done.
        + Update primary_genome category?
+       [X] Done. Changed to "Genomics"
        + "Source Version" and "Dataset Version" attributes are meaningless for genome datasets.  should not show these attributes for genome datasets
        [X] Source Version and Dataset Version removed in Record.js
        + create attributes for current genome version and current structural annotation version and functional annotation version
@@ -81,14 +83,14 @@
    + Additional modeifications after UX 07.07.21 meeting
      [ ] Site search for organisms
      [X] Display name should be 'organism name Genome Sequence and Annotation'. NOTE long term we will correct the presenters file.
-     [ ] Source version for genomes should be a list of most recent versions (functional, structural, etc.). Pull from history table.
-     [ ] Dataset version for non-genomes should be in summary only (1) and be incorporated into DatasetHistory table (2).
+     [X] Source version for genomes should be a list of most recent versions (functional, structural, etc.). Pull from history table.
+     [X] Dataset version for non-genomes should be in summary only (1) and be incorporated into DatasetHistory table (2).
      [X] Change instance of previous genomes page category (Annotation...) to new category (Genomics) in datasetRecords.xml
-     [ ] External Databases Associated table: Rename table, and incorporate links (requires testing)
+     [X] External Databases Associated table: Rename table, and incorporate links (requires testing)
      [X] Explore Other Categories of Data table: hotlink number instead of category name.
      [ ] Explore Other Categories: also remove "Link outs"
      [ ] Reorganize page summary for genomic datasets. Organism, Category, Source Version(s), Release, Summary
-     [ ] References table: Try to add column for link type (search, jbrowse, record, download). Talk to Dave if necessary. At very least, order so Download is at top.
+     [X] References table: Try to add column for link type (search, jbrowse, record, download). For now reordered by text so download is (mostly) at the top. Will try a fancier jsx solution later.
 
 
 * Phase 3 (how does a dataset relate to study/investigation?)
