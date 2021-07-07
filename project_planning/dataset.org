@@ -89,9 +89,9 @@
      [ ] Display name should be 'organism name Genome Sequence and Annotation'.
      [ ] Remove Summary attribute from Summary section of genomes, since it's a repeat of the title.
      [ ] Source version for genomes should be a list of most recent versions
-     [ ] Change any instance of previous genomes page category (Annotation...) to new category (Genomics)
+     [X] Change instance of previous genomes page category (Annotation...) to new category (Genomics) in datasetRecords.xml
      [ ] External Databases Associated table: Rename table, and incorporate links (chop off everything after "/###ID###"?)
-     [ ] Explore Other Categories of Data table: hotlink number instead of category name (the Genomics line will be removed after above changes)
+     [X] Explore Other Categories of Data table: hotlink number instead of category name (the Genomics line will be removed after above changes)
      [ ] EST alignments should have a leaf. For us?
 
 * Phase 3 (how does a dataset relate to study/investigation?)
