@@ -33,16 +33,10 @@
      + take interesting things from organism page (Gene/Transcript Types and Sequence Types Tables) and move those to the dataset record page
      [X] Both tables moved.
      [-] Additional attributes in progress. So far moved: Gene type (count) table. Also should move
-       [ ] Download directory to Summary?
-       [ ] Megabase Pairs to Summary?
+       [ ] Megabase Pairs to Summary
        [ ] Genes annotation (total count of genes)
-       [ ] Chromosomes count
-       [ ] Supercontigs count
-       [ ] Contigs count
-       [ ] Taxonomy info: Species, Species NCBI taxon ID, Strain attributes
-       [ ] Gene report attributes: EC#, Go terms count, others should 
      + organism results summary page should not link to organism record.  should link to the dataset record page
-     [ ]
+     [ ] See below
    + Dataset Record
      + Need a mechanism to show/hide attributes and tables based on the category/type of page
        + We do something like this already on the GeneRecord page.  The gene page only shows attributes and tables which are appropriate for the organism
@@ -85,14 +79,17 @@
 	 + [[https://github.com/VEuPathDB/EbrcWebsiteCommon/blob/master/Client/src/components/records/DatasetRecordClasses.DatasetRecordClass.jsx][DatasetRecordClasses.DatasetRecordClass.jsx]]
      [X] See EbrcModelCommon [[https://github.com/VEuPathDB/EbrcModelCommon/pull/5][PR]] and EbrcWebsiteCommon [[https://github.com/VEuPathDB/EbrcWebsiteCommon/pull/55][PR]], [[https://github.com/VEuPathDB/EbrcWebsiteCommon/commit/88661d882c3176c713dc0882024282cdcfc4174c][commit]] for all Hyperlinks, Reference table updates.
    + Additional modeifications after UX 07.07.21 meeting
-     [ ] Handle site search for organisms
-     [ ] Display name should be 'organism name Genome Sequence and Annotation'.
-     [ ] Remove Summary attribute from Summary section of genomes, since it's a repeat of the title.
-     [ ] Source version for genomes should be a list of most recent versions
+     [ ] Site search for organisms
+     [X] Display name should be 'organism name Genome Sequence and Annotation'. NOTE long term we will correct the presenters file.
+     [ ] Source version for genomes should be a list of most recent versions (functional, structural, etc.). Pull from history table.
+     [ ] Dataset version for non-genomes should be in summary only (1) and be incorporated into DatasetHistory table (2).
      [X] Change instance of previous genomes page category (Annotation...) to new category (Genomics) in datasetRecords.xml
-     [ ] External Databases Associated table: Rename table, and incorporate links (chop off everything after "/###ID###"?)
-     [X] Explore Other Categories of Data table: hotlink number instead of category name (the Genomics line will be removed after above changes)
-     [ ] EST alignments should have a leaf. For us?
+     [ ] External Databases Associated table: Rename table, and incorporate links (requires testing)
+     [X] Explore Other Categories of Data table: hotlink number instead of category name.
+     [ ] Explore Other Categories: also remove "Link outs"
+     [ ] Reorganize page summary for genomic datasets. Organism, Category, Source Version(s), Release, Summary
+     [ ] References table: Try to add column for link type (search, jbrowse, record, download). Talk to Dave if necessary. At very least, order so Download is at top.
+
 
 * Phase 3 (how does a dataset relate to study/investigation?)
    + currenlty in mbio and clinepi we are only showing datasets which are studies (there may be other datasets taxonomy, ontologies, who standards)
