@@ -95,7 +95,14 @@
    + Bugs seen in QA
      [ ] References table in mbio gives server error
      [ ] Data Context section header shows when section is empty
-     [ ] 
+     [ ] VeuPathDB AllDatasets query not working
+     [ ] LatestVerstion table needs outer join to datasetpresenter table (see plasmo DS_20c45d8ed1) (Bindu)
+     [ ] Explore other Categories of Data links throw errors (SW)
+     [ ] ExternalDatabases links should open a new window (SW)
+     [ ] Genome Version in Data set release history could link to the record? (SW)
+     [ ] External Resources may be better as a table? (SW)
+     [ ] In Data Context, Genes and Gene count should link to search returning these genes (SW)
+
 
 * Phase 3 (how does a dataset relate to study/investigation?)
    + currenlty in mbio and clinepi we are only showing datasets which are studies (there may be other datasets taxonomy, ontologies, who standards)
