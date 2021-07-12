@@ -1,71 +1,86 @@
+* Basic Graph Example
+#+name: node-table
+| *node* | *label* | *shape* | *fillcolor* |
+|--------+---------+---------+-------------|
+| start  | start   | ellipse |             |
+| middle | middle  |         | blue        |
+| end    | end     | ellipse |             |
+
+#+name: graph-table
+| from   | to     | label |
+|--------+--------+-------|
+| start  | middle |       |
+| middle | end    |       |
+
+
+* Genome Pipeline
+#+name: genome-node-table
+| *node*            | *label*                              | *shape* | *fillcolor* |
+|-------------------+--------------------------------------+---------+-------------|
+| start             | start                                | ellipse |             |
+| init_prior        | Schedule For Release (Overbook)      |         | red         |
+| get_data          | Get Data                             |         |             |
+| validate_data     | Validate                             |         |             |
+| pass              | Passes Validation?                   | diamond | yellow      |
+| ebi               | EBI Workflow                         |         |             |
+| prioritize        | Prioritize                           |         |             |
+| is_high           | Is Critical Priority?                | diamond | yellow      |
+| will_provider_fix | Provider Fix?                        | diamond | yellow      |
+| manual_work       | Process Ourselves For Next Release   |         | red         |
+| manual_work_later | Process Ourselves For Future Release |         | red         |
+| reflow            | ReFlow Workflow                      |         |             |
+| end               | end                                  | ellipse |             |
+
+#+name: genome-graph-table
+| from              | to                | label |
+|-------------------+-------------------+-------|
+| start             | init_prior        |       |
+| init_prior        | get_data          |       |
+| get_data          | validate_data     |       |
+| validate_data     | pass              |       |
+| pass              | ebi               | Y     |
+| pass              | prioritize        | N     |
+| prioritize        | is_high           |       |
+| is_high           | will_provider_fix | N     |
+| is_high           | manual_work       | Y     |
+| will_provider_fix | init_prior        | Y     |
+| will_provider_fix | manual_work_later | N     |
+| manual_work       | validate_data     |       |
+| manual_work_later | validate_data     |       |
+| ebi               | reflow            |       |
+| reflow            | end               |       |
+
+
+* Code
+#+name: graph-from-tables
+#+HEADER: :var nodes=genome-node-table graph=genome-graph-table
+#+BEGIN_SRC emacs-lisp :colnames yes :exports results
+     (concat
+          "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
+          (mapconcat
+           (lambda (x)
+             (format "%s [label=\"%s\" shape=%s style=\"filled\" fillcolor=\"%s\"]"
+                             (car x)
+                             (nth 1 x)
+                             (if (string= "" (nth 2 x)) "box" (nth 2 x))
+                             (if (string= "" (nth 3 x)) "none" (nth 3 x))
+                             )) nodes "\n")
+          "\n"
+          (mapconcat
+           (lambda (x)
+             (format "%s -> %s [taillabel=\"%s\"]"
+                             (car x) (nth 1 x) (nth 2 x))) graph "\n")
+          )
+#+END_SRC
+
+#+HEADER: :var input=graph-from-tables :file ~/genomePipeline.png
+#+BEGIN_SRC dot :exports results
+digraph {
+ $input
+}
+#+END_SRC
 
 
 
-* Managing GIT projects
-  + make a branch of ebibrc4 called "vectorbase_ebibrc4"
-  + sync merge master->ebibrc4 for subset of projects (CBIL,ApiCommonData)
-    ++ fresh install for new instance "toxo-inc" using ebibrc4 
-  + install whatever tables which are missing from vect-inc
-    ++ This is needed so jenkins tm can run
 
-* apiDataLoading
-  1. Each component will use a branch based on the projectName and the workflow version (ex. HostDB_51)
-  2. At the start of the release cycle data loaders will merge (or cherry pick) from master to each branch
-  3. Durning the release cycle each component can add whatever datasets/workflow graph is appropriate for it's project
-  4. When workflow finishes and datasets are qa'd and approved we:
-     1) Clone the inc instance
-     2) run UniDB workflow for that component
-     3) Merge from component branch to master (ApiCommonDatasets,ApiCommonData,GUS,ApiCommonData, CBIL, ...)
-  5. What about changes made to master mid cycle?  for example something which affects global or download files ....?
-     1) This type of change should be made in the master and cherry picked into all component branches
-* apiSite
-  
-
-
-  
-
-* Tuning Manager and Model
-** all inc instances use shared/master code
-
-* ApiCommonDatasets and ApiCommonPresenters
-** durning the release cycle we need master to be current with datasets loaded in inc instance
-
-* Branching
-  1. DONE double check all apiDataLoading projects have been branched ebibrc4
-  2. tsrc foreach -- git checkout ebibrc4
-     + switch to ebibrc4 branch
-  3. tsrc foreach -- git checkout -b vectorbase_ebibrc4
-     + this is your developer branch
-  4. tsrc foreach -- git push -u origin vectorbase_ebibrc4
-     + this makes your developer branch available to other developers
-     + only reason to do this is if you want to have 2 data loaders working on the same project/instance
-     + JB thinks we should do this only "as needed"
-  5. git merge ebibrc4
-     + sync merge into dev branch
-     + this does not commit anything
-     + you can delete and start over if you want
-     + you can cherry pick commits to bring over (need to research how to do this)
-  6. git commit
-  7. git checkout ebibrc4
-  8. git merge vectorbase_ebibrc4
-     + reintegration merge
-
-* sync merge ebibrc4 with master
- 1. tsrc foreach -- git checkout ebibrc4
- 2. tsrc foreach -- git pull
- 3. tsrc foreach -- git merge master
- 4. fix conflicts
- 5. tsrc foreach -- git push
-    + this is the part that will affect other people
-
-
-# make sure you are using group "apiLoading"
-tsrc init git@github.com:EuPathDB/tsrc.git --group apiLoading
-tsrc foreach -- git checkout ebibrc4
-tsrc foreach -- git pull
-tsrc foreach -- git checkout -b vectorbase_ebibrc4
-
-# sync merge from ebibrc4 to dev branch
-tsrc foreach -- git pull
-tsrc foreach -- git merge ebibrc4
 
