@@ -17,6 +17,7 @@
     [X] See commits [[https://github.com/VEuPathDB/EbrcModelCommon/commit/7036f05a65a3aac1c227a316833341010260d4a0#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf][1]], [[https://github.com/VEuPathDB/EbrcModelCommon/commit/1be55f20506fa5564af4d094d941a120b4c07b80#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf][2]].
   + pfal3D7_Hagai_ECAssociations_RSRC why is the category "Function Prediction" and not "Link outs"
   + bug on mbio sample record page.  "Description" attribute was showing up at bottom of page.
+    [X] See [[https://github.com/VEuPathDB/MicrobiomeModel/commit/698f5d0260034f95ab5fa52a8b8f460b1ecbf97e][commit]]
   + JohnI clean up "HyperLinks" v "HyperLink".
     + rename "HyperLinks" to "GenomicsHyperLink" and provide an additional field to indicate whether the row is internal (based on macro) or external.  
     [X] See [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml][commit]]
@@ -29,10 +30,14 @@
   
 * Phase 2 (organism vs dataset; genomic sites)
    + Existing Organism Record
-     + take interesting things from organism page (Gene Types and Sequence Types Tables) and move those to the dataset record page
+     + take interesting things from organism page (Gene/Transcript Types and Sequence Types Tables) and move those to the dataset record page
      [X] Both tables moved.
+     [X] Additional attributes in progress. So far moved: Gene type (count) table. Also should move
+       [X] Megabase Pairs to Summary
+       [X] Genes annotation (total count of genes)
+       + Note could also incorporate this table into DatasetDisplayName since we're doing the same join?
      + organism results summary page should not link to organism record.  should link to the dataset record page
-     []
+     [ ] See below
    + Dataset Record
      + Need a mechanism to show/hide attributes and tables based on the category/type of page
        + We do something like this already on the GeneRecord page.  The gene page only shows attributes and tables which are appropriate for the organism
@@ -41,8 +46,9 @@
        [X] Pruning tree mechanism implemented. Example Graphs confirmed showing on RNASeq, Microarray, but not genome dataset pages.
      + Genome Datasets
        + Better display name (currenlty they are all called "Genome Sequence and Annotation").  need to include the strain name
-       [-] Italics possible for display name.
+       [X] Done.
        + Update primary_genome category?
+       [X] Done. Changed to "Genomics"
        + "Source Version" and "Dataset Version" attributes are meaningless for genome datasets.  should not show these attributes for genome datasets
        [X] Source Version and Dataset Version removed in Record.js
        + create attributes for current genome version and current structural annotation version and functional annotation version
@@ -52,6 +58,12 @@
        + Add "Gene Types" and "Sequence Types" Tables currently shown on Organism Record page
        [X] Added.
        + Add XRefs Table.  We want to show which xref datasets are available for this organism dataset. 
+       + Additional modifications after initial meeting with Omar and Susanne:
+         [X] Move Category to page summary.
+         [X] Remove organism page reference from References table.
+         [X] Remove self reference in Additional data types... table. Note since all the data im seeing only has one ref to "Annotation, curation and identifiers", i'm assuming that is itself and im removing it. This will have to be changed when we change the category name.
+         [X] Changed name of table to "Additional kinds of data associated with this genome"
+         [X] Remove Feature type from Sequence Type table
 	 + union of xrefs from ebi core database AND xrefs from reflow datasets
      + Hyperlinks
        + Current table called "Relevant pages at PlasmoDB and external resources"
@@ -68,6 +80,30 @@
 	 + The Datset jsx does something fancy for the searches to get the display name for the search from the wdk.
 	 + [[https://github.com/VEuPathDB/EbrcWebsiteCommon/blob/master/Client/src/components/records/DatasetRecordClasses.DatasetRecordClass.jsx][DatasetRecordClasses.DatasetRecordClass.jsx]]
      [X] See EbrcModelCommon [[https://github.com/VEuPathDB/EbrcModelCommon/pull/5][PR]] and EbrcWebsiteCommon [[https://github.com/VEuPathDB/EbrcWebsiteCommon/pull/55][PR]], [[https://github.com/VEuPathDB/EbrcWebsiteCommon/commit/88661d882c3176c713dc0882024282cdcfc4174c][commit]] for all Hyperlinks, Reference table updates.
+   + Additional modeifications after UX 07.07.21 meeting
+     [ ] Site search for organisms
+     [X] Display name should be 'organism name Genome Sequence and Annotation'. NOTE long term we will correct the presenters file.
+     [X] Source version for genomes should be a list of most recent versions (functional, structural, etc.). Pull from history table.
+     [X] Dataset version for non-genomes should be in summary only (1) and be incorporated into DatasetHistory table (2).
+     [X] Change instance of previous genomes page category (Annotation...) to new category (Genomics) in datasetRecords.xml
+     [X] External Databases Associated table: Rename table, and incorporate links (requires testing)
+     [X] Explore Other Categories of Data table: hotlink number instead of category name.
+     [ ] Explore Other Categories: also remove "Link outs"
+     [X] Reorganize page summary for genomic datasets. Organism, Category, Source Version(s), Release, Summary
+     [X] References table: Try to add column for link type (search, jbrowse, record, download). For now reordered by text so download is (mostly) at the top. Will try a fancier jsx solution later.
+
+   + Bugs seen in QA
+     [ ] References table in mbio gives server error
+     [ ] Data Context section header shows when section is empty
+     [ ] VeuPathDB AllDatasets query not working
+     [ ] LatestVerstion table needs outer join to datasetpresenter table (see plasmo DS_20c45d8ed1) (Bindu)
+     [ ] Explore other Categories of Data links throw errors (SW)
+     [ ] ExternalDatabases links should open a new window (SW)
+     [ ] Genome Version in Data set release history could link to the record? (SW)
+     [ ] External Resources may be better as a table? (SW)
+     [ ] In Data Context, Genes and Gene count should link to search returning these genes (SW)
+
+
 * Phase 3 (how does a dataset relate to study/investigation?)
    + currenlty in mbio and clinepi we are only showing datasets which are studies (there may be other datasets taxonomy, ontologies, who standards)
    + How to find related studies/datasets;  need some mechanism for grouping datasets
