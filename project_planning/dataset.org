@@ -93,15 +93,16 @@
      [X] References table: Try to add column for link type (search, jbrowse, record, download). For now reordered by text so download is (mostly) at the top. Will try a fancier jsx solution later.
 
    + Bugs seen in QA
-     [ ] References table in mbio gives server error
-     [ ] Data Context section header shows when section is empty
-     [ ] VeuPathDB AllDatasets query not working
-     [ ] LatestVerstion table needs outer join to datasetpresenter table (see plasmo DS_20c45d8ed1) (Bindu)
+     [X] References table in mbio gives server error - fix stashed on EbrcModelCommon
+     [X] Data Context section header shows when section is empty. Fixed by removing `genecount` from pages.
+     [-] VeuPathDB AllDatasets query not working. Maybe fixed? Now showing No Datasets instead of breaking - so maybe done?
+     [X] LatestVerstion table needs outer join to datasetpresenter table (see plasmo DS_20c45d8ed1) (BG)
      [ ] Explore other Categories of Data links throw errors (SW)
      [ ] ExternalDatabases links should open a new window (SW)
-     [ ] Genome Version in Data set release history could link to the record? (SW)
-     [ ] External Resources may be better as a table? (SW)
-     [ ] In Data Context, Genes and Gene count should link to search returning these genes (SW)
+     [-] Jbrowse view peptides link opens jbrowse with annotation, not proteomics tracks (SW) I think Bindu is working on this?
+     [ ] "Sequence types for highest assembled sequence". "Contigs highest assembeled sequence". If we need the other columns we have a table called 
+     select * from apidb.agppiece. "Highest level assembled contigs"
+     [X] DatasetAlias query returning errors for mbio, clinepi? Maybe just needs an extra exclude? Solved with dummy query
 
 
 * Phase 3 (how does a dataset relate to study/investigation?)
