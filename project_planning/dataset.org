@@ -98,7 +98,7 @@
      [-] VeuPathDB AllDatasets query not working. Maybe fixed? Now showing No Datasets instead of breaking - so maybe done?
      [X] LatestVerstion table needs outer join to datasetpresenter table (see plasmo DS_20c45d8ed1) (BG)
      [ ] Explore other Categories of Data links throw errors (SW)
-     [ ] ExternalDatabases links should open a new window (SW)
+     [X] ExternalDatabases links should open a new window (SW)
      [-] Jbrowse view peptides link opens jbrowse with annotation, not proteomics tracks (SW) I think Bindu is working on this?
      [ ] "Sequence types for highest assembled sequence". "Contigs highest assembeled sequence". If we need the other columns we have a table called 
      select * from apidb.agppiece. "Highest level assembled contigs"
