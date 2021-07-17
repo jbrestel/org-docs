@@ -1,97 +1,224 @@
 #+STARTUP: indent
-* TODO EDA Updates for Steve  <2021-06-14 Mon>
-+ AttributeGraph table
-  1. ordinal_values -> ordered_values
-  2. in is_merge_key and is_repeated i am seeing null where in the other booleans i see 0.  i think we should be consistent, and use 0
-  3. for dates, distinct_values_count is 0.
-  4. for many number variables, precision is null.  i don't think it should ever be.
+#+OPTIONS: with-tags t
+* TODO NOTES from
+1. Study Characteristics (where to load)
+2. Should we rename EDA schema?
+3. Is there a limit on number of tables in a schema?
+4. Which studies would be made into Mega Studies
+   - Current use cases are all studies for Mbio and all studies for MapVEu
 
-* TODO Can do these now
-1. (Wojtek) units and scale (owl file or ISA??)
-2. (Jay) validate annotation properties
-3. (JohnB) createEntityGraph and dropEntityGraph sqls seem not to be working
-4. (JohnB) eda schema instead of apidb
-7. (JohnB) Binary inference has priority over ordinal
-8. (Jay) incorporate the geohash file into the samples or better calculate automatically whenever we have latitude/long
+* EDA Backend
 
-* Unresolved Questions
-1. Should study be new entity type?
-   + may be needed for xstudy comparisons
-2. can we use lat/long to make geohash on the fly
-3. Units for cross study comparisons should convert to base unit
-4. do we need an additional plugin to uniion all studies and create a big "Meta study"??
+Goal :: Review what has been done and get an idea of where we are heading (3-6 months)
 
-* Projects
-** ClinEpi
-+ feature site from cloned instance
-+ dev site from rm41910 instance
-+ workflow development in progress
-+ once backedn is stable, can begin loading all studies
-** Microbiome
-+ some possible performance issues with EC levels / Pathways for functional shotgun data
-+ Need analysis service (phase2 deliverable)
-+ metabolite data
-+ port of shiny applications
-** Genomics
-** MapVEU
-*** Loading issues
-1. Load 2 studies (Phenotype/Genotype) from ISA dumps.  Create plugin to make x study comparison with Units in base unit
-2. Map Data Mixed units within studies?
+[[https://feature.clinepidb.org/ce.feature/app/eda][ClinEpi Feature Site]]
 
-** Cross study Comparison (and cross project)
-+ same use case BobM has for the Map Applicatoin??
-** DIY
-+ DONE Refactoring of ClinEpi preprocessing scripts
-+ potentially some shared code (ClinEpi/Mbio)
-  + input for mbio is a biom file (table of otu and table of sample details)
-  + schema will be shared (entity graph)
-+ Need to update User Datasets to work with eda schema
-+ how to do inserts? can we reuse the existing plugins?
-  + mbio will need different reader due to the biom file input
-+ what about ontology dependencies?
+[[https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz][EDA Workspace Working Group]]
 
-
-* Preprocessing
-+ All entities need ontology term
-  + Household,Participant,Observation, ...
-+ can we use the owl file in place of the ontologymapping.xml?
-  + can we get rid of the ontologymapping.xml entirely??
+** Vocabulary
+- Study
+- Entity Type
+- Entity
+- Entity Type Graph
+- Attribute (Variable/Property/Characteristics)
+- Attribute Graph
+- Process (Application of a Protocol)
+- Ontology Term
   
-* Workflow
-+ Replaced InsertInvestigation and Tuning Table steps with the EDA Plugins Above
-+ Each dataset should be able to add ontologysynonyms for entitytypes
-+ Need new step to make the dowload files
-  + Need to retain any custom code for big merged file
-+ apidb.study and apidb.entitytype have internal_abbrev columns which are used for naming of dataset specific tables
-  
-* Plugins
-1. InsertEntityGraph :: This plugin reads the ISA(Tab or Simple) files and populates normalized tables representing the EntityGraph
-   + GUS::Model::ApiDB::Study;
-   + GUS::Model::ApiDB::EntityType;
-   + GUS::Model::ApiDB::ProcessType;
-   + GUS::Model::ApiDB::EntityAttributes;
-   + GUS::Model::ApiDB::ProcessAttributes;
-   + GUS::Model::ApiDB::AttributeUnit;
-   + GUS::Model::ApiDB::ProcessTypeComponent;
-2. LoadAttributesFromEntityGraph :: This plugin reads the Values from the EntityGraph Table and makes a big tall table (key/values).  We calculates stats at this point for each variable/dataset/entityType;  THe Attribute table is populated for the LEAF nodes in our "AttributeGraph";  We require the owl file at this point as a sanity check
-   + GUS::Model::ApiDB::Attribute
-   + GUS::Model::ApiDB::AttributeValue
-3. LoadEntityTypeAndAttributeGraphs :: Populate tables for parent-child relationships (EntityTypes and Attributes);  There is only one owl file per dataset.  The AttributeGraph table here does not care about EntityType;  AttributeGraph also stores annotation properties from the owl file
-   + GUS::Model::ApiDB::AttributeGraph
-   + GUS::Model::ApiDB::EntityTypeGraph
-4. LoadDatasetSpecificEntityGraph :: Join Attribute (LEAF) with AttributeGraph
-   + GUS::Model::ApiDB::AttributeValue_${studyId}_${EntityTypeId}
-   + GUS::Model::ApiDB::Ancestors_${studyId}_${EntityTypeId}
-   + GUS::Model::ApiDB::AttributeGraph_${studyId}_${EntityTypeId}
+** Out of scope
+*** Dependencies
+**** Preprocessing
+**** ISA Reader (CBIL::ISA)
+*** Query Performance
+*** Data Vis and UX
+** Schema / Tables                                             :JohnI:JohnB:
+[[~/Pictures/eda_uml.png][UML Diagram]]
+- [X] update schema installer to create EDA and EDA_UD schemas (replace ApiDB)
+** Plugins                                                :JohnB:Wojtek:Jay:
+*** InsertEntityGraph
+- [-] read the ISA(Tab or Simple) files and populate normalized tables representing the EntityGraph
+  - [X] EDA::Study
+  - [X] EDA::EntityType :: Household,Partipant, Sample ...
+  - [X] EDA::ProcessType :: Name of a process/protocol that connects entities
+  - [X] EDA::EntityAttributes :: stable id for the entity + json clob of variables and values
+  - [X] EDA::ProcessAttributes :: protocol/edge + json clob of variables and values 
+  - [X] EDA::AttributeUnit
+  - [ ] EDA::AttributeScale :: log,ln, linear
+  - [X] EDA::ProcessTypeComponent :: used to encode a series of protocols
+- [X] Add GeoHash attributes if we have Lat/Long
+- [ ] argument for schema (eda vs eda_ud)
+*** SubclassInsertEntityGraph                         :Wojtek:MicrobiomeDB:
+- [X] Append Assay and Data Nodes
+- [ ] argument for schema (edv vs eda_ud)
+*** LoadAttributesFromEntityGraph
+- [X] Read the Values from the EntityGraph Tables and makes a big tall table (key/values).
+  - [X] EDA::Attribute :: Calculate stats at this point for each variable/dataset/entityType;  THe Attribute table is for the LEAF nodes in our "AttributeGraph";
+  - [X] EDA::AttributeValue :: Tall table with a row for each value for each variable/entity
+- [X] Require the owl file at this point as a sanity check
+- [ ] Handle Units from Annotation Properties
+- [ ] Handle Scale from Annotation Properties
+- [ ] Check that binary inference has priority over ordinal
+- [ ] argument for schema (edv vs eda_ud)
+*** LoadEntityTypeAndAttributeGraphs
+- [X] Populate tables for parent-child relationships (EntityTypes and Attributes); AttributeGraph also stores annotation properties from the owl file
+  - [X] EDA::AttributeGraph :: Connect Attribute (Leaf) to parent/child relationships defined by ontology.  also stores annotation properties from the owl file
+  - [X] EDA::EntityTypeGraph :: Infer entity type relationships from the Inputs/Outputs
+- [ ] argument for schema (edv vs eda_ud)
+*** LoadDatasetSpecificEntityGraph
+- [-] Populate Dataset Specific Tables
+  - [X] EDA::AttributeValue_${studyId}_${EntityTypeId} :: Subset of the main AttributeValue Table (per dataset)
+  - [X] EDA::Ancestors_${studyId}_${EntityTypeId} :: Fields for stable ids for each ancestor
+  - [X] EDA::AttributeGraph_${studyId}_${EntityTypeId} :: Join Attribute Table  (LEAF) with AttributeGraph;
+  - [ ] EDA::EntityAttributes_${studyId}_${EntityTypeId} :: Wide table with Typed Fields
+- [ ] argument for schema (eda vs eda_ud)
+*** LoadMegaStudy                              :MapVEu:MicrobiomeDB:Wojtek:
+- [ ] Union of all Studies for Project (Cross Study Comparisons)
+- [ ] Units need to convert to base unit
+- [ ] How to add Study (display name) as entitytype or variable?
+- [ ] argument for schema (edv vs eda_ud)
+** Ontologies and Annotation Properties                                :Jay:
+*** Annotation Properties                                   :ClinEpiDB:Jay:
+- [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study is loaded
+- [ ] Which fields from annotation properties are required by EDA?  implcations for Genomics/Mbio/MapVEu
+*** OWL File Organization                       :Microbiome:Genomcs:MapVEu:
+- [ ] consider dataset specific webdisplay ontologies
+- [ ] can we use the owl file in place of the ontologymapping.xml?
+** Reflow Workflow                                                     :Jay:
+*** Phase1 / ClinEpi
+- [ ] finalize ReFlow Workflow
+  - [ ] create download files;  use "is_merge_key"
+  - [ ] validation of annotation properties (ad hoc or via owl file)
+  - [ ] add TBD qa/validation steps
+*** ClinEpi Graphviz
+**** Input Tables
+#+name: node-table
+| *node*                               | *label*                         | *shape* | *fillcolor* |
+|--------------------------------------+---------------------------------+---------+-------------|
+| start                                | start                           | ellipse |             |
+| end                                  | end                             | ellipse |             |
+| webdisplay_ontology                  | Webdisplay Ontology             |         | yellow      |
+| study_classifications                | Study Classifications           |         | yellow      |
+| annotation_properties                | Annotation Properties           |         | yellow      |
+| entity_types                         | Entity Types                    |         | yellow      |
+| insert_entity_graph                  | Main Entity Graph               |         | purple      |
+| load_attributes                      | Attributes and Values           |         | purple      |
+| load_graphs                          | EntityType And Attribute Graphs |         | purple      |
+| load_dataset_specific                | Dataset Specific Tables         |         | purple      |
+| download                             | Download Files                  |         |             |
+| validate_download                    | Validate Download               |         |             |
+| validate_tables                      | Validate Tables                 |         |             |
+| validate_annotation_properties       | Validate Annotation Properties  |         |             |
 
-* Popset Sequences
-+ Workflow
-  + Do we continue to do alignments to family?
-+ Presentation
-  + Leave as WDK Records?
-  + Integrate into EDA?
-    + load as entitygraph (json)
-    + subset would be ok for things like Geographic Location
-    + other graphs?
-+ 
-* 
+#+name: graph-table
+| from                           | to                             | label |
+|--------------------------------+--------------------------------+-------|
+| start                          | webdisplay_ontology            |       |
+| webdisplay_ontology            | study_classifications          |       |
+| webdisplay_ontology            | validate_annotation_properties |       |
+| webdisplay_ontology            | entity_types                   |       |
+| insert_entity_graph            | load_attributes                |       |
+| load_attributes                | load_graphs                    |       |
+| load_graphs                    | load_dataset_specific          |       |
+| load_dataset_specific          | download                       |       |
+| load_dataset_specific          | validate_tables                |       |
+| validate_download              | end                            |       |
+| download                       | validate_download              |       |
+| validate_tables                | end                            |       |
+| entity_types                   | insert_entity_graph            |       |
+| validate_annotation_properties | annotation_properties          |       |
+| annotation_properties          | load_graphs                    |       |
+
+**** graph-from-tables
+
+#+name: graph-from-tables
+#+HEADER: :var nodes=node-table graph=graph-table
+#+BEGIN_SRC emacs-lisp :colnames yes :exports results
+     (concat
+          "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
+          (mapconcat
+           (lambda (x)
+             (format "%s [label=\"%s\" shape=%s style=\"filled\" fillcolor=\"%s\"]"
+                             (car x)
+                             (nth 1 x)
+                             (if (string= "" (nth 2 x)) "box" (nth 2 x))
+                             (if (string= "" (nth 3 x)) "none" (nth 3 x))
+                             )) nodes "\n")
+          "\n"
+          (mapconcat
+           (lambda (x)
+             (format "%s -> %s [taillabel=\"%s\"]"
+                             (car x) (nth 1 x) (nth 2 x))) graph "\n")
+          )
+#+END_SRC
+
+#+HEADER: :var input=graph-from-tables :file ~/reflowMadness.png
+#+BEGIN_SRC dot :exports results
+digraph {
+ $input
+}
+#+END_SRC
+
+#+RESULTS:
+[[file:~/reflowMadness.png]]
+
+
+*** Other Components
+- [ ] MBio and MapVEU Need a dedicated workflow Template
+- [ ] Where are we loading application specific data? (datasets, SNPs, WHO Standards, ...)
+
+** Data Validation                               :JohnB:Steph:Jay:ClinEpiDB:
+*** Reader Interface
+- $entityType = $dataset->getEntityType($sourceId);
+- @variables = $entityType->getVariables();
+- $entityType->getEntityCount();
+- $entityType->getStableIds();
+- $entityType = $entity->getEntityType();
+- $entity->getStableId();
+- $entity->getValue(VariableSourceId, [string,number,date]);
+- $attribute->getDisplayName(); # lots of other variable info
+- $attribute->hasValues(); # lots of other variable info
+- $attribute->isContinuous(); # lots of other variable info
+*** Readers
+- [ ] Raw Data (dataset specific);  Maybe not required?
+- [ ] Download File
+- [ ] Dataset Specific Database Queries
+- [ ] Webservices
+*** Tests
+- [ ] Tests can only use methods defined by the API
+- [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
+  + example:  "ok($participantEntityType->getEntityCount() == 5000)";
+    + This example get the counts of participants and ensures that the number it gets is 5000;
+
+** Phase1 Production Loading                                 :ClinEpiDB:Jay:
+- [ ] work with outreach to preprocess studies targeted for beta release
+- [ ] reload data as requested into rm41910 until passes manual qa
+- [ ] Load into "EDA" schema instead of ApiDB
+- [ ] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
+
+** Dev Loading
+*** MapVEu                                                     :BobM:JohnB:
+- [ ] Load studies from ISA dumps
+- [ ] Mixed units within studies?
+- [ ] Genotype / Phenotype Assays
+
+*** MicrobiomeDB                                                   :Wojtek:
+- [ ] performance issues with EC levels for functional shotgun data
+- [ ] metabolite data
+- [ ] Dan identified a small number of studies to load into rm41910
+
+*** Genomics
+- [ ] DNASeq (SNPs and CNV)
+- [ ] Host Pathogen
+- [ ] Antibody Microarray (ICEMR)
+- [ ] PopSet Isolate Sequences
+- [ ] Single cell RNASeq ??
+- [ ] Systems Biology  
+** DIY                                   :ClinEpiDB:MicrobiomeDB:Jay:Wojtek:
+- [ ] Refactor of ClinEpi preprocessing scripts and make Container
+- [ ] how to do inserts? can we reuse the existing plugins?
+- [ ] input for mbio is a biom file (table of otu and table of sample details)
+- [ ] how to handle ontology dependencies?
+
+
+
+

@@ -1,4 +1,5 @@
 #+STARTUP: indent
+
 * Redmine PROJECT
 :PROPERTIES:
 :query_id: 298
@@ -18,12 +19,11 @@
 #+END_DESCRIPTION
 
 
-
-
 * B53 :JohnB:
 ** Workflow Changes
 - [X] Remove step copy to webservices and download files
 ** Schema Changes
+- [ ] study.study study_id and investigation_id need to be number(8)
 - [X] Add "database_orig" and "primary_key_orig" fields to every table in "Core.TableInfo"
 - [X] Add Index on each table for 3 fields (pk, pk_orig, db_orig)
 - [X] new script to add fields after apidbschema has been made.  last script when creating apidb schema
@@ -127,20 +127,23 @@
 - [X] webservices?? probably not an issue
 - rerun tuning manager for intronjunctions
 ** Manual QA :Bindu:Cristina:JohnI:JohnB:Mark:
-- [ ] organisms and datasets missing (~500 / 516?)
+- [X] organisms and datasets missing (~500 / 516?)
   - theory is missed fung and plas inc addition for b52
 - [ ] (Cristina) [Reference] display in org param (client side)
 - [ ] replace use of @PROJECT_ID@ macro with display name for the project
 - [ ] initial qa resulted in some redmines [[https://redmine.apidb.org/issues/12567][Redmines]]
-- [ ] includes/excludes  for project specific searches and tables
+- [ ] includes/excludes  for project specific searches and tables.  this should be handled by automated tests
+  - [ ] Check SignalP, Interpro, ...
+  - [ ] Look for the same sqlQuery but with different sql (include/exclude)
 - [ ] Any searches/record tables which are site specific need to be
 - [ ] Focus on gene page
   - table content (compare component to uni)
 - [ ] gene model characteristics / filter param not returning
-** Automated QA Process :Mark:JohnI:JohnB:Bindu:
-- compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
+** Automated QA Process :Mark:JohnI:JohnB:Bindu:Lin:
+
+- [ ] compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
   - [ ] Record expected and Actual Results
-- [ ] Selenium Tests
+- [ ] Selenium Tests for Search Pages
 - [-] use the webserive queries for Performance Tests
   - [X] compare plasmodb.org (b52) to feature.veupathdb.org
   - [ ] address faiures
@@ -149,11 +152,18 @@
   - [X] using sql minus operation, compare 052 attribute tables in eupa052n to uni-inc
   - [ ] address faiures
   - [ ] Record expected and Actual Results
-- [-] Record pages;  can test against individual components
+- [-] Record page tables;  can test against individual components
   - [X] foreach record table, run the sql and compare counts (union for all components)
   - [ ] address faiures
   - [ ] Record expected and Actual Results
-Performance
+- [ ] Run all Param queries on uni052n vs union of components
+  - [ ] Deal with enum params
+  - [ ] is there a webservice way to get the values for all params
+** Classes of Problems
+- [ ] :Bindu: Webservice Issues (hsss, motif, profile similarity)
+- [ ] includes/excludes
+
+** Performance
 - punt
 ** Site Search
 - indexes build from b52 instances

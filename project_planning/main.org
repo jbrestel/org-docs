@@ -7,21 +7,29 @@
 - [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
 ** UniDB :JohnB:
 - [[https://github.com/jbrestel/org-docs/blob/main/project_planning/unidb.org][UniDB Notes]]
--  [ ] Turn on IntronJunctions table for "uni052n"
-** SNP (short term fix) :TODO:
+- [ ] How to handle schema changes?
+  - [ ] add columns
+  - [ ] add tables
+  - [ ] alter size of columns
+** SNP (short term fix) :TODO:JohnB:
 - [ ] Add some summary attributes like "has_stop_codon" to the ApiDB.SNP table
+- [ ] Test that we can make a table from json array
 - [ ] Add json (clob) object for each row in ApiDB.SNP.  This will replace loading ApiDB.SequenceVariation
+- [ ] Truncate SNP table in uni-inc (after b53 clone)
 ** Taxonomy :TODO:
 - [ ] script to update SRes.Taxon with latest from ncbi
 - [ ] better handle Taxonomy within UniDB
 ** Intron Junctions :Brian:TODO:
 - [ ] Move Intron Junctions out of tuning manager into workflow
 ** DNASeq Workflow (nextflow) :Mark:Kathryn:JohnB:
-- [ ] down sampling and recalculate stats
-- [ ] testing
-- [ ] processSequencevariations script (indels) and merge VCFs
-** GPI anchor and MitoProt analysis :TODO:
-* JBrowse :Paul:TODO:
+- [ ] finish nextflow
+  - [ ] testing in progress
+  - [ ] down sampling and recalculate stats
+- [ ] reflow workflow 
+  - [ ] plug nextlfow plugin
+  - [ ] processSequencevariations script (indels) and merge VCFs
+** Plan GPI anchor and MitoProt and other analysis :TODO:Mark:Kathryn:Brian:BobM:
+* JBrowse :Paul:TODO:JohnB:
 ** [[https://redmine.apidb.org/projects/p110/issues?set_filter=0][JBrowse Redmine]]
 * DIY Study in EDA
 ** MBio :Wojtek:
@@ -33,12 +41,13 @@
 * EDA Data
 ** Automated QA :Steph:Jay:JohnB:
 ** Load Files From ISA Dumps :Jay:JohnB:BobM:
-** Plugin which will make "mega study" (union of all other studies for project) :JohnB:
+** Plugin which will make "mega study" (union of all other studies for project) :Wojtek:
 ** Popset :TODO:
 * Model
 ** Dataset Record :Ann:
-- [[https://github.com/jbrestel/org-docs/blob/main/project_planning/dataset.org][Dataset Notes]]
-** Organism Preferences :TODO:
+- [ ] [[https://github.com/jbrestel/org-docs/blob/main/project_planning/dataset.org][Dataset Notes]]
+
+** Organism Preferences :TODO:Mark:
 - [ ] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
 ** Results Page :Danielle:
 + svg graphs instead of png 
@@ -49,3 +58,5 @@
 - [[https://github.com/jbrestel/org-docs/blob/main/project_planning/wgcna.org][WGCNA Notes]]
 * OrthoMCL
 ** Subtraction Analysis :MarkH:
+
+
