@@ -1,24 +1,53 @@
 #+STARTUP: indent
 #+OPTIONS: with-tags t
+* Build 54
+** OrthoMCL :Bindu:
+- [ ] Site configuration (Jenkins site build)
+- [ ] Sync Webservice and Download files.  Work with Bindu and Wei to make sure these are created
+- [ ] Change default group in model for searches.  
+** Apollo :Paul:
+- [X] Remake organism directories (only "approved" organisms)
+- [ ] Confrim the link from gene page has been removed for organisms no longer in apollo
+** MicrobiomeDB :Wojtek:
+- Bug with Cross Study Search
+** ClinEpiDB
+- No new data for b54
+- Are we still using b53 branch for this site?
+** EDA
+- hard deadline ASTMH (Nov 15)
+- [ ] public beta Oct 15
+** UniDB
+- [ ] Intron Junctions missing fk constraint
+  - [ ] Patch update nasequenceid mapping (Patch other tables with misisng fk constraints)
+    - [ ] uni-inc, uni053n, uni054(s/n)
+- [ ] Data Loading for b54 (uni-inc)
+  - [ ] Update NCBI Taxonomy
+  - [ ] Run Tuning manager
+- [ ] beta.unidb.org will continue to run using uni053n
+  - [ ] Performance issues
+    - [ ] general slow searches
+    - [ ] outlier slow searches
+- [ ] Test Taxonomy Update 
 * Genomics Workflow
+** SOP For Schema Changes
+** SOP For Every Known Datatype
+- [ ] RNASeq
+- [ ] Microarray
+- [ ] Phenotype
+- [ ] Chip Chip
+- [ ] Chip Seq
+** Apollo
+- [ ] Test Backend with All features.  Can we do performance tables
 ** ESTs :TODO:
 - [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
 - [ ] "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
 - [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
 ** UniDB :JohnB:
-- [[https://github.com/jbrestel/org-docs/blob/main/project_planning/unidb.org][UniDB Notes]]
-- [ ] How to handle schema changes?
-  - [ ] add columns
-  - [ ] add tables
-  - [ ] alter size of columns
-** SNP (short term fix) :TODO:JohnB:
-- [ ] Add some summary attributes like "has_stop_codon" to the ApiDB.SNP table
-- [ ] Test that we can make a table from json array
-- [ ] Add json (clob) object for each row in ApiDB.SNP.  This will replace loading ApiDB.SequenceVariation
-- [ ] Truncate SNP table in uni-inc (after b53 clone)
+- [[file:/home/jbrestel/project_home/org-docs/project_planning/unidb.org][UniDB Notes]]
 ** Taxonomy :TODO:
-- [ ] script to update SRes.Taxon with latest from ncbi
-- [ ] better handle Taxonomy within UniDB
+- [X] script to update SRes.Taxon with latest from ncbi
+- [X] better handle Taxonomy within UniDB
+- [ ] add taxon update to plugin
 ** Intron Junctions :Brian:TODO:
 - [ ] Move Intron Junctions out of tuning manager into workflow
 ** DNASeq Workflow (nextflow) :Mark:Kathryn:JohnB:
@@ -29,8 +58,8 @@
   - [ ] plug nextlfow plugin
   - [ ] processSequencevariations script (indels) and merge VCFs
 ** Plan GPI anchor and MitoProt and other analysis :TODO:Mark:Kathryn:Brian:BobM:
-* JBrowse :Paul:TODO:JohnB:
-** [[https://redmine.apidb.org/projects/p110/issues?set_filter=0][JBrowse Redmine]]
+- https://github.com/BolognaBiocomp/predgpi
+- https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions
 * DIY Study in EDA
 ** MBio :Wojtek:
 ** ClinEpi :Jay:
@@ -41,21 +70,27 @@
 * EDA Data
 ** Automated QA :Steph:Jay:JohnB:
 ** Load Files From ISA Dumps :Jay:JohnB:BobM:
+- [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
 ** Plugin which will make "mega study" (union of all other studies for project) :Wojtek:
 ** Popset :TODO:
 * Model
 ** Dataset Record :Ann:
-- [ ] [[https://github.com/jbrestel/org-docs/blob/main/project_planning/dataset.org][Dataset Notes]]
-
-** Organism Preferences :TODO:Mark:
-- [ ] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
+- [-] [[file:dataset.org][Dataset Details]]
+  - [X] Phase1
+  - [X] Phase2
+  - [ ] Phase3
+** Organism Preferences :JohnB:MarkH:
+- [X] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
+- [ ] Internal pages for ChipChip and Y2H
 ** Results Page :Danielle:
 + svg graphs instead of png 
 ** Gene Lists as User Datasets :Omar:Lin:
 - [ ] make gene lists for plasmodb from publications 
+
+
 ** Colocation for ESTs -> Genes :TODO:
-** wgcna :Lin:
-- [[https://github.com/jbrestel/org-docs/blob/main/project_planning/wgcna.org][WGCNA Notes]]
+** wgcna :Ann:
+- [[file:wgcna.org][WGCNA Details]]
 * OrthoMCL
 ** Subtraction Analysis :MarkH:
 

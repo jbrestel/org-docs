@@ -1,5 +1,6 @@
 #+STARTUP: indent
-
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+OPTIONS: num:nil tags:nil
 * Redmine PROJECT
 :PROPERTIES:
 :query_id: 298
@@ -20,10 +21,12 @@
 
 
 * B53 :JohnB:
-** Workflow Changes
+** DONE Site Configuration
+- [X] (Cristina) confiugre beta and qa sites to use "uni-build-53" and uni053n
+** DONE Workflow Changes
 - [X] Remove step copy to webservices and download files
-** Schema Changes
-- [ ] study.study study_id and investigation_id need to be number(8)
+** DONE Schema Changes
+- [X] study.study study_id and investigation_id need to be number(8)
 - [X] Add "database_orig" and "primary_key_orig" fields to every table in "Core.TableInfo"
 - [X] Add Index on each table for 3 fields (pk, pk_orig, db_orig)
 - [X] new script to add fields after apidbschema has been made.  last script when creating apidb schema
@@ -50,10 +53,10 @@
    END LOOP;
    END;
   #+end_src
-** ApiCommonDatasts
+** DONE ApiCommonDatasts
 - [X] configure only dbs which have been exported for b53
 - [X] bld ApiCommonDatasts and generateFromDatasets
-** Plugin Changes
+** DONE Plugin Changes for Sequence Variations
 - [X] Skip ApiDB.SequenceVariation
   - ~ 58 hours to load 633 mil rows from Plasmo (fungi has > 1.3 billion rows)
     #+BEGIN_EXAMPLE
@@ -67,24 +70,111 @@
     Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
     Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
     #+END_EXAMPLE
-** Tuning Manager :JohnI:
-- [ ] SNPAttributes (ok for b53 but will be missing some fields)
-- [ ] SNPStrains (update sql so it doesn't use SequenceVariation)
+** DONE Tuning Manager                                               :JohnB:
+- [X] SNPAttributes (ok for b53 but will be missing some fields)
+- [X] SNPStrains (update sql so it doesn't use SequenceVariation)
   #+begin_src sql
 	select * from study.protocolappnode where name like '% (Sequence Variation)'
   #+end_src
-** Model
-- [ ] Using include/exclude projects make the snpattributes which are missing internal for b53
-
+** DONE Model                                                        :MarkH:
+- [X] Using include/exclude projects make the snpattributes which are missing internal for b53
+** DONE FeatureLocation Patch 
+- [X] Truncate apidb.featurelocation
+  #+begin_src sql
+  truncate table apidb.featurelocation;
+  #+end_src 
+- [X] remove orf code from GUSTableLoader
+- [X] make new Temporary apidb.databasetablemapping (decode inc->053n) and make indexe and delete rows from apidb.databasetablemapping for featurelocation
+  #+begin_src sql
+    create table apidb.databasetablemappingPatch as 
+    select database_table_mapping_id
+         , decode(database_orig, 'cryp-inc', 'cryp053n',
+                                 'giar-inc', 'giar053n',
+                                 'ameb-inc', 'ameb053n',
+                                 'piro-inc', 'piro053n',
+                                 'toxo-inc', 'toxo053n',
+                                 'vect-inc', 'vect053n',
+                                 'host-inc', 'host053n',
+                                 'tryp-inc', 'tryp053n',
+                                 'tvag-inc', 'tvag053n',
+                                 'fung-inc', 'fung053n',
+                                 'plas-inc', 'plas053n',
+                                 'micr-inc', 'micr053n', 'ERROR') as database_orig
+         , table_name
+         , primary_key_orig
+         , primary_key
+         , modification_date
+         , user_read
+         , user_write
+         , group_read
+         , group_write
+         , other_read
+         , other_write
+         , row_user_id
+         , row_group_id
+         , row_project_id
+         , row_alg_invocation_id
+    from apidb.databasetablemapping
+    where table_name !=  'ApiDB::FeatureLocation';
+  #+end_src
+- [X] rename table (log in as apidb user)
+  #+begin_src sql
+    rename databasetablemapping to databasetablemapping_old
+    rename databasetablemappingpatch to databasetablemapping
+  #+end_src	
+- [X] add indexes
+  #+begin_src sql
+    GRANT INSERT, SELECT, UPDATE, DELETE ON ApiDB.DatabaseTableMapping TO gus_w;
+    GRANT SELECT ON ApiDB.DatabaseTableMapping TO gus_r;
+    ALTER TABLE ApiDB.DatabaseTableMapping ADD CONSTRAINT database_map_tab2_pk PRIMARY KEY (database_table_mapping_id);
+    CREATE INDEX apidb.db_tbl_map_tab2_idx ON ApiDB.DatabaseTableMapping (database_orig, table_name, primary_key_orig, primary_key) tablespace indx;
+#+end_src
+- [X] Run plugin manually for FeatureLocation (can we use direct path mode?)
+  #+begin_src bash
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database piro053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/piro --mode load --commit ;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database ameb053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/ameb --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database cryp053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/cryp --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database giar053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/giar --mode load --commit ;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database host053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/host --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database micr053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/micr --mode load --commit ;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database plas053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/plas --mode load --commit ;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database toxo053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/toxo --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database tvag053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/tvag --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database tryp053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/tryp --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database fung053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/fung --mode load --commit;
+    ga ApiCommonData::Load::Plugin::InsertUniDB --database vect053n --table_reader 'ApiCommonData::Load::GUSTableReader' --logDir /home/jbrestel/tmp/featureLocationPatch/vect --mode load --commit;
+    #+end_src
+- [X] decode 053n -> inc
+** DONE MassSpecFeature Patch
+- [X] update string6 to source_id to retain orig source_id 
+  #+begin_src sql
+   update dots.aafeatureimp 
+   set string6 = source_id
+   where subclass_view = 'MassSpecFeature';;
+  #+end_src
+- [X] use mapping table to update source_id:  yew:~/patches/patchMassSpecFeature.pl
+- [X] Patch uni-inc  
+** Punt 
+1. SequenceVariations were not loaded;
+   - tables on snp record page
+   - one or two snp attributes 
+2. Intron Junctions
+   - jbrowse track (turn off)
+3. User Datasets (installed into one app db only)
+4. Llinas Mass Spec Profiles
 * B54 :JohnB:Wei:
-** Genomics Workflow Changes
-- [ ] Do not load ApiDB.SequenceVariation.  Instead add JSON clob to ApiDB.SNP for the variations which can be used to make the snp record page table
-- [ ] Add other 2 SNP Attributes which are being added by tuning manager
-- [ ] Required rebuild for all snp datasets 
-** Schema Changes
+** DONE Genomics Workflow Changes
+- [X] Add other 2 SNP Attributes which are being added by tuning manager
+- [X] Required rebuild for all snp datasets 
+** TODO Schema Changes
 - [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer
-- [ ] add 3 new fields to SRes.OntologySynonym
-** Plugin Changes
+- [X] add 3 new fields to SRes.OntologySynonym
+** DONE Bulk Loader for SNP / Seqvars
+** DONE Add Mass Spec profile (Llinas) [[redmine:45318][redmine:45318]]
+** TODO Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy
+** DONE Undo unidbcomponents
+* Future Releases :JohnI:JohnB:MarkH:Bindu:
+** Plugin Changes for DatabaseMapping fields
 - [ ] Database Mapping Table
   - [ ] Global Rows still need to populate existing Database Mapping Table
   - [ ] Component Specific Rows should populate the 2 new fields in the primary table
@@ -113,75 +203,56 @@
       and upper(wit.table_name) = upper(ti.name)
       and ti.VIEW_ON_TABLE_ID is null
     #+end_src
+** Tuning Manager
+*** Why so many dependencies on DatasetPresenter?
+*** Intron Junctions [[redmine:45717][redmine:45717]]
+*** Move Organism Specific to workflow
+*** Comparative Genomics ???
+** Model (JBrowse, WDK, WS Plugins, ...)
+- [ ] Profile Similarity (Inject this instead of hard coding)
+- [ ] Phenotype (Injection)
+- [ ] Cellular Location (TriTyp, Giardia?) (Injection)
+- [ ] MassSpec
+  - [ ] Change tuning manager and model to use mass_spec_summary_id in place of source_id (grep dots.massspecfeature)
+  - [ ] Confirm with data loaders (update ApiCommonData)    
+- [ ] remove project_id from webservice queries (once we remove federated portal)
+- [ ] Text Searches (will site search fix these?)
+** wgcna (host /pathogen)
 
-* Future Releases :JohnI:Lin:
-- How to update Taxonomy?
-  - should unidb workflow load one version of taxonomy instead of pulling from other dbs?
-- wgcna (host /pathogen)
-
-* QA for first release
-** Path to fix database for missing data :JohnB:
-- [X] Confirm problem due to missed undo of fung-inc an plas-inc
-- [X] do inc addition for plas and fung
-- [X] (may take up to a week?) Rerun tuning manager
-- [X] webservices?? probably not an issue
-- rerun tuning manager for intronjunctions
-** Manual QA :Bindu:Cristina:JohnI:JohnB:Mark:
-- [X] organisms and datasets missing (~500 / 516?)
-  - theory is missed fung and plas inc addition for b52
-- [ ] (Cristina) [Reference] display in org param (client side)
-- [ ] replace use of @PROJECT_ID@ macro with display name for the project
-- [ ] initial qa resulted in some redmines [[https://redmine.apidb.org/issues/12567][Redmines]]
-- [ ] includes/excludes  for project specific searches and tables.  this should be handled by automated tests
-  - [ ] Check SignalP, Interpro, ...
-  - [ ] Look for the same sqlQuery but with different sql (include/exclude)
-- [ ] Any searches/record tables which are site specific need to be
-- [ ] Focus on gene page
-  - table content (compare component to uni)
-- [ ] gene model characteristics / filter param not returning
-** Automated QA Process :Mark:JohnI:JohnB:Bindu:Lin:
-
-- [ ] compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
-  - [ ] Record expected and Actual Results
-- [ ] Selenium Tests for Search Pages
-- [-] use the webserive queries for Performance Tests
-  - [X] compare plasmodb.org (b52) to feature.veupathdb.org
-  - [ ] address faiures
-  - [ ] Record expected and Actual Results
-- [-] attribute tables
-  - [X] using sql minus operation, compare 052 attribute tables in eupa052n to uni-inc
-  - [ ] address faiures
-  - [ ] Record expected and Actual Results
-- [-] Record page tables;  can test against individual components
-  - [X] foreach record table, run the sql and compare counts (union for all components)
-  - [ ] address faiures
-  - [ ] Record expected and Actual Results
-- [ ] Run all Param queries on uni052n vs union of components
-  - [ ] Deal with enum params
-  - [ ] is there a webservice way to get the values for all params
-** Classes of Problems
-- [ ] :Bindu: Webservice Issues (hsss, motif, profile similarity)
-- [ ] includes/excludes
-
-** Performance
-- punt
-** Site Search
-- indexes build from b52 instances
-- (Cristina) change feature site to use prod solr (same for blast and buildNumber in the model should be 52)
-** JBrowse
-    + intronjunction tuning table 
-
+* Beta Release                                       :Mark:JohnI:JohnB:Bindu:
+** Automated QA Process
+1. [X] compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
+   - [X] Record expected and Actual Results
+2. [X] Selenium Tests for Search Pages (Bindu)
+3. [X] use the webserive queries for Performance Tests
+   - [X] compare plasmodb.org (b52) to feature.veupathdb.org
+   - [X] address faiures
+   - [X] Record expected and Actual Results
+4. [X] attribute tables
+   - [X] using sql minus operation, compare 052 attribute tables in eupa052n to uni-inc
+   - [X] address faiures (JohnI)
+   - [X] Record expected and Actual Results
+5. [X] Record page tables;  can test against individual components
+   - [X] foreach record table, run the sql and compare counts (union for all components)
+   - [X] address faiures
+   - [X] Record expected and Actual Results
+6. [X] Run all Param queries on uni052n vs union of components
+   - [X] Deal with enum params
+   - [X] is there a webservice way to get the values for all params
+* SOP for schema changes
+- [ ] How to handle schema changes?
+  - [ ] add columns
+  - [ ] add tables
+  - [ ] alter size of columns
 * Use Cases For Unified Database
 - fully functional portal (veupathdb.org)
 - host / pathogen / vector
 - user defined organism preferences
 - Fewer prod db instances
 - ebi2gus
-
 * Basics
 - [[https://docs.google.com/document/d/1K3ckE6hwN9r-Dp1Av_zDH5Jcr7ApbBjQ-7yJM1zk0bQ/edit][UniDB Design Document December 2019]]
 - [[https://wiki.apidb.org/index.php/UniDB%20Workflow][Wiki / Technical info about running workflow]]
-
 * Table Reader(s)
 - [[~/project_home/ApiCommonData/Load/lib/perl/UniDBTableReader.pm][UniDB Table Reader]]
   - initial thinking was that sql queries would map input->output
@@ -201,4 +272,6 @@
   - change to GUS schema ( ~ 40 tables for "core genome")
   - changes to input schema
   - changes to the perl api
+
+
 

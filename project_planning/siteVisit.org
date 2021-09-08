@@ -1,0 +1,60 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+OPTIONS: num:nil tags:nil
+#+EXPORT_FILE_NAME: /home/jbrestel/project_home/jbrestel.github.io/siteVisitDataDev.html
+#+TITLE: Site Visit - Data Dev
+* Slide 1: Intro
+- Introduce DD Group
+- Outline for remaining slides
+- all examples have been worked on in past year
+* Slide 2: Example RNASeq
+** Automated Presentation of Data
+*The Data Development group uses the results of workflows to provide meaningful tools and visualizations to end users*
+*** JBrowse
+- Templates so Browser Tracks can be added with minimal or zero configuration
+  - Each Sample - Coverage
+  - Each Dataset - Multi Coverage
+  - Intron Junctions
+  - Combined RNASeq
+*** Searches
+- SQL Queries for Within Dataset Searches and templates so each Dataset gets its own searchs
+  - Fold Difference (Find genes which are different between samples)
+  - Expression Levels / Percentiles (Find genes which have high expression in one or more samples)
+*** Visualizations
+- R (plotly) visualizations of datasets
+  - For each Gene, each dataset can be visualized individually or via a Transcriptomics Summary
+** Extended Functionality
+*The Data Development group writes workflow steps and front end automations as needed.  New workflows are using nextflow workflows and containerized software.*
+- Examples:
+  - DESeq (pairwise comparisons)
+  - JTK_CYCLE (cyclical)
+  - profile similarity (time series)
+  - wgcna (co expression)
+
+* Slide 3: Example Comparative Genomics
+** OrthoMCL Workflow
+*The Data Development group (MarkH) redesigned the OrthoMCL workflow so each VEuPath organism is now processed and kept in sync with production releases.*
+*** Search for OrthoMCL Groups (Phyletic pattern)
+- Core Groups
+- Residual Groups
+*** Transform Results from one organism to another on component sites
+- Create highly optimized tables to enable fast searches
+  - a major improvment for scalability here in making the tuning table
+*** Infer functional annotation
+- Use groups to assign EC Numbers where this annotation was missing
+** Synteny
+*The Data Development group writes workflows and uses the results to provide meaningful tools and visualizations to end users*
+*** Nextflow Workflow To process genome pairs in parallel (Syntenic Alignments)
+- Schema Development and Loader were made to work with larger genomes and scale for the expected volume of genomes
+*** Synteny Views (JBrowse)
+- We wrote a JBrowse Plugin to visualize syntenic spans and highlight ortholmcl groups (add picture)
+
+* Slide 4: Unified Database
+** ebi2gus
+*The Data Development group wrote the software that reads from many EBI Core MySQL Databases to populate a single "GUS" database instance*
+- Used for loading most genomes on VEuPath Sites
+- The container we made includes the Perl API and mysql server
+** UniDB
+*The Same software is used to populate a single GUS instance from several GUS database instances*
+ - Additional Data integrity Checks
+ - not Oracle Specific.

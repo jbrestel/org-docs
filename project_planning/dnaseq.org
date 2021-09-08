@@ -2,7 +2,7 @@
 * B53 and B54
 ** [[/home/jbrestel/project_home/org-docs/project_planning/unidb.org][UniDB]] related tasks
 
-  
+* Do not use Strain name in VCF file. how do we uniquely identify a strain  
   
 * Nextflow workflow
 ** Input Data
@@ -65,6 +65,4 @@
 
 * Consensus Sequence
 - [ ] Query for indels and add to consensus if consensus does not include indels
-
-
 

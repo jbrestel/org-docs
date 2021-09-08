@@ -2,9 +2,9 @@
 #+OPTIONS: with-tags t
 * TODO NOTES from
 1. Study Characteristics (where to load)
-2. Should we rename EDA schema?
-3. Is there a limit on number of tables in a schema?
-4. Which studies would be made into Mega Studies
+   - [X] load in eda instance; 
+2. Is there a limit on number of tables in a schema?
+3. Which studies would be made into Mega Studies
    - Current use cases are all studies for Mbio and all studies for MapVEu
 
 * EDA Backend
@@ -55,7 +55,7 @@ Goal :: Review what has been done and get an idea of where we are heading (3-6 m
   - [X] EDA::Attribute :: Calculate stats at this point for each variable/dataset/entityType;  THe Attribute table is for the LEAF nodes in our "AttributeGraph";
   - [X] EDA::AttributeValue :: Tall table with a row for each value for each variable/entity
 - [X] Require the owl file at this point as a sanity check
-- [ ] Handle Units from Annotation Properties
+- [X] Handle Units from Annotation Properties
 - [ ] Handle Scale from Annotation Properties
 - [ ] Check that binary inference has priority over ordinal
 - [ ] argument for schema (edv vs eda_ud)
@@ -65,11 +65,22 @@ Goal :: Review what has been done and get an idea of where we are heading (3-6 m
   - [X] EDA::EntityTypeGraph :: Infer entity type relationships from the Inputs/Outputs
 - [ ] argument for schema (edv vs eda_ud)
 *** LoadDatasetSpecificEntityGraph
-- [-] Populate Dataset Specific Tables
+- [X] Populate Dataset Specific Tables
   - [X] EDA::AttributeValue_${studyId}_${EntityTypeId} :: Subset of the main AttributeValue Table (per dataset)
   - [X] EDA::Ancestors_${studyId}_${EntityTypeId} :: Fields for stable ids for each ancestor
   - [X] EDA::AttributeGraph_${studyId}_${EntityTypeId} :: Join Attribute Table  (LEAF) with AttributeGraph;
-  - [ ] EDA::EntityAttributes_${studyId}_${EntityTypeId} :: Wide table with Typed Fields
+  - [X] EDA::EntityAttributes_${studyId}_${EntityTypeId} :: Wide table with Typed Fields
+    #+begin_src sql
+          select stable_id, data_type, is_multi_valued  from APIDB.ATTRIBUTEGRAPH_GEMSCC0003_1_HOUSEHOLD where has_values = 1;
+
+          select entity_attributes_id
+               , json_value(atts, '$.EUPATH_0000127[0]' RETURNING VARCHAR2) string
+               , json_value(atts, '$.EUPATH_0000047[0]' RETURNING NUMBER) num
+               , json_value(atts, '$.EUPATH_0033147[0]' RETURNING DATE) date
+               , json_query(atts, '$.EUPATH_0033147') multi
+          from apidb.entityattributes 
+          where entity_attributes_id = 10632037;
+    #+end_src
 - [ ] argument for schema (eda vs eda_ud)
 *** LoadMegaStudy                              :MapVEu:MicrobiomeDB:Wojtek:
 - [ ] Union of all Studies for Project (Cross Study Comparisons)
@@ -89,6 +100,7 @@ Goal :: Review what has been done and get an idea of where we are heading (3-6 m
   - [ ] create download files;  use "is_merge_key"
   - [ ] validation of annotation properties (ad hoc or via owl file)
   - [ ] add TBD qa/validation steps
+  - [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study
 *** ClinEpi Graphviz
 **** Input Tables
 #+name: node-table

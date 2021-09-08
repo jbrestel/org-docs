@@ -51,9 +51,42 @@
 | reflow            | end               |       |
 
 
+
+* Dataset Scheduling
+#+name: node-table-ds
+| *node*         | *label*                           | *shape* | *fillcolor* |
+|----------------+-----------------------------------+---------+-------------|
+| start          | start                             | ellipse |             |
+| known_datatype | Is Existing Data Type?            | diamond | yellow      |
+| new_features   | New Features?                     | diamond | yellow      |
+| is_automated   | Is Fully Automated?               | diamond | yellow      |
+| auto_config    | Configuration (Dataset/Presenter) |         | MediumSeaGreen |
+| manual_config  | Configuration (Model)             |         | MediumSeaGreen |
+| prioritization | Prioritization                    |         | Tomato      |
+| dd_work        | Data Development                  |         | DodgerBlue  |
+| end            | end                               | ellipse |             |
+
+#+name: graph-table-ds
+| from           | to             | label |
+|----------------+----------------+-------|
+| start          | known_datatype |       |
+| known_datatype | is_automated   | Y     |
+| known_datatype | prioritization | N     |
+| is_automated   | auto_config    | Y     |
+| is_automated   | new_features   | N     |
+| new_features   | prioritization | Y     |
+| new_features   | manual_config  | N     |
+| auto_config    | end            |       |
+| prioritization | dd_work        |       |
+| dd_work        | is_automated   |       |
+| manual_config  | end            |       |
+  
+
+
+
 * Code
 #+name: graph-from-tables
-#+HEADER: :var nodes=genome-node-table graph=genome-graph-table
+#+HEADER: :var nodes=node-table-ds graph=graph-table-ds
 #+BEGIN_SRC emacs-lisp :colnames yes :exports results
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
@@ -73,12 +106,18 @@
           )
 #+END_SRC
 
-#+HEADER: :var input=graph-from-tables :file ~/genomePipeline.png
+
+
+#+HEADER: :var input=graph-from-tables :file ~/datasetScheduling.png
 #+BEGIN_SRC dot :exports results
 digraph {
  $input
 }
 #+END_SRC
+
+#+RESULTS:
+[[file:~/datasetScheduling.png]]
+
 
 
 

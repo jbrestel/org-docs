@@ -1,31 +1,31 @@
-* dataviz foothills
-  :PROPERTIES:
-  :CUSTOM_ID: dataviz-foothills
-  :END:
+#+STARTUP: indent
 
-* clinepi eda phase 1 (Sept)
+* rm41910
+- test instance
+- unstable
+* eda-rbld / eda-inc
+- this will have only studies which have passed qa
+- used for the sept release
+
+* EDA  
+** clinepi phase 1  (Sept)
   :PROPERTIES:
   :CUSTOM_ID: clinepi-eda-phase-1-sept
   :END:
 
+
+  
 - Vizs
-
   - scatter
-
     - consider removing smoothedMean option?
     - pass errors during smoothing along to data service
-
   - 2x2
   - bar
-
     - should possibly have some agg fxns similar to whats planned for
       line plot?
-
   - box
   - histogram
-
     - binning should use the annotated and/or inferred ranges
-
       - for the subset tab (where we always have the full data set):
         client must compare the annotated min to the inferred min and
         use whichever is smaller. compare the annotated max to the
@@ -48,9 +48,9 @@
   - scatter should only take trend line options for numeric yaxes
   - histo should only take units if xaxis is date
 
-- profiling w umsp
+- TODO profiling w umsp
 
-* clinepi eda phase 2 (Dec?)
+** clinepi phase 2 (Dec?)
   :PROPERTIES:
   :CUSTOM_ID: clinepi-eda-phase-2-dec
   :END:
@@ -102,7 +102,28 @@
     youre looking specifically at a subset like 'positive for something
     and then a drop in some zscore over the next 3 months'
 
-* mbio eda phase 1 (Dec?)
+** clinepi eda phase 3 (??)
+  :PROPERTIES:
+  :CUSTOM_ID: clinepi-eda-phase-3
+  :END:
+
+- vizs (all need spec'ing, underlying plot components dont yet exist)
+
+  - heatmaps
+
+    - many ways to configure one of these, need to decide what well
+      allow and how to make var constraints to match
+
+  - violin plot
+
+    - dont even know how to implement violin plots w pre-computed values
+      in plotly.. custom trace?
+
+  - correlogram
+
+    - most likely implemented using heatmap web component, so should
+      keep this in mind when spec'ing heatmap
+** mbio phase 1 (Dec?)
   :PROPERTIES:
   :CUSTOM_ID: mbio-eda-phase-1-dec
   :END:
@@ -182,7 +203,17 @@
   - needs to learn how to merge assays by taxon, similar to clinepis
     need to merge by time
 
-* genomics eda (Dec?, ive no clue when really)
+** mbio phase 2 (??)
+  :PROPERTIES:
+  :CUSTOM_ID: mbio-eda-phase-2
+  :END:
+
+- Apps/ computations (needs spec'ing yet)
+
+  - differential abundance
+  - correlation
+
+** genomics  (Dec?, ive no clue when really)
   :PROPERTIES:
   :CUSTOM_ID: genomics-eda-dec-ive-no-clue-when-really
   :END:
@@ -203,18 +234,7 @@
     - Anything that helps pick out one or a few genes of potential
       interest may be framed as a compute in eda. mbio rel abundance app
       as ex..
-
-* mbio eda phase 2 (??)
-  :PROPERTIES:
-  :CUSTOM_ID: mbio-eda-phase-2
-  :END:
-
-- Apps/ computations (needs spec'ing yet)
-
-  - differential abundance
-  - correlation
-
-* dataplotter (??)
+** dataplotter (??)
   :PROPERTIES:
   :CUSTOM_ID: dataplotter
   :END:
@@ -252,28 +272,6 @@
   - do we want to revisit how the data are stored in the db at the same
     time? i remember some frustrations while switching data plotter to
     use a java service to supply data, dont remember details.
-
-* clinepi eda phase 3 (??)
-  :PROPERTIES:
-  :CUSTOM_ID: clinepi-eda-phase-3
-  :END:
-
-- vizs (all need spec'ing, underlying plot components dont yet exist)
-
-  - heatmaps
-
-    - many ways to configure one of these, need to decide what well
-      allow and how to make var constraints to match
-
-  - violin plot
-
-    - dont even know how to implement violin plots w pre-computed values
-      in plotly.. custom trace?
-
-  - correlogram
-
-    - most likely implemented using heatmap web component, so should
-      keep this in mind when spec'ing heatmap
 
 ** my dreams (never, probably.. who has the time??)
    :PROPERTIES:
@@ -317,4 +315,65 @@
     - maybe should look at if/when i get to pathway records. if we
       decide to have a general network graph plot component for ex..
 
+
+
+
+* Networks
+** wgcna
+** pathways
+** signaling pathways
+** interactome networks
+* MapVEu
+** ISATab Loader
+- ontology terms as values
+  - is there more power in making the fk to ontologyterm?
+  - should we add a field to the tall table for ontology_term_id?
+- multiple ontologyterms per value in the ontologyterm object
+- 
+** within eda vis
+- drawing tools / subsetting not avaliable
+- and choose other variables donut chart / histogram
+** eda subsetting using lat/long
+- multifilter like lat/long (annotation property)
+- [ ] BobM will check with Steve whether to add this annotation property
+** standalone app
+** popbio
+* Genome Browser
+** JBrowse
+** JBrowse2
+
+* Git Repos
+** plot.data
+** web-components
+** web-eda
+
+* Services
+** data
+- public facing
+- on vis tab makes requests to subset/merge services for visualization
+- possibly involved in subset too
+- plugins for each vis;  each has own endpoint
+** subset 
+- per entity
+- Steve's Java Code
+- filter can operate on any entity
+- can request specific variables
+- distribution endpoint
+** merge
+- combines subset streams into one
+- derived variables
+- Ryan
+** RServe
+- 
+** Data service Plugins
+- name/descrpt
+- calls RServe
+- variable constraints
+  - barplot binary or categorical
+- data.frame which provides configuration for the plot passed to plot.data
+- function call which operates on that data frame
+
+** plot.data
+- package installed into the RServe
+- clinepi / mbio / genomics / mapveu
 
