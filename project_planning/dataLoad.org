@@ -1,20 +1,12 @@
-* Basic Graph Example
-#+name: node-table
-| *node* | *label* | *shape* | *fillcolor* |
-|--------+---------+---------+-------------|
-| start  | start   | ellipse |             |
-| middle | middle  |         | blue        |
-| end    | end     | ellipse |             |
-
-#+name: graph-table
-| from   | to     | label |
-|--------+--------+-------|
-| start  | middle |       |
-| middle | end    |       |
-
-
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
+#+TITLE:     Data Loading
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Data Loading
+#+OPTIONS:   H:5 num:nil toc:2 p:t
 * Genome Pipeline
-#+name: genome-node-table
+** Nodes
+  #+name: genome-node-table
 | *node*            | *label*                              | *shape* | *fillcolor* |
 |-------------------+--------------------------------------+---------+-------------|
 | start             | start                                | ellipse |             |
@@ -31,6 +23,7 @@
 | reflow            | ReFlow Workflow                      |         |             |
 | end               | end                                  | ellipse |             |
 
+** Edges
 #+name: genome-graph-table
 | from              | to                | label |
 |-------------------+-------------------+-------|
@@ -50,44 +43,10 @@
 | ebi               | reflow            |       |
 | reflow            | end               |       |
 
-
-
-* Dataset Scheduling
-#+name: node-table-ds
-| *node*         | *label*                           | *shape* | *fillcolor* |
-|----------------+-----------------------------------+---------+-------------|
-| start          | start                             | ellipse |             |
-| known_datatype | Is Existing Data Type?            | diamond | yellow      |
-| new_features   | New Features?                     | diamond | yellow      |
-| is_automated   | Is Fully Automated?               | diamond | yellow      |
-| auto_config    | Configuration (Dataset/Presenter) |         | MediumSeaGreen |
-| manual_config  | Configuration (Model)             |         | MediumSeaGreen |
-| prioritization | Prioritization                    |         | Tomato      |
-| dd_work        | Data Development                  |         | DodgerBlue  |
-| end            | end                               | ellipse |             |
-
-#+name: graph-table-ds
-| from           | to             | label |
-|----------------+----------------+-------|
-| start          | known_datatype |       |
-| known_datatype | is_automated   | Y     |
-| known_datatype | prioritization | N     |
-| is_automated   | auto_config    | Y     |
-| is_automated   | new_features   | N     |
-| new_features   | prioritization | Y     |
-| new_features   | manual_config  | N     |
-| auto_config    | end            |       |
-| prioritization | dd_work        |       |
-| dd_work        | is_automated   |       |
-| manual_config  | end            |       |
-  
-
-
-
-* Code
-#+name: graph-from-tables
-#+HEADER: :var nodes=node-table-ds graph=graph-table-ds
-#+BEGIN_SRC emacs-lisp :colnames yes :exports results
+** Lisp Code
+  #+name: graph-from-tables-g
+  #+HEADER: :var nodes=genome-node-table graph=genome-graph-table
+  #+BEGIN_SRC emacs-lisp :colnames yes :exports code
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
           (mapconcat
@@ -106,20 +65,77 @@
           )
 #+END_SRC
 
+** Graph Results
+
+  #+HEADER: :var input=graph-from-tables-g :file ~/ddOrgGenome.png
+  #+BEGIN_SRC dot :exports results
+	    digraph {
+     $input
+    }
+  #+END_SRC
 
 
-#+HEADER: :var input=graph-from-tables :file ~/datasetScheduling.png
-#+BEGIN_SRC dot :exports results
-digraph {
- $input
-}
+
+
+* Dataset Scheduling
+** Nodes
+  #+name: node-table-ds
+| *node*         | *label*                           | *shape* | *fillcolor*    |
+|----------------+-----------------------------------+---------+----------------|
+| start          | start                             | ellipse |                |
+| known_datatype | Is Existing Data Type?            | diamond | yellow         |
+| new_features   | New Features?                     | diamond | yellow         |
+| is_automated   | Is Fully Automated?               | diamond | yellow         |
+| auto_config    | Configuration (Dataset/Presenter) |         | MediumSeaGreen |
+| manual_config  | Configuration (Model)             |         | MediumSeaGreen |
+| prioritization | Prioritization                    |         | Tomato         |
+| dd_work        | Data Development                  |         | DodgerBlue     |
+| end            | end                               | ellipse |                |
+
+** Edges
+#+name: graph-table-ds
+| from           | to             | label |
+|----------------+----------------+-------|
+| start          | known_datatype |       |
+| known_datatype | is_automated   | Y     |
+| known_datatype | prioritization | N     |
+| is_automated   | auto_config    | Y     |
+| is_automated   | new_features   | N     |
+| new_features   | prioritization | Y     |
+| new_features   | manual_config  | N     |
+| auto_config    | end            |       |
+| prioritization | dd_work        |       |
+| dd_work        | is_automated   |       |
+| manual_config  | end            |       |
+** Lisp Code
+  #+name: graph-from-tables
+  #+HEADER: :var nodes=node-table-ds graph=graph-table-ds
+  #+BEGIN_SRC emacs-lisp :colnames yes :exports code
+     (concat
+          "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
+          (mapconcat
+           (lambda (x)
+             (format "%s [label=\"%s\" shape=%s style=\"filled\" fillcolor=\"%s\"]"
+                             (car x)
+                             (nth 1 x)
+                             (if (string= "" (nth 2 x)) "box" (nth 2 x))
+                             (if (string= "" (nth 3 x)) "none" (nth 3 x))
+                             )) nodes "\n")
+          "\n"
+          (mapconcat
+           (lambda (x)
+             (format "%s -> %s [taillabel=\"%s\"]"
+                             (car x) (nth 1 x) (nth 2 x))) graph "\n")
+          )
 #+END_SRC
 
-#+RESULTS:
-[[file:~/datasetScheduling.png]]
+** Graph Results
 
-
-
-
+  #+HEADER: :var input=graph-from-tables :file ~/ddOrg.png
+  #+BEGIN_SRC dot :exports results
+	    digraph {
+     $input
+    }
+  #+END_SRC
 
 

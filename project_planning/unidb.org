@@ -1,6 +1,9 @@
 #+STARTUP: indent
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+OPTIONS: num:nil tags:nil
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
+#+TITLE:     UniDB
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: UniDB
+#+OPTIONS:   H:5 num:nil toc:2 p:t
 * Redmine PROJECT
 :PROPERTIES:
 :query_id: 298
@@ -172,7 +175,14 @@
 ** DONE Bulk Loader for SNP / Seqvars
 ** DONE Add Mass Spec profile (Llinas) [[redmine:45318][redmine:45318]]
 ** TODO Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy
+- [ ] Update NCBI Taxonomy
+- [ ] Test Taxonomy Update 
+- [ ] Run Tuning manager
 ** DONE Undo unidbcomponents
+** Patch Intron Junctions
+- [ ] Intron Junctions missing fk constraint
+  - [ ] Patch update nasequenceid mapping (Patch other tables with misisng fk constraints)
+    - [ ] uni-inc, uni053n, uni054(s/n)
 * Future Releases :JohnI:JohnB:MarkH:Bindu:
 ** Plugin Changes for DatabaseMapping fields
 - [ ] Database Mapping Table

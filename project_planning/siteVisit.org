@@ -1,27 +1,34 @@
 #+STARTUP: indent
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
 #+OPTIONS: num:nil tags:nil
-#+EXPORT_FILE_NAME: /home/jbrestel/project_home/jbrestel.github.io/siteVisitDataDev.html
 #+TITLE: Site Visit - Data Dev
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Site Visit - Data Dev
+#+OPTIONS:   H:5 num:nil toc:2 p:t
+* Notes
+- We are a knowledge Base not a data Archive
 * Intro
 - Introduce DD Group
-- Outline for remaining slides
+- how we interact with other VEuPath teams
+- describe the remaining slides
+
 
 * Example:  RNASeq
 ** Automated Presentation of Data
-*The Data Development team uses the results of workflows to provide meaningful tools and visualizations to end users*
+*The Data Development team uses the results of workflows to provide meaningful tools and visualizations to end users in automated ways*
+*** Searches
+- SQL Queries for Within Dataset Searches and templates so each Dataset gets its own searchs
+  - Fold Difference (Find genes which are different between samples)
+  - Expression Levels / Percentiles (Find genes which have high expression in one or more samples)
 *** JBrowse
 - Templates are used so Browser Tracks can be added with minimal or zero configuration
   - Each Sample - Coverage
   - Each Dataset - Multi Coverage
   - Intron Junctions
   - Combined RNASeq
-*** Searches
-- SQL Queries for Within Dataset Searches and templates so each Dataset gets its own searchs
-  - Fold Difference (Find genes which are different between samples)
-  - Expression Levels / Percentiles (Find genes which have high expression in one or more samples)
 *** Visualizations
 - R (plotly) visualizations of datasets; For each Gene, each dataset can be visualized individually or via a Transcriptomics Summary
+
 
 ** Extended Functionality
 *The Data Development team writes workflow steps and front end automations as needed.  New workflows are using nextflow workflows and containerized software.*
@@ -29,6 +36,8 @@
   - DESeq (pairwise comparisons)
   - JTK_CYCLE (cyclical)
   - profile similarity (time series)
+
+
 
 * Example:  Comparative Genomics
 ** OrthoMCL Workflow
@@ -39,6 +48,7 @@
 - Create highly optimized tables to enable fast searches such as Transforms of Gene Results from one organism to another
 *** Infer functional annotation
 - Assign EC Numbers where this annotation was missing
+
 ** Synteny
 *The Data Development team writes workflows and uses the results to provide meaningful tools and visualizations to end users*
 *** Nextflow Workflow To process genome pairs in parallel (Syntenic Alignments)
@@ -46,17 +56,26 @@
 *** Synteny Views (JBrowse)
 - Wrote JBrowse Plugin to visualize syntenic spans and highlight ortholmcl groups (add picture)
 
+
 * Upcoming Data Types
-** Network Analysis and Visualizations
-- wgcna (co expression)
-- protein-protein interactions (Y2H)
+** DNASeq - New Development
+ - ** understand the effects of snps on protein (not one at a time)
+ - ** whole genome views
+
 
 ** scRNASeq
 - umap, violin plots visualizations
+- ** expression profiles of individual cells
 
-** DNASeq - New Development
- - whole genome plots Loss of Heterozygosity
+
+** Network Analysis and Visualizations
+- wgcna (co expression)
+- protein-protein interactions (Y2H)
+- better present gene/protein interactions 
+
 
 ** Host Pathogen
 - Gene Set enrichment tool
 - Enabling profile similarity for multiple datasets
+- some overlap with Network analysis... also some additional tools relevant to hpi
+

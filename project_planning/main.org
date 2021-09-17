@@ -1,53 +1,23 @@
 #+STARTUP: indent
 #+OPTIONS: with-tags t
-* Build 54
-** OrthoMCL :Bindu:
-- [ ] Site configuration (Jenkins site build)
-- [ ] Sync Webservice and Download files.  Work with Bindu and Wei to make sure these are created
-- [ ] Change default group in model for searches.  
-** Apollo :Paul:
-- [X] Remake organism directories (only "approved" organisms)
-- [ ] Confrim the link from gene page has been removed for organisms no longer in apollo
-** MicrobiomeDB :Wojtek:
-- Bug with Cross Study Search
-** ClinEpiDB
-- No new data for b54
-- Are we still using b53 branch for this site?
-** EDA
-- hard deadline ASTMH (Nov 15)
-- [ ] public beta Oct 15
-** UniDB
-- [ ] Intron Junctions missing fk constraint
-  - [ ] Patch update nasequenceid mapping (Patch other tables with misisng fk constraints)
-    - [ ] uni-inc, uni053n, uni054(s/n)
-- [ ] Data Loading for b54 (uni-inc)
-  - [ ] Update NCBI Taxonomy
-  - [ ] Run Tuning manager
-- [ ] beta.unidb.org will continue to run using uni053n
-  - [ ] Performance issues
-    - [ ] general slow searches
-    - [ ] outlier slow searches
-- [ ] Test Taxonomy Update 
-* Genomics Workflow
-** SOP For Schema Changes
-** SOP For Every Known Datatype
+* Selenium Tests
+- [ ] Download and ws files
+- [ ] Sense/Antisense Coverage Tracks
+* SOPs
+** Schema Changes
+** Known Datatypes
 - [ ] RNASeq
 - [ ] Microarray
 - [ ] Phenotype
 - [ ] Chip Chip
 - [ ] Chip Seq
-** Apollo
-- [ ] Test Backend with All features.  Can we do performance tables
+* Genomics Workflow
 ** ESTs :TODO:
 - [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
 - [ ] "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
 - [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
 ** UniDB :JohnB:
 - [[file:/home/jbrestel/project_home/org-docs/project_planning/unidb.org][UniDB Notes]]
-** Taxonomy :TODO:
-- [X] script to update SRes.Taxon with latest from ncbi
-- [X] better handle Taxonomy within UniDB
-- [ ] add taxon update to plugin
 ** Intron Junctions :Brian:TODO:
 - [ ] Move Intron Junctions out of tuning manager into workflow
 ** DNASeq Workflow (nextflow) :Mark:Kathryn:JohnB:
@@ -57,12 +27,14 @@
 - [ ] reflow workflow 
   - [ ] plug nextlfow plugin
   - [ ] processSequencevariations script (indels) and merge VCFs
-** Plan GPI anchor and MitoProt and other analysis :TODO:Mark:Kathryn:Brian:BobM:
+** GPI anchor and MitoProt and other analysis :TODO:Mark:Kathryn:Brian:BobM:
 - https://github.com/BolognaBiocomp/predgpi
 - https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions
 * DIY Study in EDA
 ** MBio :Wojtek:
 ** ClinEpi :Jay:
+* Apollo
+- [ ] Test Backend with All features.  Can we do performance tables
 * Data Viz
 ** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]] :Danielle:
 * MapVEU
@@ -71,6 +43,7 @@
 ** Automated QA :Steph:Jay:JohnB:
 ** Load Files From ISA Dumps :Jay:JohnB:BobM:
 - [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
+  - [ ] need to have variables for protocols
 ** Plugin which will make "mega study" (union of all other studies for project) :Wojtek:
 ** Popset :TODO:
 * Model
@@ -86,8 +59,7 @@
 + svg graphs instead of png 
 ** Gene Lists as User Datasets :Omar:Lin:
 - [ ] make gene lists for plasmodb from publications 
-
-
+- [ ] multiple entitys for same variable
 ** Colocation for ESTs -> Genes :TODO:
 ** wgcna :Ann:
 - [[file:wgcna.org][WGCNA Details]]

@@ -1,3 +1,9 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
+#+TITLE:     Dataset Record
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Dataset Record
+#+OPTIONS:   H:5 num:nil toc:2 p:t
 * Phase 1 (cleanup)
   + ontology based categorization of attributes and tables
     + Clinepi puts most everything under Data Provenance (should probably do the same for mbio and genomics)
