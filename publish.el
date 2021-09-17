@@ -226,6 +226,7 @@
          :include '("project_planning/unidb.org"
 		    "project_planning/dataLoad.org"
    		    "project_planning/dataset.org"
+      		    "project_planning/selenium.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
