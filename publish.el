@@ -227,6 +227,7 @@
 		    "project_planning/dataLoad.org"
    		    "project_planning/dataset.org"
       		    "project_planning/selenium.org"
+		    "project_planning/index.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
@@ -301,4 +302,5 @@
 
 (setq org-link-abbrev-alist
       '(("redmine"        . "https://redmine.apidb.org/issues/")
+	("orgdocs"        . "https://jbrestel.github.io/org-docs")
 	))
