@@ -25,7 +25,7 @@
 [[https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz][EDA Workspace Working Group]]
 
 * Schema / Tables                                               :JohnI:JohnB:
-[[~/Pictures/eda_uml.png][UML Diagram]]
+[[images/eda_uml.png]]
 - [X] update schema installer to create EDA and EDA_UD schemas (replace ApiDB)
 * Plugins                                                  :JohnB:Wojtek:Jay:
 *** InsertEntityGraph
