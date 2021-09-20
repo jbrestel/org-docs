@@ -166,12 +166,13 @@
           )
 #+END_SRC
 
-#+HEADER: :var input=graph-from-tables :file ~/reflowMadness.png
+#+HEADER: :var input=graph-from-tables :file images/reflowMadness.png
 #+BEGIN_SRC dot :exports results
 digraph {
  $input
 }
 #+END_SRC
+
 
 
 *** Other Components

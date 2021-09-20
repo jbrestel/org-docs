@@ -67,7 +67,7 @@
 
 ** Graph Results
 
-  #+HEADER: :var input=graph-from-tables-g :file ~/ddOrgGenome.png
+  #+HEADER: :var input=graph-from-tables-g :file images/ddOrgGenome.png
   #+BEGIN_SRC dot :exports results
 	    digraph {
      $input
