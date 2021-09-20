@@ -228,6 +228,7 @@
    		    "project_planning/dataset.org"
       		    "project_planning/selenium.org"
 		    "project_planning/index.org"
+   		    "project_planning/eda.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))

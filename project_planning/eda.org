@@ -1,21 +1,10 @@
 #+STARTUP: indent
-#+OPTIONS: with-tags t
-* TODO NOTES from
-1. Study Characteristics (where to load)
-   - [X] load in eda instance; 
-2. Is there a limit on number of tables in a schema?
-3. Which studies would be made into Mega Studies
-   - Current use cases are all studies for Mbio and all studies for MapVEu
-
-* EDA Backend
-
-Goal :: Review what has been done and get an idea of where we are heading (3-6 months)
-
-[[https://feature.clinepidb.org/ce.feature/app/eda][ClinEpi Feature Site]]
-
-[[https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz][EDA Workspace Working Group]]
-
-** Vocabulary
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
+#+TITLE:     EDA Backend
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: EDA Backend
+#+OPTIONS:   H:5 num:nil toc:2 p:t
+* Vocabulary
 - Study
 - Entity Type
 - Entity
@@ -25,16 +14,22 @@ Goal :: Review what has been done and get an idea of where we are heading (3-6 m
 - Process (Application of a Protocol)
 - Ontology Term
   
-** Out of scope
+* Out of scope
 *** Dependencies
 **** Preprocessing
 **** ISA Reader (CBIL::ISA)
 *** Query Performance
 *** Data Vis and UX
-** Schema / Tables                                             :JohnI:JohnB:
+* Useful Links
+
+[[https://feature.clinepidb.org/ce.feature/app/eda][ClinEpi Feature Site]]
+
+[[https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz][EDA Workspace Working Group]]
+
+* Schema / Tables                                               :JohnI:JohnB:
 [[~/Pictures/eda_uml.png][UML Diagram]]
 - [X] update schema installer to create EDA and EDA_UD schemas (replace ApiDB)
-** Plugins                                                :JohnB:Wojtek:Jay:
+* Plugins                                                  :JohnB:Wojtek:Jay:
 *** InsertEntityGraph
 - [-] read the ISA(Tab or Simple) files and populate normalized tables representing the EntityGraph
   - [X] EDA::Study
@@ -87,20 +82,30 @@ Goal :: Review what has been done and get an idea of where we are heading (3-6 m
 - [ ] Units need to convert to base unit
 - [ ] How to add Study (display name) as entitytype or variable?
 - [ ] argument for schema (edv vs eda_ud)
-** Ontologies and Annotation Properties                                :Jay:
+* Ontologies and Annotation Properties                                  :Jay:
 *** Annotation Properties                                   :ClinEpiDB:Jay:
 - [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study is loaded
 - [ ] Which fields from annotation properties are required by EDA?  implcations for Genomics/Mbio/MapVEu
 *** OWL File Organization                       :Microbiome:Genomcs:MapVEu:
 - [ ] consider dataset specific webdisplay ontologies
 - [ ] can we use the owl file in place of the ontologymapping.xml?
-** Reflow Workflow                                                     :Jay:
+* Reflow Workflow                                                       :Jay:
 *** Phase1 / ClinEpi
 - [ ] finalize ReFlow Workflow
   - [ ] create download files;  use "is_merge_key"
   - [ ] validation of annotation properties (ad hoc or via owl file)
   - [ ] add TBD qa/validation steps
   - [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study
+  - EDA.StudyCharacteristics
+    - [ ] add create table sql file "ApiCommonData/Load/lib/sql/apidbSchema/" and in the installApiDB script (ApiCommonData/Load/bin)
+    - [ ] study_id field in new table should point to eda.study
+    - [ ] update inc instances to create the EDA.StudyCharacteristic table (JohnI can help with this)
+    - [ ] update plugin InsertStudyCharacteristics to use "EDA.StudyCharacteristics"
+  - Add "schema" arg for InsertStudyCharacteristics so we can load into EDA schema
+    - Needed for EDA_UD vs EDA schema
+    - [ ] ensure we are loading into eda and not apidb.
+    - [ ] the workflow step which calls the plugin needs to set the "schema" to "EDA"
+    - [ ] undoTables needs to lookup the value of "schema" from when the plugin was run forward and undo those tables.      
 *** ClinEpi Graphviz
 **** Input Tables
 #+name: node-table
@@ -177,48 +182,25 @@ digraph {
 *** Other Components
 - [ ] MBio and MapVEU Need a dedicated workflow Template
 - [ ] Where are we loading application specific data? (datasets, SNPs, WHO Standards, ...)
+- Which studies would be made into Mega Studies
+  - Current use cases are all studies for Mbio and all studies for MapVEu
 
-** Data Validation                               :JohnB:Steph:Jay:ClinEpiDB:
-*** Reader Interface
-- $entityType = $dataset->getEntityType($sourceId);
-- @variables = $entityType->getVariables();
-- $entityType->getEntityCount();
-- $entityType->getStableIds();
-- $entityType = $entity->getEntityType();
-- $entity->getStableId();
-- $entity->getValue(VariableSourceId, [string,number,date]);
-- $attribute->getDisplayName(); # lots of other variable info
-- $attribute->hasValues(); # lots of other variable info
-- $attribute->isContinuous(); # lots of other variable info
-*** Readers
-- [ ] Raw Data (dataset specific);  Maybe not required?
-- [ ] Download File
-- [ ] Dataset Specific Database Queries
-- [ ] Webservices
-*** Tests
-- [ ] Tests can only use methods defined by the API
-- [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
-  + example:  "ok($participantEntityType->getEntityCount() == 5000)";
-    + This example get the counts of participants and ensures that the number it gets is 5000;
-
+* Loading
 ** Phase1 Production Loading                                 :ClinEpiDB:Jay:
 - [ ] work with outreach to preprocess studies targeted for beta release
 - [ ] reload data as requested into rm41910 until passes manual qa
 - [ ] Load into "EDA" schema instead of ApiDB
 - [ ] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
 
-** Dev Loading
-*** MapVEu                                                     :BobM:JohnB:
+** MapVEu                                                       :BobM:JohnB:
 - [ ] Load studies from ISA dumps
 - [ ] Mixed units within studies?
 - [ ] Genotype / Phenotype Assays
-
-*** MicrobiomeDB                                                   :Wojtek:
+** MicrobiomeDB                                                     :Wojtek:
 - [ ] performance issues with EC levels for functional shotgun data
 - [ ] metabolite data
 - [ ] Dan identified a small number of studies to load into rm41910
-
-*** Genomics
+** Genomics
 - [ ] DNASeq (SNPs and CNV)
 - [ ] Host Pathogen
 - [ ] Antibody Microarray (ICEMR)
@@ -234,3 +216,32 @@ digraph {
 
 
 
+
+
+
+
+
+* Data Validation                                 :JohnB:Steph:Jay:ClinEpiDB:
+*** Reader Interface
+#+BEGIN_EXAMPLE
+ $entityType = $dataset->getEntityType($sourceId);
+ @variables = $entityType->getVariables();
+ $entityType->getEntityCount();
+ $entityType->getStableIds();
+ $entityType = $entity->getEntityType();
+ $entity->getStableId();
+ $entity->getValue(VariableSourceId, [string,number,date]);
+ $attribute->getDisplayName(); # lots of other variable info
+ $attribute->hasValues(); # lots of other variable info
+ $attribute->isContinuous(); # lots of other variable info
+ #+END_EXAMPLE
+*** Readers
+- [ ] Raw Data (dataset specific);  Maybe not required?
+- [ ] Download File
+- [ ] Dataset Specific Database Queries
+- [ ] Webservices
+*** Tests
+- [ ] Tests can only use methods defined by the API
+- [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
+  + example:  "ok($participantEntityType->getEntityCount() == 5000)";
+    + This example get the counts of participants and ensures that the number it gets is 5000;
