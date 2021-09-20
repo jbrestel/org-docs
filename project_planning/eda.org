@@ -5,14 +5,12 @@
 #+DESCRIPTION: EDA Backend
 #+OPTIONS:   H:5 num:nil toc:2 p:t
 * Vocabulary
-- Study
-- Entity Type
-- Entity
-- Entity Type Graph
-- Attribute (Variable/Property/Characteristics)
-- Attribute Graph
-- Process (Application of a Protocol)
-- Ontology Term
+- Study :: An investigation and analysis of a subjects
+- Entity :: A thing with distinct and independent existence
+- Entity Type Graph :: A graph connecting types of entities for a study
+- Attribute :: Variable/Property/Characteristics
+- Attribute Graph :: A graph showing web display ontology for a study
+- Process :: Application of a Protocol
   
 * Out of scope
 *** Dependencies
@@ -149,7 +147,7 @@
 
 #+name: graph-from-tables
 #+HEADER: :var nodes=node-table graph=graph-table
-#+BEGIN_SRC emacs-lisp :colnames yes :exports results
+#+BEGIN_SRC emacs-lisp :colnames yes :exports code
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
           (mapconcat
@@ -174,9 +172,6 @@ digraph {
  $input
 }
 #+END_SRC
-
-#+RESULTS:
-[[file:~/reflowMadness.png]]
 
 
 *** Other Components
