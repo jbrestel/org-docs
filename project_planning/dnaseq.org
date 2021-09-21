@@ -1,9 +1,6 @@
 #+STARTUP: indent
 * B53 and B54
 ** [[/home/jbrestel/project_home/org-docs/project_planning/unidb.org][UniDB]] related tasks
-
-* Do not use Strain name in VCF file. how do we uniquely identify a strain  
-  
 * Nextflow workflow
 ** Input Data
 - [X] Can be fastq files or BAM files
@@ -11,6 +8,7 @@
 - [X] The nextflow workflow will operate on an experiment. not a single sample
 ** SNP Calling
 - [X] move over varscan steps into nextflow workflow
+- [ ] Do not use Strain name in VCF file. how do we uniquely identify a strain  
 ** Down Sampling
 - [ ] filter reads if too many;  add configuration option for setting max
 - [ ] recalcuate mapping stats after down sampling
