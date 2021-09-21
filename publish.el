@@ -226,6 +226,7 @@
          :include '("project_planning/unidb.org"
 		    "project_planning/dataLoad.org"
    		    "project_planning/dataset.org"
+		    "project_planning/dnaseq.org"
       		    "project_planning/selenium.org"
 		    "project_planning/index.org"
    		    "project_planning/eda.org"
