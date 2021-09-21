@@ -1,8 +1,9 @@
 #+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
 #+TITLE:     Data Dev Ongoing Projects
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Data Dev Ongoing Projects
-#+OPTIONS:   H:0 num:nil toc:nil p:t tags:not-in-toc
+#+OPTIONS:   H:0 num:nil p:t tags:not-in-toc
 * [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
 ** ESTs
 ** GPIAnchor and MitoProt
