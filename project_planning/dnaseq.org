@@ -5,7 +5,7 @@
 #+DESCRIPTION: DNASeq
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * B53 and B54
-** [[/home/jbrestel/project_home/org-docs/project_planning/unidb.org][UniDB]] related tasks
+** [[orgdocs:/project_planning/unidb.org][UniDB]]
 * Nextflow workflow
 ** Input Data
 - [X] Can be fastq files or BAM files
