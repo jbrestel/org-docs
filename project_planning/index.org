@@ -1,16 +1,12 @@
 #+STARTUP: indent
-#+OPTIONS: with-tags t
-* Selenium Tests
-- [ ] Download and ws files
-- [ ] Sense/Antisense Coverage Tracks
-* SOPs
-** Schema Changes
-** Known Datatypes
-- [ ] RNASeq
-- [ ] Microarray
-- [ ] Phenotype
-- [ ] Chip Chip
-- [ ] Chip Seq
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     Data Dev Ongoing Projects
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Data Dev Ongoing Projects
+#+OPTIONS:   H:5 num:nil toc:2 p:t
+#+HTML_HEAD: <style> #content{max-width:1800px;}</style>
+#+HTML_HEAD: <style> p{max-width:800px;}</style>
+#+HTML_HEAD: <style> li{max-width:800px;}</style
 * Genomics Workflow
 ** ESTs :TODO:
 - [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
@@ -18,7 +14,7 @@
 - [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
 ** UniDB :JohnB:
 - [[orgdocs:/project_planning/unidb.html][UniDB Notes]]
-** Intron Junctions :Brian:TODO:
+** Intron Junctions :JohnI:Brian::TODO:
 - [ ] Move Intron Junctions out of tuning manager into workflow
 ** DNASeq Workflow (nextflow) :Mark:Kathryn:JohnB:
 - [ ] finish nextflow
@@ -30,23 +26,7 @@
 ** GPI anchor and MitoProt and other analysis :TODO:Mark:Kathryn:Brian:BobM:
 - https://github.com/BolognaBiocomp/predgpi
 - https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions
-* DIY Study in EDA
-** MBio :Wojtek:
-** ClinEpi :Jay:
-* Apollo
-- [ ] Test Backend with All features.  Can we do performance tables
-* Data Viz
-** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]] :Danielle:
-* MapVEU
-** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                     :BobM:
-* EDA Data
-** Automated QA :Steph:Jay:JohnB:
-** Load Files From ISA Dumps :Jay:JohnB:BobM:
-- [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
-  - [ ] need to have variables for protocols
-** Plugin which will make "mega study" (union of all other studies for project) :Wojtek:
-** Popset :TODO:
-* Model
+* WDK Model
 ** Dataset Record :Ann:
 - [-] [[file:dataset.org][Dataset Details]]
   - [X] Phase1
@@ -63,6 +43,41 @@
 ** Colocation for ESTs -> Genes :TODO:
 ** wgcna :Ann:
 - [[file:wgcna.org][WGCNA Details]]
+* EDA Data Load
+-  [[orgdocs:/project_planning/eda.html][EDA DataLoad Notes]]
+** Automated QA :Steph:Jay:JohnB:
+** Load Files From ISA Dumps :Jay:JohnB:BobM:
+- [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
+  - [ ] need to have variables for protocols
+** Plugin which will make "mega study" (union of all other studies for project) :Wojtek:
+** DIY Study in EDA
+*** MBio                                                           :Wojtek:
+*** ClinEpi                                                           :Jay:
+** Popset                                                             :TODO:
+
+* Selenium Tests
+- [ ] Download and ws files
+- [ ] Sense/Antisense Coverage Tracks
+* SOPs
+** Schema Changes
+- [ ] Alter Table
+- [ ] New Table
+** Known Datatypes
+- [ ] RNASeq
+- [ ] Microarray
+- [ ] Phenotype
+- [ ] Chip Chip
+- [ ] Chip Seq
+
+
+* Apollo
+- [ ] Test Backend with All features.
+- [[orgdocs:/project_planning/apollo.html][Apollo Notes]]
+* Data Viz
+** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                               :Danielle:
+* MapVEU
+** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                     :BobM:
+
 * OrthoMCL
 ** Subtraction Analysis :MarkH:
 

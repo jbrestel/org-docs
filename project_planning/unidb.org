@@ -1,28 +1,12 @@
 #+STARTUP: indent
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     UniDB
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: UniDB
 #+OPTIONS:   H:5 num:nil toc:2 p:t
-* Redmine PROJECT
-:PROPERTIES:
-:query_id: 298
-:query_type: PROJECT
-:END:
-** UniDB
-:PROPERTIES:
-:project_identifier: jbdqh
-:project_name: UniDB
-:project_id: 2011
-:END:
-[[https://redmine.apidb.org/projects/jbdqh][Project]]
-[[https://redmine.apidb.org/projects/jbdqh/issues/new][New Issue]]
-*** Description
-#+BEGIN_DESCRIPTION
-
-#+END_DESCRIPTION
-
-
+#+HTML_HEAD: <style> #content{max-width:1800px;}</style>
+#+HTML_HEAD: <style> p{max-width:800px;}</style>
+#+HTML_HEAD: <style> li{max-width:800px;}</style
 * B53 :JohnB:
 ** DONE Site Configuration
 - [X] (Cristina) confiugre beta and qa sites to use "uni-build-53" and uni053n
@@ -229,6 +213,7 @@
 - [ ] Text Searches (will site search fix these?)
 ** wgcna (host /pathogen)
 
+** TODO Patch Intron Junctions and other tables which had missing fk dependencey :JohnB:
 * Beta Release                                       :Mark:JohnI:JohnB:Bindu:
 ** Automated QA Process
 1. [X] compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
