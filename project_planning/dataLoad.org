@@ -129,7 +129,7 @@
 
 ** Graph Results
 
-  #+HEADER: :var input=graph-from-tables :file ~/ddOrg.png
+  #+HEADER: :var input=graph-from-tables :file images/ddOrg.png
   #+BEGIN_SRC dot :exports results
 	    digraph {
      $input
