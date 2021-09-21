@@ -1,62 +1,24 @@
 #+STARTUP: indent
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     Data Dev Ongoing Projects
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Data Dev Ongoing Projects
-#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* Genomics Workflow
-** ESTs :TODO:
-- [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
-- [ ] "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
-- [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
-** UniDB :JohnB:
-- [[orgdocs:/project_planning/unidb.html][UniDB Notes]]
-** Intron Junctions :JohnI:Brian::TODO:
-- [ ] Move Intron Junctions out of tuning manager into workflow
-** DNASeq Workflow (nextflow) :Mark:Kathryn:JohnB:
-- [ ] finish nextflow
-  - [ ] testing in progress
-  - [ ] down sampling and recalculate stats
-- [ ] reflow workflow 
-  - [ ] plug nextlfow plugin
-  - [ ] processSequencevariations script (indels) and merge VCFs
-** GPI anchor and MitoProt and other analysis :TODO:Mark:Kathryn:Brian:BobM:
-- https://github.com/BolognaBiocomp/predgpi
-- https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions
+#+OPTIONS:   H:0 num:nil toc:nil p:t tags:not-in-toc
+* [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
+** ESTs
+** GPIAnchor and MitoProt
+** Intron Junctions
+** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                           :Mark:Kathryn:JohnB:
+* [[orgdocs:/project_planning/unidb.html][UniDB]]                                                               :JohnB:
 * WDK Model
-** Dataset Record :Ann:
-- [-] [[file:dataset.org][Dataset Details]]
-  - [X] Phase1
-  - [X] Phase2
-  - [ ] Phase3
+** [[file:dataset.org][Dataset Record]]                                                      :Ann:
 ** Organism Preferences :JohnB:MarkH:
 - [X] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
 - [ ] Internal pages for ChipChip and Y2H
-** Results Page :Danielle:
-+ svg graphs instead of png 
-
-** Colocation for ESTs -> Genes :TODO:
-
-* EDA Data Load
--  [[orgdocs:/project_planning/eda.html][EDA DataLoad Notes]]
-** Automated QA :Steph:Jay:JohnB:
-** Load Files From ISA Dumps :Jay:JohnB:BobM:
-- [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
-  - [ ] need to have variables for protocols
-** Plugin which will make "mega study" (union of all other studies for project) :Wojtek:
-** DIY Study in EDA
-*** MBio                                                           :Wojtek:
-*** ClinEpi                                                           :Jay:
-** Popset                                                             :TODO:
-* Network Analysis and Host Pathogen
-** wgcna :Ann:
-- [[file:wgcna.org][WGCNA Details]]
-** Gene Lists as User Datasets :Omar:Lin:
-- [ ] make gene lists for plasmodb from publications 
-- [ ] multiple entitys for same variable
-* Selenium Tests
-- [ ] Download and ws files
-- [ ] Sense/Antisense Coverage Tracks
+** Results Page SVG Graphs                                        :Danielle:
+* [[orgdocs:/project_planning/eda.html][EDA DataLoad]]
+* [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]] :Ann:
+** Gene Lists as User Datasets :Omar:
+* [[orgdocs:/project_planning/selenium.html][Selenium Tests]]
 * SOPs
 ** Schema Changes
 - [ ] Alter Table
@@ -67,16 +29,9 @@
 - [ ] Phenotype
 - [ ] Chip Chip
 - [ ] Chip Seq
-
-
-* Apollo
-- [ ] Test Backend with All features.
-- [[orgdocs:/project_planning/apollo.html][Apollo Notes]]
-* Data Viz
-** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                               :Danielle:
-* MapVEU
-** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                     :BobM:
-
+* [[orgdocs:/project_planning/apollo.html][Apollo]]
+* [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                                 :Danielle:
+* [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                       :BobM:
 * OrthoMCL
 ** Subtraction Analysis :MarkH:
 

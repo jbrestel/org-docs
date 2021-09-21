@@ -147,7 +147,7 @@
 
 #+name: graph-from-tables
 #+HEADER: :var nodes=node-table graph=graph-table
-#+BEGIN_SRC emacs-lisp :colnames yes :exports code
+#+BEGIN_SRC emacs-lisp :colnames yes :exports none
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
           (mapconcat
@@ -190,6 +190,9 @@ digraph {
 
 ** MapVEu                                                       :BobM:JohnB:
 - [ ] Load studies from ISA dumps
+- [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
+  - [ ] need to have variables for protocols
+
 - [ ] Mixed units within studies?
 - [ ] Genotype / Phenotype Assays
 ** MicrobiomeDB                                                     :Wojtek:
@@ -241,3 +244,7 @@ digraph {
 - [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
   + example:  "ok($participantEntityType->getEntityCount() == 5000)";
     + This example get the counts of participants and ensures that the number it gets is 5000;
+
+
+
+

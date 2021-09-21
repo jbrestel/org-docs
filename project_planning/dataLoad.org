@@ -5,7 +5,7 @@
 #+DESCRIPTION: Data Loading
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * Genome Pipeline
-** Nodes
+** Data Tables
   #+name: genome-node-table
 | *node*            | *label*                              | *shape* | *fillcolor* |
 |-------------------+--------------------------------------+---------+-------------|
@@ -23,7 +23,6 @@
 | reflow            | ReFlow Workflow                      |         |             |
 | end               | end                                  | ellipse |             |
 
-** Edges
 #+name: genome-graph-table
 | from              | to                | label |
 |-------------------+-------------------+-------|
@@ -43,10 +42,10 @@
 | ebi               | reflow            |       |
 | reflow            | end               |       |
 
-** Lisp Code
+
   #+name: graph-from-tables-g
   #+HEADER: :var nodes=genome-node-table graph=genome-graph-table
-  #+BEGIN_SRC emacs-lisp :colnames yes :exports code
+  #+BEGIN_SRC emacs-lisp :colnames yes :exports none
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
           (mapconcat
@@ -65,8 +64,7 @@
           )
 #+END_SRC
 
-** Graph Results
-
+** Graph
   #+HEADER: :var input=graph-from-tables-g :file images/ddOrgGenome.png
   #+BEGIN_SRC dot :exports results
 	    digraph {
@@ -78,7 +76,7 @@
 
 
 * Dataset Scheduling
-** Nodes
+** Data Tables
   #+name: node-table-ds
 | *node*         | *label*                           | *shape* | *fillcolor*    |
 |----------------+-----------------------------------+---------+----------------|
@@ -92,7 +90,7 @@
 | dd_work        | Data Development                  |         | DodgerBlue     |
 | end            | end                               | ellipse |                |
 
-** Edges
+
 #+name: graph-table-ds
 | from           | to             | label |
 |----------------+----------------+-------|
@@ -107,10 +105,10 @@
 | prioritization | dd_work        |       |
 | dd_work        | is_automated   |       |
 | manual_config  | end            |       |
-** Lisp Code
+
   #+name: graph-from-tables
   #+HEADER: :var nodes=node-table-ds graph=graph-table-ds
-  #+BEGIN_SRC emacs-lisp :colnames yes :exports code
+  #+BEGIN_SRC emacs-lisp :colnames yes :exports none
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
           (mapconcat
@@ -139,3 +137,14 @@
   #+END_SRC
 
 
+
+* ESTs                                                                 :TODO:
+- [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
+- [ ] "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
+- [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
+* GPI anchor and MitoProt and other analysis   :TODO:Mark:Kathryn:Brian:BobM:
+- https://github.com/BolognaBiocomp/predgpi
+- https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions
+
+* Intron Junctions                                        :JohnI:Brian::TODO:
+- [ ] Move Intron Junctions out of tuning manager into workflow
