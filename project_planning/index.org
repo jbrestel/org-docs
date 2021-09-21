@@ -34,12 +34,9 @@
 - [ ] Internal pages for ChipChip and Y2H
 ** Results Page :Danielle:
 + svg graphs instead of png 
-** Gene Lists as User Datasets :Omar:Lin:
-- [ ] make gene lists for plasmodb from publications 
-- [ ] multiple entitys for same variable
+
 ** Colocation for ESTs -> Genes :TODO:
-** wgcna :Ann:
-- [[file:wgcna.org][WGCNA Details]]
+
 * EDA Data Load
 -  [[orgdocs:/project_planning/eda.html][EDA DataLoad Notes]]
 ** Automated QA :Steph:Jay:JohnB:
@@ -51,7 +48,12 @@
 *** MBio                                                           :Wojtek:
 *** ClinEpi                                                           :Jay:
 ** Popset                                                             :TODO:
-
+* Network Analysis and Host Pathogen
+** wgcna :Ann:
+- [[file:wgcna.org][WGCNA Details]]
+** Gene Lists as User Datasets :Omar:Lin:
+- [ ] make gene lists for plasmodb from publications 
+- [ ] multiple entitys for same variable
 * Selenium Tests
 - [ ] Download and ws files
 - [ ] Sense/Antisense Coverage Tracks

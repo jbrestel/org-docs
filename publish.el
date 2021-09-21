@@ -231,6 +231,7 @@
 		    "project_planning/index.org"
    		    "project_planning/eda.org"
 		    "project_planning/apollo.org"
+   		    "project_planning/networkAnalysis.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
@@ -268,7 +269,7 @@
   (interactive)
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((dot . t) (plantuml . t) (emacs-lisp . t) (perl . t) (shell . t) (R . t)))
+   '((dot . t) (plantuml . t) (emacs-lisp . t) (perl . t) (R . t)))
   (let ((make-backup-files nil)
         (org-publish-project-alist       jbrestel--publish-project-alist)
         ;; deactivate cache as it does not take the publish.el file into account

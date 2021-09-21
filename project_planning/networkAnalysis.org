@@ -1,0 +1,158 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     Network Analysis
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Network Analysis
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+* wgcna
+** Choose Datasets
+*** [[https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html][wgcna faq]]
+- 15 samples (20 is better)
+- microarray and RNASeq are ok
+- filter by expression or variance (do not filter by differential expression)
+*** Find candidate datasets in GUS
+  #+begin_src sql :exports both
+    select distinct  dataset_name from (
+          select dataset_name
+           , study_name
+           , count(*) as sample_count
+           from apidbtuning.profilesamples
+           where profile_type = 'values'
+           and dataset_subtype in ('array', 'rnaseq')
+           and study_name not like '% - nonunique%'
+           and study_name not like '%secondstrand%'
+           group by dataset_name, study_name
+           having count(*) >= 15
+       )
+    order by dataset_name;
+  #+end_src
+  #+results:
+    | aaegLVP_AGWG_SRP026319_ebi_rnaSeq_RSRC                                 |
+    | aaegLVP_AGWG_SRP034735_ebi_rnaSeq_RSRC                                 |
+    | aaegLVP_AGWG_SRP037535_ebi_rnaSeq_RSRC                                 |
+    | aaegLVP_AGWG_SRP125355_ebi_rnaSeq_RSRC                                 |
+    | aaegLVP_AGWG_SRP126395_ebi_rnaSeq_RSRC                                 |
+    | aaegLVP_AGWG_SRP186517_ebi_rnaSeq_RSRC                                 |
+    | acolMali-NIH_ERP106575_ebi_rnaSeq_RSRC                                 |
+    | acolNgousso_ERP106575_ebi_rnaSeq_RSRC                                  |
+    | agamPEST_ERP006797_ebi_rnaSeq_RSRC                                     |
+    | agamPEST_ERP105122_ebi_rnaSeq_RSRC                                     |
+    | agamPEST_ERP113663_ebi_rnaSeq_RSRC                                     |
+    | agamPEST_SRP045243_ebi_rnaSeq_RSRC                                     |
+    | agamPEST_microarrayExpression_GSE14993_developmental_time_course_RSRC  |
+    | agamPEST_microarrayExpression_GSE21689_adult_tissues_RSRC              |
+    | bglaBB02_SRP049070_ebi_rnaSeq_RSRC                                     |
+    | calbSC5314_Munoz_Candida_albicans_infection_ebi_rnaSeq_RSRC            |
+    | cgatWM276_microarrayExpression_May_23isolates_RSRC                     |
+    | cneoH99_Haase_Kelliher_Cell_Cycle_ebi_rnaSeq_RSRC                      |
+    | cneoH99_Yu_Temp_Stress_ebi_rnaSeq_RSRC                                 |
+    | cneoJEC21_Tian_Sexual_Reproduction_ebi_rnaSeq_RSRC                     |
+    | cparIowaII_Widmer_ExtraCellular_Stages_ebi_rnaSeq_RSRC                 |
+    | hcapG217B_Rodriguez_Hcap_Trans_ebi_rnaSeq_RSRC                         |
+    | hsapREF_Fernandes_LM_LA_Infection_ebi_rnaSeq_RSRC                      |
+    | hsapREF_Lee_Gambian_ebi_rnaSeq_RSRC                                    |
+    | iscaISE6_SRP040034_ebi_rnaSeq_RSRC                                     |
+    | iscaWikel_SRP040034_ebi_rnaSeq_RSRC                                    |
+    | mmulAG07107_Galinski_Mmulatta_Infected_with_Pcynomolgi_ebi_rnaSeq_RSRC |
+    | mmusC57BL6J_Saeij_Jeroen_strains_rnaSeq_RSRC                           |
+    | ncraOR74A_Bharath_Circadian_Time_Course_ebi_rnaSeq_RSRC                |
+    | ncraOR74A_Clock_Regulated_Genes_rnaSeq_RSRC                            |
+    | ncraOR74A_Ellison_PopulationGenomics_ebi_rnaSeq_RSRC                   |
+    | ncraOR74A_Glass_EssentialTranscription_ebi_rnaSeq_RSRC                 |
+    | pberANKA_Modrzynska_ApiAP2_KO_ebi_rnaSeq_RSRC                          |
+    | pcynM_Galinski_infected_Mmulatta_ebi_rnaSeq_RSRC                       |
+    | pfal3D7_Lee_Gambian_ebi_rnaSeq_RSRC                                    |
+    | pfal3D7_Tonkin_Hill_Malaria_ebi_rnaSeq_RSRC                            |
+    | pfal3D7_microarrayExpression_Birkholtz_GametocyteTimeCourse_RSRC       |
+    | pfal3D7_microarrayExpression_Daily_Patients_RSRC                       |
+    | pfal3D7_microarrayExpression_Derisi_TimeSeries_RSRC                    |
+    | pfal3D7_microarrayExpression_E-MTAB-673_CGH_RSRC                       |
+    | pfal3D7_microarrayExpression_GSE12515_HB3XDD2_RSRC                     |
+    | pfal3D7_microarrayExpression_Llinas_RT_Transcription_Decay_RSRC        |
+    | pfal3D7_microarrayExpression_Llinas_RT_Transcription_Decay_logged_RSRC |
+    | pfal3D7_microarrayExpression_Newbold_Patients_RSRC                     |
+    | pknoH_microarrayExpression_Pkno_iRBC_Bozdech_RSRC                      |
+    | pvivP01_Pvivax_3_patient_IDC_2020_ebi_rnaSeq_RSRC                      |
+    | pyoeyoelii17X_microarrayExpression_Kappe_LiverStage_RSRC               |
+    | scerS288c_Haase_Kelliher_Cell_Cycle_ebi_rnaSeq_RSRC                    |
+    | scerS288c_microarrayExpression_Spellman_CellCycle_1998_RSRC            |
+    | tbruTREU927_Rijo_Circadian_Regulation_ebi_rnaSeq_RSRC                  |
+    | tgonME49_Saeij_Jeroen_strains_rnaSeq_RSRC                              |
+    | tgonME49_microarrayExpression_Matrajt_GSE23174_Bz_RSRC                 |
+    | tgonME49_microarrayExpression_White_GSE19092_CellCycle_RSRC            |
+    | treeQM6a_Benocci_Plant_Biomass_ebi_rnaSeq_RSRC                         |
+
+** Workflow
+*** Manual Delivery
+- power calculation.  need to manually set in analysisConfig.xml
+  - @MANUAL_DELIVERY@/PlasmoDB/pfal3D7/rnaSeq/Lee_Gambian/2018_07_04/final/analysisConfig.xml
+  #+begin_src xml
+  <step class="ApiCommonData::Load::IterativeWGCNAResults">
+    <property name="profileSetName" value="WGCNA Dual transcriptomes of malaria-infected Gambian children firststrand" />
+    <property name="inputFile" value="profiles.genes.htseq-union.firststrand.tpm" />
+    <property name="strandness" value="firststrand" />
+    <property name="genetype" value="protein coding" />
+    <property name="softThresholdPower" value="10" />
+    <property name="organism" value="Plasmodium falciparum 3D7" />
+    <property name="inputSuffixMM" value="[module - membership - firststrand - tpm - unique]" />
+    <property name="inputSuffixME" value="[module - eigengene - firststrand - tpm - unique]" />
+    <property name="technologyType" value="RNASeq" />
+  </step>
+  #+end_src
+
+*** Analysis
+- command line
+  #+begin_example
+  doTranscriptExpression.pl --xml_file <XML> --main_directory <DIR>
+  #+end_example
+  - the main_directory has the rnaseq tpm files
+  - the xml_file is the analysisConfig.xml from manualdelivery
+- [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/perl/IterativeWGCNAResults.pm][IterativeWGCNAResults.pm]] 
+- [[https://github.com/cstoeckert/iterativeWGCNA][iterative wgcna github]] 
+  - the repo above contains a Dockerfile but it is not being built or stored in dockerhub.  i created a fork and setup a build [[https://hub.docker.com/r/jbrestel/iterative-wgcna][jbrestel/iterative-wgcna]].
+  - [ ] build the container in jenkins so it is not tied to jbrestel github
+- plugin (insert results into oracle instance)
+  - [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/plugin/perl/InsertStudyResults.pm][InsertStudyResults.pm]]
+- Result Table
+  - ApiDB.NAfeatureWGCNAResults
+  #+begin_src sql  :exports results
+  desc ApiDB.NAfeatureWGCNAResults;
+  #+end_src
+  #+results:
+  | WGCNA_RESULT_ID         | primary key                               |
+  | NA_FEATURE_ID           | foreign key to genefeature                |
+  | CORRELATION_COEFFICIENT |                                           |
+  | PROTOCOL_APP_NODE_ID    | foreign key to "sample" / protocolappnode |
+  - ApiDB.EigengeneWGCNAResults
+  #+begin_src sql :exports results
+    desc ApiDB.EigengeneWGCNAResults
+  #+end_src
+  #+results:
+  | WGCNA_EIGENE_RESULT_ID | primary key            |
+  | MODULE_NAME            |                        |
+  | EIGENEGENVALUE         |                        |
+  | PROTOCOL_APP_NODE_ID   | foreign key to"sample" |
+
+** Use Cases for Single Dataset
+- given a gene source_id && experiment && correlation, return the other genes in that same module
+- Plot gene of interest and all other genes in the module
+- on gene page, transcriptomics section add a link to the search to find other genes in the same module
+* protein-protein Interaction
+** Y2H
+*** Datasets
+- PlasmoDB/pfal3D7_interaction_LaCount_y2h_RSRC
+- FungiDB/scerS288c_interaction_SGD_RSRC
+*** ApiDB.GeneInteraction (why not ProteinInteraction? or Y2HProteinInteraction?)
+* Host Pathogen
+** Profile Similarity
+*** Extend Protein Similarity Search To Return Host and Pathogen genes :Bindu:
+** wgcna
+*** Find related modules
+** Gene Set Enrichment
+*** Choose Gene Sets
+- wgcna modules
+- rnaseq pairwise comparisons? DESeq results
+- curated gene lists
+- user defined gene lists
+*** Study / Dataset Records
+ - [[orgdocs:/project_planning/dataset.html][Dataset Record Phase 3]]

@@ -24,7 +24,7 @@
 - [ ] Store indels in database table
 - [X] Include Indels in VCF File
 ** Consensus Sequence
-- [ ] Alignment tool on frontend needs to incorporate indels;  
+- [ ] Ensure consensus sequence doesn't contain indels
 - [X] use additional characters in consensus seq for ambiguous bases
 
 * Reflow Workflow
@@ -32,7 +32,6 @@
 - [ ] read indels so we can calculate products better
 - [ ] load indels so we can show consensus sequence better
 - [ ] use IUPAC (R=A or G) characteres in consensus sequence...  but BioPerl does not handle these correctly when translating codon to aa/product
-- [ ] should consensus included insertions?  
 ** Additional Tables and upgrade to ApiDB.SNP
 - [ ] ApiDB.SNPAlleleSummary
 - [ ] ApiDB.SNPProductSummary
@@ -68,4 +67,4 @@
 
 * Consensus Sequence
 - [ ] Query for indels and add to consensus if consensus does not include indels
-
+- [ ] Alignment tool on frontend needs to incorporate indels;  
