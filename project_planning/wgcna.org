@@ -1,7 +1,6 @@
 #+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+OPTIONS: num:nil tags:nil
-
+#+OPTIONS:   H:5 num:nil toc:2 p:t
 * How to choose datasets?
   + which datasets / how many do we have which qualify for wgcna? 
   + there are ~ 9 in plasmo which qualify

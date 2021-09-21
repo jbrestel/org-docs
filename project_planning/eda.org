@@ -3,10 +3,7 @@
 #+TITLE:     EDA Backend
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA Backend
-#+OPTIONS:   H:5 num:nil toc:2 p:t
-#+HTML_HEAD: <style> #content{max-width:1800px;}</style>
-#+HTML_HEAD: <style> p{max-width:800px;}</style>
-#+HTML_HEAD: <style> li{max-width:800px;}</style
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * Vocabulary
 - Study :: An investigation and analysis of a subjects
 - Entity :: A thing with distinct and independent existence

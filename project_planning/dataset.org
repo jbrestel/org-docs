@@ -3,10 +3,7 @@
 #+TITLE:     Dataset Record
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Dataset Record
-#+OPTIONS:   H:5 num:nil toc:2 p:t
-#+HTML_HEAD: <style> #content{max-width:1800px;}</style>
-#+HTML_HEAD: <style> p{max-width:800px;}</style>
-#+HTML_HEAD: <style> li{max-width:800px;}</style
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * Phase 1 (cleanup)
   + ontology based categorization of attributes and tables
     + Clinepi puts most everything under Data Provenance (should probably do the same for mbio and genomics)

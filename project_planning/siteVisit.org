@@ -4,10 +4,7 @@
 #+TITLE: Site Visit - Data Dev
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Site Visit - Data Dev
-#+OPTIONS:   H:5 num:nil toc:2 p:t
-#+HTML_HEAD: <style> #content{max-width:1800px;}</style>
-#+HTML_HEAD: <style> p{max-width:800px;}</style>
-#+HTML_HEAD: <style> li{max-width:800px;}</style
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * Notes
 - We are a knowledge Base not a data Archive
 * Intro

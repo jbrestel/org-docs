@@ -1,5 +1,5 @@
 #+STARTUP: indent
-#+OPTIONS: with-tags t
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * Taxonomy Update
 ** Tables
 1. SRes::Taxon

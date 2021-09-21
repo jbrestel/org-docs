@@ -3,10 +3,7 @@
 #+TITLE:     UniDB
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: UniDB
-#+OPTIONS:   H:5 num:nil toc:2 p:t
-#+HTML_HEAD: <style> #content{max-width:1800px;}</style>
-#+HTML_HEAD: <style> p{max-width:800px;}</style>
-#+HTML_HEAD: <style> li{max-width:800px;}</style
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * B53 :JohnB:
 ** DONE Site Configuration
 - [X] (Cristina) confiugre beta and qa sites to use "uni-build-53" and uni053n
