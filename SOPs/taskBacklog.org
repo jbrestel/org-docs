@@ -4,8 +4,68 @@
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Task Backlog Jamboree
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc ^:nil
-* Setup
+* Jamboree Details
 We will focus on Genomic sites so everyone needs to have one VEuPathDB site built (can switch the project and db instance as needed).  Tasks for Mbio are ok but ClinEpi tasks should not be the focus as the eda will soon make the current ClinEpi WDK obsolete.
+
+** Small Groups
+Small Groups will discuss the issue and propose a solution.  Each person should bring some tasks with them to discuss.  
+*** UK                                           :Kathryn:BobM:Paul:Wojtek:
+- Kathryn
+- BobM
+- Paul
+- Wojtek
+*** US-1                                        :Mark:Bindu:Danielle:Brian:
+- Mark
+- Bindu
+- Danielle
+- Brian
+*** US-2                                              :JohnB:JohnI:Ann:Jay:
+- JohnB
+- JohnI
+- Ann
+- Jay
+
+** Pre-meeting
+1. Identify several (5-10) tasks and be ready to discuss a) what the issue is and b) initial thoughts on a solution
+
+2. Look through your redmine tasks.  If there is no realistic intention to work on a task in the next 2 months,set the VEuPath Team = Datatype Development and the assignee to None/Nobody.
+
+3. Make sure you have a website using master code and it has been built.  The choice of website can be informed by the tasks you've chosen.  Let JohnB or BobB know if you need to create a website.
+
+4. Let JohnB know before next Tuesday if you need help selecting tasks.
+
+** How to Choose Tasks
+- Search for Tasks already assigned to you
+  [[https://redmine.apidb.org/issues?query_id=138][Data Dev Redmine Tasks Grouped By Person]]
+- Search for Unassigned Tasks + VEuPathDB Team is "Datatype Development"
+  - Make sure to assign yourself if you choose from unassigned Task list so no one else picks up same issue.
+  - [[https://redmine.apidb.org/issues?query_id=21][All Unassigned Redmine Tasks Grouped By VEuPathDB Team]]
+- Search for Tasks which are low cost
+- Search for PIP != "yes"
+
+** Small Group SOP
+1. Discuss issues
+   - Demonstrate that we can reproduce the issue
+   - Discuss proposed solution
+   - Discuss where in the code to find/fix
+   - Tasks can be proposed for "Rejection" if there is agreement within group
+2. Some set amount of time will be given to work on own (?? full day??)
+   - If you are stuck for more than 5 min, reach out to group leader
+   - Group check in via slack often
+3. Regroup and discuss
+   if fixed then group closes task
+   if not fixed, discuss next steps
+     indicate thinking in comment and unassign task if too large
+4. How to handle commits
+   - commit to master but put a link to the commit(s) in the redmine ticket
+5. At the following data dev meeting, each small group can present highlights
+   - what went well?
+   - what went poorly?
+   - highlight completed tasks
+   - discuss rejected tasks
+
+* Configurations and Useful Commands
+
 
 ** Environment
 #+begin_example
@@ -107,51 +167,3 @@ As alternative, you can run tuning manager command yourself.
 #+end_example
 
 
-* Details
-** Small Groups
-Small Groups will discuss the issue and propose a solution.  Each person should bring some tasks with them to discuss.  
-*** UK                                           :Kathryn:BobM:Paul:Wojtek:
-- Kathryn
-- BobM
-- Paul
-- Wojtek
-*** Penn1                                       :Mark:Bindu:Danielle:Brian:
-- Mark
-- Bindu
-- Danielle
-- Brian
-*** Penn2                                             :JohnB:JohnI:Ann:Jay:
-- JohnB
-- JohnI
-- Ann
-- Jay
-
-** Pre-meeting
-1. Identify several (5-10) tasks and be ready to discuss a) what the issue is and b) initial thoughts on a solution
-
-2. Look through your redmine tasks.  If there is no realistic intention to work on a task in the next 2 months,set the VEuPath Team = Datatype Development and the assignee to None/Nobody.
-
-3. Make sure you have a website using master code and it has been built.  The choice of website can be informed by the tasks you've chosen
-
-** How to Choose Tasks
-- Search for Tasks already assigned to you
-  [[https://redmine.apidb.org/issues?query_id=138][Data Dev Redmine Tasks Grouped By Person]]
-- Search for Unassigned Tasks + VEuPathDB Team is "Datatype Development"
-  - Make sure to assign yourself if you choose from unassigned Task list so no one else picks up same issue.
-  - [[https://redmine.apidb.org/issues?query_id=21][All Unassigned Redmine Tasks Grouped By VEuPathDB Team]]
-- Search for Tasks which are low cost
-- Search for PIP=no
-
-** Small group SOP
-1. Discuss issues
-   - Demonstrate that we can reproduce the issue
-   - Discuss proposed solution
-   - Discuss where in the code to find/fix
-2. Some set amount of time will be given to work on own (?? full day??)
-   - If you are stuck for more than 5 min, reach out to group leader
-3. Regroup and discuss
-   if fixed then group closes task
-   if not fixed, discuss next steps
-     indicate thinking in comment and unassign task if too large
-4. How to handle commits?  developer branch for each task?
-5. At the following data dev meeting, each small group can present highlights
