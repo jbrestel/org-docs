@@ -77,7 +77,12 @@ Error Logs.  use individual switches for individual logs: -c (catalina.out (tomc
 
 You should run this every time immediately before committing changes to dataset presenters.  tuningManagerProp.xml is the same configuration used by tuning manager.
 #+begin_example
-  buildDatasetPresentersTT --propFile $GUS_HOME/config/tuningManagerProp.xml --instance ${instance} --schema apidbtuning --report --suffix 1234
+  buildDatasetPresentersTT \\
+   --propFile $GUS_HOME/config/tuningManagerProp.xml \\
+   --instance ${instance} \\
+   --schema apidbtuning \\
+   --report \\
+   --suffix 1234
 #+end_example
 
 
@@ -93,7 +98,12 @@ Best option is to run in jenkins [[https://tm.apidb.org]]
 
 As alternative, you can run tuning manager command yourself.
 #+begin_example
-  tuningManager --instance ${instance} --propFile $GUS_HOME/config/tuningManagerProp.xml --configFile $GUS_HOME/lib/xml/tuningManager/tuningManager.xml --doUpdate --tables ~DatasetPresenter
+  tuningManager \\
+    --instance ${instance} \\
+    --propFile $GUS_HOME/config/tuningManagerProp.xml \\
+    --configFile $GUS_HOME/lib/xml/tuningManager/tuningManager.xml \\
+    --doUpdate  \\
+    --tables ~DatasetPresenter
 #+end_example
 
 

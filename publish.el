@@ -245,7 +245,7 @@
    (list "SOPs"
          :base-directory "./"
          :include '("SOPs/rnaseq.org"
-		    "SOPs/taskBackLog.org"
+		    "SOPs/taskBacklog.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
