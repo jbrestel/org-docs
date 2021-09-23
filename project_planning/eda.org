@@ -207,18 +207,31 @@ digraph {
 - [ ] Single cell RNASeq ??
 - [ ] Systems Biology  
 ** DIY                                   :ClinEpiDB:MicrobiomeDB:Jay:Wojtek:
-- [ ] Refactor of ClinEpi preprocessing scripts and make Container
-- [ ] how to do inserts? can we reuse the existing plugins?
-- [ ] input for mbio is a biom file (table of otu and table of sample details)
+*** Web Form
+- [ ] minimal changes to web for for MBio
+  - [ ] input for mbio is a biom file (table of otu and table of sample details)
 - [ ] how to handle ontology dependencies?
-
-
-
-
-
-
-
-
+*** Container / Preprocess / Validation
+**** MicrobiomeDB
+- [ ] Transform biom to json and tsv files
+**** ClineEpiDB
+- [ ] Refactor of ClinEpi preprocessing scripts and make container
+- [ ] Any changes needed for mbio preprocess?
+*** Loader
+- [ ] how to do inserts? can we reuse the existing plugins?
+- WDK Calls a process / script
+  - has access to GUS_HOME on jenkins.
+    - $GUS_HOME/config/gus.config specifies the database
+  - [ ] Which projects are built? GUS
+  - irods.builder on [[ws.apidb.org]]
+  - [ ] confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
+  - [ ] add user_dataset_id to each eda_ud table
+    - [ ] alter each eda_ud table after entity graph tables have been installed
+  - [ ] Every installer needs to handle common user dataset tables
+  - [ ] create a wrapper which calls 4 plugins
+  - [ ] create script which manages undo
+*** What to do about legacy user datasets?
+- versioning in user datasets is for what is stored in irods
 
 * Data Validation                                 :JohnB:Steph:Jay:ClinEpiDB:
 *** Reader Interface
