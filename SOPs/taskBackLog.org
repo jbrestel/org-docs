@@ -1,0 +1,147 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     Task Backlog Jamboree
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Task Backlog Jamboree
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc ^:nil
+* Setup
+We will focus on Genomic sites so everyone needs to have one VEuPathDB site built (can switch the project and db instance as needed).  Tasks for Mbio are ok but ClinEpi tasks should not be the focus as the eda will soon make the current ClinEpi WDK obsolete.
+
+** Environment
+#+begin_example
+  BASE_GUS=ash:/var/www/EuPathDB/eupathdb.jbrestel
+  cd $BASE_GUS
+  source $BASE_GUS/etc/setenv
+#+end_example
+
+** Conifer
+Modify the project and appDb_connectionUrl to switch your website in conifer yml file 
+#+begin_example
+  $BASE_GUS/conifer_site_vars.yml
+#+end_example
+
+you can make a vectorbase site behave like a plasmo site or vice versa
+#+begin_example
+  project: $PROJECT_NAME
+  appDb_connectionUrl: jdbc:oracle:oci:@$dbInstance
+#+end_example
+
+** tsrc
+Clone projects for group
+#+begin_example
+  cd $PROJECT_HOME
+  tsrc init git@github.com:EuPathDB/tsrc.git --group apiSite
+#+end_example
+
+** build site commands
+*** rebuilder 
+re-install your dev site (retains changes you've made in $PROJECT_HOME) if you are having issues
+#+begin_example
+  rebuilder jbrestel.eupathdb.org [--configure-with $$yamlFile]
+#+end_example
+
+*** wb
+shortcut commands for building websites
+#+begin_example
+  wb full|model|graph|gbrowse|ontology|site|watch-ts|shiny|cgi|jbrowse
+#+end_example
+
+** other useful commands
+reset your wdkCache:  (rare) Run this if you make model changes to queries which get cached
+#+begin_example
+  wdkCache -model ${PROJECT} -reset
+#+end_example
+
+check if the model compiles: (common)  You could run this every time you bld ApiCommonShared/Model OR inject templates;  Lots of output is good;  A stack trace means there is a problem w/ the model.  This is run as as step in wb commands
+#+begin_example
+  wdkXml -model ${PROJECT}
+#+end_example
+
+check if your tomcat instance is running:  (rare) You can run this to determine if your instance is running (your site will not be accessible if it isn't)
+#+begin_example
+  instance_manager manage ${PROJECT} list
+#+end_example
+
+reload your instance:  (common) You need to do this immediately after building your model OR injecting templates!!!
+#+begin_example
+  instance_manager manage ${PROJECT} reload ${webapp_name}
+#+end_example
+
+Error Logs.  use individual switches for individual logs: -c (catalina.out (tomcat's stderr/stdout)), -a (apache), -t (tomcat webapp)
+#+begin_example
+  cattail [-act] ${user}.website.org
+#+end_example
+
+** other good stuff to know
+*** how to validate dataset presenters
+
+You should run this every time immediately before committing changes to dataset presenters.  tuningManagerProp.xml is the same configuration used by tuning manager.
+#+begin_example
+  buildDatasetPresentersTT --propFile $GUS_HOME/config/tuningManagerProp.xml --instance ${instance} --schema apidbtuning --report --suffix 1234
+#+end_example
+
+
+*** Changes made to Presenters affect the website at tuning manager time and at build time
+- Tuning manager loads ApiDBTuning.DatasetPresenter (and related tables) storing descriptions, summary, contact, publication, links, ...
+- Tuning manager reads the Injector Java Class and loads ApiDBTuning.DatasetModelRef which associates website "things" (questions, record tables, graphs, ...) with a dataset
+- After adding the presenter and injector you must commit and run the tuning manager.
+- At build time (wb), the java code will "injectTemplates" and add code snippets into gus_home
+- The xml for a templateInjector has access to dataset elements && whatever additional props it needs
+
+*** tuning manager run
+Best option is to run in jenkins [[https://tm.apidb.org]]
+
+As alternative, you can run tuning manager command yourself.
+#+begin_example
+  tuningManager --instance ${instance} --propFile $GUS_HOME/config/tuningManagerProp.xml --configFile $GUS_HOME/lib/xml/tuningManager/tuningManager.xml --doUpdate --tables ~DatasetPresenter
+#+end_example
+
+
+* Details
+** Small Groups
+Small Groups will discuss the issue and propose a solution.  Each person should bring some tasks with them to discuss.  
+*** UK                                           :Kathryn:BobM:Paul:Wojtek:
+- Kathryn
+- BobM
+- Paul
+- Wojtek
+*** Penn1                                       :Mark:Bindu:Danielle:Brian:
+- Mark
+- Bindu
+- Danielle
+- Brian
+*** Penn2                                             :JohnB:JohnI:Ann:Jay:
+- JohnB
+- JohnI
+- Ann
+- Jay
+
+** Pre-meeting
+1. Identify several (5-10) tasks and be ready to discuss a) what the issue is and b) initial thoughts on a solution
+
+2. Look through your redmine tasks.  If there is no realistic intention to work on a task in the next 2 months,set the VEuPath Team = Datatype Development and the assignee to None/Nobody.
+
+3. Make sure you have a website using master code and it has been built.  The choice of website can be informed by the tasks you've chosen
+
+** How to Choose Tasks
+- Search for Tasks already assigned to you
+  [[https://redmine.apidb.org/issues?query_id=138][Data Dev Redmine Tasks Grouped By Person]]
+- Search for Unassigned Tasks + VEuPathDB Team is "Datatype Development"
+  - Make sure to assign yourself if you choose from unassigned Task list so no one else picks up same issue.
+  - [[https://redmine.apidb.org/issues?query_id=21][All Unassigned Redmine Tasks Grouped By VEuPathDB Team]]
+- Search for Tasks which are low cost
+- Search for PIP=no
+
+** Small group SOP
+1. Discuss issues
+   - Demonstrate that we can reproduce the issue
+   - Discuss proposed solution
+   - Discuss where in the code to find/fix
+2. Some set amount of time will be given to work on own (?? full day??)
+   - If you are stuck for more than 5 min, reach out to group leader
+3. Regroup and discuss
+   if fixed then group closes task
+   if not fixed, discuss next steps
+     indicate thinking in comment and unassign task if too large
+4. How to handle commits?  developer branch for each task?
+5. At the following data dev meeting, each small group can present highlights

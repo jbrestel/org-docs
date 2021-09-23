@@ -244,7 +244,9 @@
          :html-head-include-default-style nil)
    (list "SOPs"
          :base-directory "./"
-         :include '("SOPs/rnaseq.org")
+         :include '("SOPs/rnaseq.org"
+		    "SOPs/taskBackLog.org"
+		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
          :publishing-function 'jbrestel/org-html-publish-site-to-html

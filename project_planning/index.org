@@ -1,39 +1,41 @@
 #+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
-#+TITLE:     Data Dev Ongoing Projects
+#+TITLE:     Projects
 #+AUTHOR:    John Brestelli
-#+DESCRIPTION: Data Dev Ongoing Projects
+#+DESCRIPTION: Projects
 #+OPTIONS:   H:0 num:nil p:t tags:not-in-toc
-* [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
-** ESTs
-** GPIAnchor and MitoProt
-** Intron Junctions
-** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                           :Mark:Kathryn:JohnB:
-* [[orgdocs:/project_planning/unidb.html][UniDB]]                                                               :JohnB:
-* WDK Model
-** [[file:dataset.org][Dataset Record]]                                                      :Ann:
-** Organism Preferences :JohnB:MarkH:
+* Projects
+** [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
+*** ESTs
+*** GPIAnchor and MitoProt
+*** Intron Junctions
+*** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                         :Mark:Kathryn:JohnB:
+
+** [[orgdocs:/project_planning/unidb.html][UniDB]]                                                             :JohnB:
+** WDK Model
+*** [[file:dataset.org][Dataset Record]]                                                    :Ann:
+*** Organism Preferences                                      :JohnB:MarkH:
 - [X] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
 - [ ] Internal pages for ChipChip and Y2H
-** Results Page SVG Graphs                                        :Danielle:
-* [[orgdocs:/project_planning/eda.html][EDA DataLoad]]
-* [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]] :Ann:
-** Gene Lists as User Datasets :Omar:
-* [[orgdocs:/project_planning/selenium.html][Selenium Tests]]
-* SOPs
-** Schema Changes
+*** Results Page SVG Graphs                                      :Danielle:
+** [[orgdocs:/project_planning/eda.html][EDA DataLoad]]
+** [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]]                                  :Ann:
+*** Gene Lists as User Datasets                                      :Omar:
+** [[orgdocs:/project_planning/selenium.html][Selenium Tests]]
+** SOPs
+*** Schema Changes
 - [ ] Alter Table
 - [ ] New Table
-** Known Datatypes
+*** Known Datatypes
 - [ ] RNASeq
 - [ ] Microarray
 - [ ] Phenotype
 - [ ] Chip Chip
 - [ ] Chip Seq
-* [[orgdocs:/project_planning/apollo.html][Apollo]]
-* [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                                 :Danielle:
-* [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                       :BobM:
-* OrthoMCL
-** Subtraction Analysis :MarkH:
+** [[orgdocs:/project_planning/apollo.html][Apollo]]
+** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                               :Danielle:
+** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                     :BobM:
+** OrthoMCL
+*** Subtraction Analysis                                            :MarkH:
 
 
