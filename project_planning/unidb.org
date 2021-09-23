@@ -150,17 +150,16 @@
 ** DONE Genomics Workflow Changes
 - [X] Add other 2 SNP Attributes which are being added by tuning manager
 - [X] Required rebuild for all snp datasets 
-** TODO Schema Changes
-- [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer
-- [X] add 3 new fields to SRes.OntologySynonym
+
 ** DONE Bulk Loader for SNP / Seqvars
 ** DONE Add Mass Spec profile (Llinas) [[redmine:45318][redmine:45318]]
 ** TODO Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy
 - [ ] Update NCBI Taxonomy
 - [ ] Test Taxonomy Update 
 - [ ] Run Tuning manager
+- [ ] use inc databases to set the scientific names for all taxa
 ** DONE Undo unidbcomponents
-** Patch Intron Junctions
+** TODO Patch Intron Junctions
 - [ ] Intron Junctions missing fk constraint
   - [ ] Patch update nasequenceid mapping (Patch other tables with misisng fk constraints)
     - [ ] uni-inc, uni053n, uni054(s/n)
@@ -185,6 +184,9 @@
    - [X] Deal with enum params
    - [X] is there a webservice way to get the values for all params
 * Future Releases :JohnI:JohnB:MarkH:Bindu:
+** TODO Schema Changes
+- [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer
+- [X] add 3 new fields to SRes.OntologySynonym
 ** Plugin Changes for DatabaseMapping fields
 - [ ] Database Mapping Table
   - [ ] Global Rows still need to populate existing Database Mapping Table
@@ -230,7 +232,7 @@
 - [ ] Text Searches (will site search fix these?)
 ** wgcna (host /pathogen)
 
-** TODO Patch Intron Junctions and other tables which had missing fk dependencey :JohnB:
+
 * SOP for schema changes
 - [ ] How to handle schema changes?
   - [ ] add columns
