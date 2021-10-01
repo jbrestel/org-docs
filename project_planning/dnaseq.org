@@ -21,13 +21,14 @@
  - [X] move over DJob/DistribJobTasks/bin/runCNVTasks.pl
  - [X] LOH data for plot
 ** Indels
-- [ ] Store indels in database table
 - [X] Include Indels in VCF File
 ** Consensus Sequence
 - [ ] Ensure consensus sequence doesn't contain indels
 - [X] use additional characters in consensus seq for ambiguous bases
 
 * Reflow Workflow
+** Indels
+- [ ] Store indels in database table
 ** Process Sequence Variations Step
 - [ ] read indels so we can calculate products better
 - [ ] load indels so we can show consensus sequence better

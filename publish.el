@@ -232,6 +232,7 @@
    		    "project_planning/eda.org"
 		    "project_planning/apollo.org"
    		    "project_planning/networkAnalysis.org"
+
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
@@ -246,6 +247,7 @@
          :base-directory "./"
          :include '("SOPs/rnaseq.org"
 		    "SOPs/taskBacklog.org"
+       		    "SOPs/taxonomyUpdate.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))

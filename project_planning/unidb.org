@@ -159,10 +159,136 @@
 - [ ] Run Tuning manager
 - [ ] use inc databases to set the scientific names for all taxa
 ** DONE Undo unidbcomponents
-** TODO Patch Intron Junctions
-- [ ] Intron Junctions missing fk constraint
-  - [ ] Patch update nasequenceid mapping (Patch other tables with misisng fk constraints)
-    - [ ] uni-inc, uni053n, uni054(s/n)
+** DONE Patch ids for other tables ( uni-inc, uni054n )
+- ApiDB.AGPPiece
+  - external_database_release_id
+  #+begin_src sql
+    update apidb.agppiece set external_database_release_id = 27173 where external_database_release_id = 401 and row_project_id = 42;
+    update apidb.agppiece set external_database_release_id = 32430 where external_database_release_id = 718 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32431 where external_database_release_id = 729 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32337 where external_database_release_id = 747 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32591 where external_database_release_id = 720 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32248 where external_database_release_id = 722 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32155 where external_database_release_id = 745 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32532 where external_database_release_id = 749 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32596 where external_database_release_id = 758 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32247 where external_database_release_id = 717 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32249 where external_database_release_id = 727 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32335 where external_database_release_id = 732 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32434 where external_database_release_id = 744 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32254 where external_database_release_id = 752 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32338 where external_database_release_id = 753 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32085 where external_database_release_id = 755 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32086 where external_database_release_id = 759 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 28137 where external_database_release_id = 1142 and row_project_id = 43;
+    update apidb.agppiece set external_database_release_id = 32082 where external_database_release_id = 736 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32252 where external_database_release_id = 742 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32435 where external_database_release_id = 750 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32595 where external_database_release_id = 754 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32436 where external_database_release_id = 756 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32529 where external_database_release_id = 723 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32080 where external_database_release_id = 725 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32251 where external_database_release_id = 737 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32432 where external_database_release_id = 739 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32084 where external_database_release_id = 751 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 28066 where external_database_release_id = 1143 and row_project_id = 43;
+    update apidb.agppiece set external_database_release_id = 27647 where external_database_release_id = 1144 and row_project_id = 43;
+    update apidb.agppiece set external_database_release_id = 32250 where external_database_release_id = 730 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32530 where external_database_release_id = 733 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32154 where external_database_release_id = 734 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32593 where external_database_release_id = 735 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32257 where external_database_release_id = 797 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 27961 where external_database_release_id = 1141 and row_project_id = 43;
+    update apidb.agppiece set external_database_release_id = 38633 where external_database_release_id = 3883 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32333 where external_database_release_id = 719 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32699 where external_database_release_id = 724 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32334 where external_database_release_id = 728 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32081 where external_database_release_id = 731 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32336 where external_database_release_id = 738 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32083 where external_database_release_id = 740 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32594 where external_database_release_id = 746 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 27658 where external_database_release_id = 1145 and row_project_id = 43;
+    update apidb.agppiece set external_database_release_id = 32153 where external_database_release_id = 721 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32592 where external_database_release_id = 726 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32433 where external_database_release_id = 741 and row_project_id = 46;
+    update apidb.agppiece set external_database_release_id = 32531 where external_database_release_id = 743 and row_project_id = 46;
+           update apidb.agppiece set external_database_release_id = 32700 where external_database_release_id = 757 and row_project_id = 46;
+	#+end_src
+ - ApiDB.GOSubset
+  - external_database_release_id
+  #+begin_src sql
+    update apidb.gosubset set external_database_release_id = 425 where external_database_release_id = 47 and row_project_id = 48;
+    update apidb.gosubset set external_database_release_id = 2467 where external_database_release_id = 22 and row_project_id = 43;
+    update apidb.gosubset set external_database_release_id = 206 where external_database_release_id = 48 and row_project_id = 45;
+    update apidb.gosubset set external_database_release_id = 2467 where external_database_release_id = 10 and row_project_id = 42;
+    update apidb.gosubset set external_database_release_id = 425 where external_database_release_id = 46 and row_project_id = 4;
+    update apidb.gosubset set external_database_release_id = 425 where external_database_release_id = 45 and row_project_id = 22;
+    update apidb.gosubset set external_database_release_id = 425 where external_database_release_id = 25 and row_project_id = 5;
+    update apidb.gosubset set external_database_release_id = 4910 where external_database_release_id = 46 and row_project_id = 41;
+    update apidb.gosubset set external_database_release_id = 206 where external_database_release_id = 46 and row_project_id = 3;
+    update apidb.gosubset set external_database_release_id = 2467 where external_database_release_id = 45 and row_project_id = 46;
+    update apidb.gosubset set external_database_release_id = 2467 where external_database_release_id = 19 and row_project_id = 21;
+    update apidb.gosubset set external_database_release_id = 425 where external_database_release_id = 112 and row_project_id = 47;
+  #+end_src
+- ApiDB.IntronJunction
+  - na_sequence_id
+  #+begin_src sql
+    create table projectIdDatabase as
+    select project_id
+         , decode(lower(substr(name, 1,4)),
+                        'tric', 'tvag',
+                        'amoe', 'ameb',
+                        'trit', 'tryp',
+                        lower(substr(name, 1,4))) || '-inc' as database_orig
+     from core.projectinfo
+     where project_id in (43,42,41,44,45,21,4,48,3,22,46,47,5);
+
+     create table apidb.intronjunction_tmp as 
+     select j.intron_junction_id
+     , j.protocol_app_node_id
+     , s_map.primary_key as na_sequence_id
+     ,j.segment_start
+     ,j.segment_end
+     , j.is_reversed
+     , j.unique_reads
+     , j.nu_reads
+     , j.modification_date
+     , j.user_read
+     , j.user_write
+     , j.group_read
+     , j.group_write
+     , j.other_read
+     , j.other_write
+     , j.row_user_id
+     , j.row_group_id
+     , j.row_project_id
+     , j.row_alg_invocation_id
+     from apidb.intronjunction j
+     , projectiddatabase pd
+     , (select * from apidb.databasetablemapping where table_name = 'DoTS::NASequenceImp') s_map
+     where j.row_project_id = pd.project_id
+     and pd.DATABASE_ORIG = s_map.database_orig
+     and j.na_sequence_id = s_map.primary_key_orig;
+
+
+     rename intronjunction to intronjunction_old;
+     rename intronjunction_tmp to intronjunction;
+
+     alter table apidb.intronjunction add constraint injunc_pk primary key (intron_junction_id);
+     alter table apidb.intronjunction add constraint injunc_pan foreign key (protocol_app_node_id) references study.protocolappnode;;
+     alter table apidb.intronjunction add constraint injunc_seq foreign key (na_sequence_id) references dots.nasequenceimp;
+
+
+     GRANT insert, select, update, delete ON apidb.IntronJunction TO gus_w;                                                                             
+     GRANT select ON apidb.IntronJunction TO gus_r;                                                                                                     
+                                                                                                                                                   
+     CREATE INDEX apidb.IntJunc_loc2_ix                                                                                                                  
+     ON apidb.IntronJunction                                                                                                                            
+       (na_sequence_id, segment_start, segment_end, is_reversed)                                                                                       
+       TABLESPACE indx;                                                                                                                                
+     CREATE INDEX apidb.injun_rev2_ix0 ON apidb.IntronJunction (protocol_app_node_id, intron_junction_id) TABLESPACE indx; 
+          #+end_src
+
 * Beta Release                                       :Mark:JohnI:JohnB:Bindu:
 ** Automated QA Process
 1. [X] compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
@@ -243,8 +369,18 @@
 - host / pathogen / vector
 - user defined organism preferences
 - Fewer prod db instances
-- ebi2gus
-* Basics
+** ebi2GUS
+- given mysql dump (init.sql), the container will fire up mariadb server, run the init.sql, will run dumpGUS.pl which creates a set of files (one file per GUS Table)
+- new branch needed
+  - change to GUS schema ( ~ 40 tables for "core genome")
+  - changes to input schema
+  - changes to the perl api
+
+
+
+
+
+* Other Documentation
 - [[https://docs.google.com/document/d/1K3ckE6hwN9r-Dp1Av_zDH5Jcr7ApbBjQ-7yJM1zk0bQ/edit][UniDB Design Document December 2019]]
 - [[https://wiki.apidb.org/index.php/UniDB%20Workflow][Wiki / Technical info about running workflow]]
 * Table Reader(s)
@@ -259,13 +395,4 @@
     - [[~/project_home/ebi2gus/Dockerfile]]
     - [[~/project_home/ebi2gus/lib/perl/EBIParser.pm]]
     - [[~/project_home/ebi2gus/lib/perl/GUS/DoTS/GeneFeature.pm]]
-
-* ebi2GUS
-- given mysql dump (init.sql), the container will fire up mariadb server, run the init.sql, will run dumpGUS.pl which creates a set of files (one file per GUS Table)
-- new branch needed
-  - change to GUS schema ( ~ 40 tables for "core genome")
-  - changes to input schema
-  - changes to the perl api
-
-
 

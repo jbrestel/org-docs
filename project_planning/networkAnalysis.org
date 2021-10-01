@@ -100,14 +100,15 @@
   </step>
   #+end_src
 
-*** Analysis
+*** TODO Analysis
 - command line
   #+begin_example
   doTranscriptExpression.pl --xml_file <XML> --main_directory <DIR>
   #+end_example
   - the main_directory has the rnaseq tpm files
   - the xml_file is the analysisConfig.xml from manualdelivery
-- [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/perl/IterativeWGCNAResults.pm][IterativeWGCNAResults.pm]] 
+- [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/perl/IterativeWGCNAResults.pm][IterativeWGCNAResults.pm]]
+  - [ ] Filter by expression level in addition to removing pseudogenes
 - [[https://github.com/cstoeckert/iterativeWGCNA][iterative wgcna github]] 
   - the repo above contains a Dockerfile but it is not being built or stored in dockerhub.  i created a fork and setup a build [[https://hub.docker.com/r/jbrestel/iterative-wgcna][jbrestel/iterative-wgcna]].
   - [ ] build the container in jenkins so it is not tied to jbrestel github

@@ -1,0 +1,65 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     NCBI Taxonomy Update
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: NCBI Taxonomy Update
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc ^:nil
+
+* wget NCBI Taxonomy
+get and unpack ncbi taxonomy files in temporary directory
+#+begin_src example
+  wget --directory-prefix=$PWD --output-file=wget.log --tries=5 --mirror --no-parent --no-directories --no-host-directories --cut-dirs=2 --include list --accept=taxdump.tar.gz "ftp://ftp.ncbi.nih.gov/pub/taxonomy/"
+  tar -xzf taxdump.tar.gz 
+#+end_src
+* Environment
+The plugin uses GUS Model objects to update rows in SRes.Taxon, SRes.TaxonName and SRes.GeneticCode.  To update a GUSRow object, you must either be the owner of the row, same group as the owner, or the row must have other_write=1.
+
+The safest option is to update these 3 tables and set other_write=1
+#+begin_src sql
+  update sres.taxon set other_write = 1;
+  update sres.taxonname set other_write = 1;
+  update sres.geneticcode set other_write = 1;
+  commit;
+#+end_src
+
+If you don't set the other_write=1 you must either a) ensure there is only one "group" for these tables AND check that your user is linked to the group AND this group is set as the group in gus.config
+#+begin_src sql
+   -- ensure there is only one "group" for these tables
+   select name from core.groupinfo gi where group_id in (
+    select distinct row_group_id from sres.taxon
+    union
+    select distinct row_group_id from sres.taxonname
+    union
+    select distinct row_group_id from sres.geneticcode);
+
+  -- ensure your user is linked to the same group 
+    select gi.name
+   from core.groupinfo gi, core.userinfo ui, core.usergroup ug
+   where ui.login = 'jbrestel'
+   and ui.user_id = ug.user_id
+   and ug.group_id = gi.group_id
+
+ -- Make sure that this group is set in your gus.config
+#+end_src
+
+OR b) ensure that your user is the ONLY owner of the rows in these 3 tables
+#+begin_src sql
+   select login from core.userinfo gi where user_id in (
+    select distinct row_user_id from sres.taxon
+    union
+    select distinct row_user_id from sres.taxonname
+    union
+    select distinct row_user_id from sres.geneticcode)
+#+end_src
+
+
+* GUS::Supported::Plugin::LoadTaxon
+#+begin_src example
+ga GUS::Supported::Plugin::LoadTaxon --names $PWD/names.dmp --nodes $PWD/nodes.dmp --gencode $PWD/gencode.dmp --merged $PWD/merged.dmp --verbose --commit
+#+end_src
+
+* Run Tuning Manager [[https://tm.apidb.org]]
+
+
+   
+
