@@ -76,27 +76,36 @@ ga GUS::Supported::Plugin::LoadTaxon \\
 * Apply Patches
 ** GiardiaDB
   In sql developer run the following sql command:
-  Load the temporary rows if the 2 above do not exist
-  #+begin_src bash
-  ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 \\
-                                                     --parentRank genus \\
-                                                     --ncbiTaxId 9100000002 \\
-                                                     --rank 'species' \\
-                                                     --name 'Giardia Assemblage B' \\
-                                                     --nameClass 'scientific name' \\
-                                                     --geneticCodeId 2 \\
-                                                     --mitochondrialGeneticCodeId 1 \\
-                                                     --commit >> error.log 2>&1 &
 
-  ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 \\
-                                                     --parentRank genus \\
-                                                     --ncbiTaxId 9100000003 \\
-                                                     --rank 'species' \\
-                                                     --name 'Giardia Assemblage E' \\
-                                                     --nameClass 'scientific name' \\
-                                                     --geneticCodeId 2 \\
-                                                     --mitochondrialGeneticCodeId 1 \\
-                                                     --commit >> error.log 2>&1
+
+#+begin_src sql
+  --Check for temporary ncbi tax ids
+  select * 
+  from sres.taxon 
+  where ncbi_tax_id in (9100000002,9100000003);
+#+end_src
+
+Load the temporary rows if the 2 above do not exist
+#+begin_src bash
+    ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 \\
+                                                       --parentRank genus \\
+                                                       --ncbiTaxId 9100000002 \\
+                                                       --rank 'species' \\
+                                                       --name 'Giardia Assemblage B' \\
+                                                       --nameClass 'scientific name' \\
+                                                       --geneticCodeId 2 \\
+                                                       --mitochondrialGeneticCodeId 1 \\
+                                                       --commit >> error.log 2>&1 &
+
+    ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 \\
+                                                       --parentRank genus \\
+                                                       --ncbiTaxId 9100000003 \\
+                                                       --rank 'species' \\
+                                                       --name 'Giardia Assemblage E' \\
+                                                       --nameClass 'scientific name' \\
+                                                       --geneticCodeId 2 \\
+                                                       --mitochondrialGeneticCodeId 1 \\
+                                                       --commit >> error.log 2>&1
   #+end_src
 
   #+begin_src sql
@@ -124,10 +133,6 @@ ga GUS::Supported::Plugin::LoadTaxon \\
   set rank = 'strain'
   where ncbi_tax_id in (184922,598745,658858);
 
-  --Check for temporary ncbi tax ids
-  select * 
-  from sres.taxon 
-  where ncbi_tax_id in (9100000002,9100000003);
 
   update sres.taxon 
   set parent_id=(select taxon_id 
