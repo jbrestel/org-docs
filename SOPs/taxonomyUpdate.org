@@ -58,6 +58,224 @@ OR b) ensure that your user is the ONLY owner of the rows in these 3 tables
 ga GUS::Supported::Plugin::LoadTaxon --names $PWD/names.dmp --nodes $PWD/nodes.dmp --gencode $PWD/gencode.dmp --merged $PWD/merged.dmp --verbose --commit
 #+end_src
 
+* Apply Patches
+** GiardiaDB
+  In sql developer run the following sql command:
+  Load the temporary rows if the 2 above do not exist
+  #+begin_src bash
+  ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 \\
+                                                     --parentRank genus \\
+                                                     --ncbiTaxId 9100000002 \\
+                                                     --rank 'species' \\
+                                                     --name 'Giardia Assemblage B' \\
+                                                     --nameClass 'scientific name' \\
+                                                     --geneticCodeId 2 \\
+                                                     --mitochondrialGeneticCodeId 1 \\
+                                                     --commit >> error.log 2>&1 &
+
+  ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 \\
+                                                     --parentRank genus \\
+                                                     --ncbiTaxId 9100000003 \\
+                                                     --rank 'species' \\
+                                                     --name 'Giardia Assemblage E' \\
+                                                     --nameClass 'scientific name' \\
+                                                     --geneticCodeId 2 \\
+                                                     --mitochondrialGeneticCodeId 1 \\
+                                                     --commit >> error.log 2>&1
+  #+end_src
+
+  #+begin_src sql
+  update sres.taxonname 
+  set name='Giardia Assemblage A isolate WB' 
+  where name='Giardia lamblia ATCC 50803' 
+  and name_class = 'scientific name';
+
+  update sres.taxonname 
+  set name='Giardia Assemblage B isolate GS' 
+  where name='Giardia intestinalis ATCC 50581' 
+  and name_class = 'scientific name';
+
+  update sres.taxonname 
+  set name='Giardia Assemblage E isolate P15' 
+  where name='Giardia lamblia P15' 
+  and name_class = 'scientific name';
+
+  update sres.taxonname 
+  set name='Giardia Assemblage A' 
+  where name='Giardia intestinalis' 
+  and name_class = 'scientific name';
+
+  update sres.taxon
+  set rank = 'strain'
+  where ncbi_tax_id in (184922,598745,658858);
+
+  --Check for temporary ncbi tax ids
+  select * 
+  from sres.taxon 
+  where ncbi_tax_id in (9100000002,9100000003);
+
+  update sres.taxon 
+  set parent_id=(select taxon_id 
+                 from sres.taxonname 
+                 where name_class='scientific name' 
+                 and name='Giardia Assemblage B') 
+  where ncbi_tax_id=598745;
+
+  update sres.taxon 
+  set parent_id=(select taxon_id 
+                 from sres.taxonname 
+                 where name_class='scientific name' 
+                 and name='Giardia Assemblage E') 
+  where ncbi_tax_id=658858;
+
+  update sres.TaxonName 
+  set name='Giardia intestinalis' 
+  where name='Lamblia intestinalis';
+  #+end_src
+
+** FungiDB
+  #+begin_src sql
+  update SRES.TAXONNAME 
+  set name_class='synonym' 
+  where NAME='[Candida] glabrata CBS 138';
+
+  update SRES.TAXONNAME 
+  set name_class='scientific name' 
+  where NAME='Candida glabrata CBS 138';
+  #+end_src
+
+** CryptoDB
+  In NCBI taxonomy, 'Cryptosporidium sp. chipmunk LX-2015' is a species now, 
+  and it's parent is 'unclassified Cryptosporidium', which is not what we loaded before.
+  [[https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi]]
+
+  Actually 'chipmunk LX-2015' is a strain, NCBI taxonomy puts it as species name.
+  [[https://gold.jgi.doe.gov/organism?id=Go0113979]]
+
+  Based on what discussed with Omar in slack, 
+  re-set the rank of 'Cryptosporidium sp. chipmunk LX-2015' as strain
+  re-set the parent of it as 'Cryptosporidium sp.', not 'unclassified Cryptosporidium'
+
+  #+begin_src sql
+  update sres.taxon 
+  set rank = 'strain' 
+  where NCBI_TAX_ID=1603071;
+
+  update sres.taxon 
+  set parent_id=(select taxon_id 
+                 from sres.taxonname 
+                 where name_class='scientific name' 
+                 and name='Cryptosporidium sp.') 
+  where NCBI_TAX_ID=1603071;
+  #+end_src
+
+
+** MicrosporidiaDB
+
+  patch micr-rbld to set "Amphiamblys sp. WSBS2006" as strain (rank='no rank'), 
+  and its parent "unclassified Amphiamblys" as species (rank='species')
+  To be consistent, also set "Amphiamblys sp. WSBS2011" as strain
+
+  #+begin_src sql
+  update sres.taxon set rank = 'no rank' where NCBI_TAX_ID=1866961;
+  update sres.taxon set rank = 'species' where NCBI_TAX_ID=2641285;
+  update sres.taxon set rank = 'no rank' where NCBI_TAX_ID=1892499;
+  #+end_src
+
+** PlasmoDB
+
+
+-- these are wrong
+  LaveraniaOrganismNames:
+  #+begin_src sql
+  update SRES.TAXONNAME 
+  set name ='Plasmodium praefalciparum' 
+  where TAXON_ID= (select taxon_id 
+                   from sres.taxon 
+                   where ncbi_tax_id = 880534) 
+  and NAME_CLASS='scientific name';                                                                                     
+
+  update SRES.TAXONNAME 
+  set name ='Plasmodium blacklocki' 
+  where TAXON_ID= (select taxon_id 
+                   from sres.taxon 
+                   where ncbi_tax_id = 880536) 
+  and NAME_CLASS='scientific name'; 
+
+  update SRES.TAXONNAME 
+  set name ='Plasmodium adleri' 
+  where TAXON_ID= (select taxon_id 
+                   from sres.taxon 
+                   where ncbi_tax_id = 880535) 
+  and NAME_CLASS='scientific name'; 
+
+  update sres.taxonname 
+  set NAME_CLASS= 'synonym' 
+  where name = 'Plasmodium sp. DRC-Itaito';                                                                                                  
+  
+  update sres.taxonname 
+  set NAME_CLASS= 'scientific name' 
+  where name = 'Plasmodium billcollinsi';
+
+  --Povale
+  update SRES.TAXON 
+  set rank = 'species' 
+  where NCBI_TAX_ID=864141;
+
+  update SRES.TAXON 
+  set rank = 'no rank' 
+  where NCBI_TAX_ID=36330;
+  #+end_src
+
+** TriTrypDB
+  taxonName4tcruDm28c2014:
+  reset scientific name of "Trypanosoma cruzi Dm28c" to "Trypanosoma cruzi Dm28c 2014", 
+#+begin_src sql
+  update SRES.TAXONNAME
+  set name='Trypanosoma cruzi Dm28c 2014'
+  where TAXON_ID=(select TAXON_ID
+                  from sres.taxon
+                  where NCBI_TAX_ID=1416333)
+  and name_class = 'scientific_name'
+#+end_src
+
+taxonName4lspMARLEM2494:
+reconstructure ncbi Taxonomy tree,
+Leishmania sp. MAR LEM2494 => no rank
+unclassified Leishmania => species
+
+#+begin_src sql
+update SRES.TAXON set rank='no rank' where NCBI_TAX_ID=1303197;
+update SRES.TAXON set rank='species' where NCBI_TAX_ID=40283;
+#+end_src
+** VectorBase
+
+organismFullNameChange4aalbFPA_and_csonPIR-s-3:
+1. change organismFullName from 'Culicoides sonorensis strain PIR-s-3' to 'Culicoides sonorensis strain PIR-s-3'
+2. change organismFullName from 'Aedes albopictus isolate FPA' to 'Aedes albopictus Foshan FPA'
+3. organismFullNameChange4agamPEST
+
+#+begin_src sql
+update SRES.TAXONNAME
+set name = 'Culicoides sonorensis PIR-s-3'
+where name = 'Culicoides sonorensis strain PIR-s-3'
+and name_class = 'scientific name';
+
+update SRES.TAXONNAME
+set name = 'Aedes albopictus Foshan FPA'
+where name = 'Aedes albopictus isolate FPA';
+
+update sres.taxonname
+set NAME_CLASS='synonym'
+where name = 'Anopheles gambiae str. PEST';
+
+update sres.taxonname
+set NAME_CLASS='scientific name'
+where name = 'Anopheles gambiae PEST';
+#+end_src
+
+
+
 * Run Tuning Manager [[https://tm.apidb.org]]
 
 
