@@ -8,7 +8,16 @@
 * wget NCBI Taxonomy
 get and unpack ncbi taxonomy files in temporary directory
 #+begin_src example
-  wget --directory-prefix=$PWD --output-file=wget.log --tries=5 --mirror --no-parent --no-directories --no-host-directories --cut-dirs=2 --include list --accept=taxdump.tar.gz "ftp://ftp.ncbi.nih.gov/pub/taxonomy/"
+  wget --directory-prefix=$PWD \\
+       --output-file=wget.log \\
+       --tries=5 \\
+       --mirror \\
+       --no-parent \\
+       --no-directories \\
+       --no-host-directories \\
+       --cut-dirs=2 \\
+       --include list \\
+       --accept=taxdump.tar.gz "ftp://ftp.ncbi.nih.gov/pub/taxonomy/"
   tar -xzf taxdump.tar.gz 
 #+end_src
 * Environment
@@ -55,7 +64,13 @@ OR b) ensure that your user is the ONLY owner of the rows in these 3 tables
 
 * GUS::Supported::Plugin::LoadTaxon
 #+begin_src example
-ga GUS::Supported::Plugin::LoadTaxon --names $PWD/names.dmp --nodes $PWD/nodes.dmp --gencode $PWD/gencode.dmp --merged $PWD/merged.dmp --verbose --commit
+ga GUS::Supported::Plugin::LoadTaxon \\
+  --names $PWD/names.dmp \\
+  --nodes $PWD/nodes.dmp \\
+  --gencode $PWD/gencode.dmp \\
+  --merged $PWD/merged.dmp \\
+  --verbose \\
+  --commit
 #+end_src
 
 * Apply Patches
