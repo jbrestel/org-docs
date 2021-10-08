@@ -295,24 +295,24 @@
 #+begin_src example
 perl includedWdkElements.pl --check_params --unidb_website beta.veupathdb.org
 #+end_src
+- this test can also run param queries and compare values (use --check_params flag)
 - [[https://github.com/VEuPathDB/FunctionalTests/blob/main/bin/includedWdkElements.pl]]
 - [ ] Record expected and Actual Results
 *** Selenium Tests for Search Pages :Bindu:
-*** Webserive queries for Performance Tests :MarkH:
-- [ ] compare plasmodb.org (b52) to feature.veupathdb.org
-- [ ] Record expected and Actual Results
 *** Compare attribute tables :JohnI:
 - [ ] using sql minus operation, compare production attribute tables in eupa database to production uni database (example eupa054n to uni054n)
 - [ ] Record expected and Actual Results
 *** Test Record page tables against component databases :JohnB:
+#+begin_src example
+perl regresssionTestForRecordQueries.pl --dir /home/jbrestel/unidb/record_queries_output --instance_suffix 054n >rq.err 2>&1
+#+end_src
 - [ ] foreach record table, run the sql and compare counts (union for all components)
 - [ ] address faiures
 - [ ] Record expected and Actual Results
-*** Run all Param queries on uni052n vs union of components :JohnB:
-- [ ] Deal with enum params
-- [ ] is there a webservice way to get the values for all params
-
 ** Performance Tests :Mark:Steve:Cristina:
+*** Webserive queries for Performance Tests :MarkH:
+- [ ] compare plasmodb.org (b52) to feature.veupathdb.org
+- [ ] Record expected and Actual Results
 
 * Future Releases :JohnI:JohnB:MarkH:Bindu:
 ** TODO Schema Changes
