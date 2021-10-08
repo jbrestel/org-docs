@@ -291,24 +291,29 @@
 
 * Beta Release                                       :Mark:JohnI:JohnB:Bindu:
 ** Automated QA Process
-1. [X] compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects
-   - [X] Record expected and Actual Results
-2. [X] Selenium Tests for Search Pages (Bindu)
-3. [X] use the webserive queries for Performance Tests
-   - [X] compare plasmodb.org (b52) to feature.veupathdb.org
-   - [X] address faiures
-   - [X] Record expected and Actual Results
-4. [X] attribute tables
-   - [X] using sql minus operation, compare 052 attribute tables in eupa052n to uni-inc
-   - [X] address faiures (JohnI)
-   - [X] Record expected and Actual Results
-5. [X] Record page tables;  can test against individual components
-   - [X] foreach record table, run the sql and compare counts (union for all components)
-   - [X] address faiures
-   - [X] Record expected and Actual Results
-6. [X] Run all Param queries on uni052n vs union of components
-   - [X] Deal with enum params
-   - [X] is there a webservice way to get the values for all params
+*** compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects :JohnB:
+#+begin_src example
+perl includedWdkElements.pl --check_params --unidb_website beta.veupathdb.org
+#+end_src
+- [[https://github.com/VEuPathDB/FunctionalTests/blob/main/bin/includedWdkElements.pl]]
+- [ ] Record expected and Actual Results
+*** Selenium Tests for Search Pages :Bindu:
+*** Webserive queries for Performance Tests :MarkH:
+- [ ] compare plasmodb.org (b52) to feature.veupathdb.org
+- [ ] Record expected and Actual Results
+*** Compare attribute tables :JohnI:
+- [ ] using sql minus operation, compare production attribute tables in eupa database to production uni database (example eupa054n to uni054n)
+- [ ] Record expected and Actual Results
+*** Test Record page tables against component databases :JohnB:
+- [ ] foreach record table, run the sql and compare counts (union for all components)
+- [ ] address faiures
+- [ ] Record expected and Actual Results
+*** Run all Param queries on uni052n vs union of components :JohnB:
+- [ ] Deal with enum params
+- [ ] is there a webservice way to get the values for all params
+
+** Performance Tests :Mark:Steve:Cristina:
+
 * Future Releases :JohnI:JohnB:MarkH:Bindu:
 ** TODO Schema Changes
 - [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer
