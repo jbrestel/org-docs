@@ -138,6 +138,9 @@
 - given a gene source_id && experiment && correlation, return the other genes in that same module
 - Plot gene of interest and all other genes in the module
 - on gene page, transcriptomics section add a link to the search to find other genes in the same module
+* MBClusterSeq (R package)
+from Kathryn "quite good for model-based clustering - and I also like this method, which implements some of the robust methods that WGCNA uses for tree building and cutting without the requirement for large numbers of samples to fit the scale-free topology model. I have an R notebook I can share which implements this if that helps, but the GitHub link above is fairly self-explanatory anyway."
+[[https://github.com/iscb-dc-rsg/2016-summer-workshop/blob/master/3B-Hughitt-RNASeq-Coex-Network-Analysis/tutorial/README.md#co-expression-network-construction]]
 * protein-protein Interaction
 ** Y2H
 *** Datasets
