@@ -1,0 +1,58 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     Application Specific Databases
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: How to build Application Specific Databases
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+* Relational Databases
+** Use Cases
+- Searches
+- Results
+- Protein Browser?
+** Build Databases
+- Create organism specific tuning tables as the last step in the organism workflow
+- The tuning manager is already able to make organism specific tables
+- This step should be fairly stable.  Should only be rerun when organism is undone/ reloaded or global data like GO terms/taxonomy refreshed
+- The resulting tuning tables should be self contained
+  - [ ] remove any GUS ids (fks to non apidbtuning tables)
+- The Build databases can be any size.  One organism to all organisms
+#+begin_src example
+  apidbtuning.pfal3d7_interprodomains1234
+#+end_src
+** Application Specific Database (previously called UniDB)
+- Workflow to "union" all organism specific tables from build database(s)
+  - use nextflow as this will be run always from start with no "undo".
+  - The "deletes" will happen when necessary
+- Use sqlloader or postgres bulk loader
+- Only load organisms which have changed.
+  - use the build database workflowstep name/ date to determine when we need to refresh an organism
+- Partition by organism?
+  - refresh would first drop the partition for a table instead of trying to delete rows
+** Model
+- Search id query, param queries, record table and possibly pbrowse track data should be gotten with smallest table joins (one table)
+  - current model uses lots of tables from normalized schemas
+    | *Table*     | *File Count* | *Notes*                                                     |
+    |-------------+--------------+-------------------------------------------------------------|
+    | ApiDBTuning |           73 | remove fk to other schemas                                  |
+    | ApidB       |           41 | can we retain these or do we need to move to tuning tables? |
+    | DoTS        |           57 | Remove                                                      |
+    | Sres        |           13 | Remove                                                      |
+    | Core        |            4 | Remove                                                      |
+    | chebi       |            5 | ok                                                          |
+    | hmdb        |            1 | ok                                                          |
+    | platform    |            2 | can we retain these or do we need to move to tuning tables? |
+    | Results     |            7 | can we retain these or do we need to move to tuning tables? |
+    | Study       |            8 | eventually replaced with EDA                                |
+** More Thinking about Build Databases
+On this model it doesn't matter how many organisms are loaded into each build instance.  However, the data load team has been hitting issues with Undo
+- can we partition by Row_Alg_invocation_id ?
+  - The Undo mechanism we have in place could drop the partition instead of deleting the rows.  
+* Webservice Files (and Download Files)
+The above workflow should manage the rsync of ws and download files to apiSiteFiles Staging
+* nosql (SOLR)
+The above workflow should manage the rsync of ws and download files to apiSiteFiles Staging
+** Use Cases
+- Site Search
+- Record Pages?
+  
+

@@ -224,6 +224,7 @@
    (list "planning"
          :base-directory "./"
          :include '("project_planning/unidb.org"
+		    "project_planning/appDb.org"
 		    "project_planning/dataLoad.org"
    		    "project_planning/dataset.org"
 		    "project_planning/dnaseq.org"
