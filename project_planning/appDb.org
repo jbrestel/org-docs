@@ -29,8 +29,8 @@
     | Core        | Do not use in the website application                       |
     | chebi       | ok                                                          |
     | hmdb        | ok                                                          |
-    | platform    | can we retain these or do we need to move to tuning tables? |
-    | Results     | can we retain these or do we need to move to tuning tables? |
+    | platform    | can we retain these or do we need to copy to tuning tables? |
+    | Results     | can we retain these or do we need to copy to tuning tables? |
     | Study       | replace with EDA                                            |
 
 - COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
