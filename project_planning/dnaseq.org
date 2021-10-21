@@ -13,17 +13,16 @@
 - [X] The nextflow workflow will operate on an experiment. not a single sample
 ** SNP Calling
 - [X] move over varscan steps into nextflow workflow
-- [ ] Do not use Strain name in VCF file. how do we uniquely identify a strain  
+- [X] Do not use Strain name in VCF file. how do we uniquely identify a strain  
 ** Down Sampling
-- [ ] filter reads if too many;  add configuration option for setting max
-- [ ] recalcuate mapping stats after down sampling
+- [X] filter reads if too many;  add configuration option for setting max
+- [X] recalcuate mapping stats after down sampling
 ** CNV 
  - [X] move over DJob/DistribJobTasks/bin/runCNVTasks.pl
  - [X] LOH data for plot
 ** Indels
 - [X] Include Indels in VCF File
 ** Consensus Sequence
-- [ ] Ensure consensus sequence doesn't contain indels
 - [X] use additional characters in consensus seq for ambiguous bases
 
 * Reflow Workflow
@@ -67,5 +66,4 @@
 - [ ] SNPEff Track
 
 * Consensus Sequence
-- [ ] Query for indels and add to consensus if consensus does not include indels
 - [ ] Alignment tool on frontend needs to incorporate indels;  
