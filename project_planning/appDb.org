@@ -3,53 +3,86 @@
 #+TITLE:     Application Specific Databases
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: How to build Application Specific Databases
-#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* Relational Databases
-** Use Cases
-- Searches
-- Results
-- Protein Browser?
-** Build Databases
-- Create organism specific tuning tables as the last step in the organism workflow
-- The tuning manager is already able to make organism specific tables
-- This step should be fairly stable.  Should only be rerun when organism is undone/ reloaded or global data like GO terms/taxonomy refreshed
-- The resulting tuning tables should be self contained
-  - [ ] remove any GUS ids (fks to non apidbtuning tables)
-- The Build databases can be any size.  One organism to all organisms
-#+begin_src example
-  apidbtuning.pfal3d7_interprodomains1234
-#+end_src
-** Application Specific Database (previously called UniDB)
-- Workflow to "union" all organism specific tables from build database(s)
-  - use nextflow as this will be run always from start with no "undo".
-  - The "deletes" will happen when necessary
-- Use sqlloader or postgres bulk loader
-- Only load organisms which have changed.
-  - use the build database workflowstep name/ date to determine when we need to refresh an organism
-- Partition by organism?
-  - refresh would first drop the partition for a table instead of trying to delete rows
-** Model
-- Search id query, param queries, record table and possibly pbrowse track data should be gotten with smallest table joins (one table)
-  - current model uses lots of tables from normalized schemas
-    | *Table*     | *File Count* | *Notes*                                                     |
-    |-------------+--------------+-------------------------------------------------------------|
-    | ApiDBTuning |           100 | remove fk to other schemas                                  |
-    | ApidB       |           41 | can we retain these or do we need to move to tuning tables? |
-    | DoTS        |           57 | Remove                                                      |
-    | Sres        |           13 | Remove                                                      |
-    | Core        |            3 | Remove                                                      |
-    | chebi       |            5 | ok                                                          |
-    | hmdb        |            1 | ok                                                          |
-    | platform    |            2 | can we retain these or do we need to move to tuning tables? |
-    | Results     |            7 | can we retain these or do we need to move to tuning tables? |
-    | Study       |            8 | eventually replaced with EDA                                |
-** More Thinking about Build Databases
-On this model it doesn't matter how many organisms are loaded into each build instance.  However, the data load team has been hitting issues with Undo
-- can we partition by Row_Alg_invocation_id ?
-  - The Undo mechanism we have in place could drop the partition instead of deleting the rows.
-** tuning manager
-- still need a tuning job for dataset presenters and other global dbs
-* Genome and Protein Browsers
+#+OPTIONS:   H:5 num:nil toc:3 p:t tags:not-in-toc
+* Website Performance
+
+[[https://drive.google.com/drive/u/2/folders/1IEnXB5j2Emw46-dGyZRs3P-wIZNSVEON][Performance Testing revealed]] general poor performance of the unified database.  In addition, there were several very poor performing tools.  Each area of concern is listed below and proposed solutions if needed.  The general strategy for fixing the website performance will be:
+1. Focus initially on worst performers.
+2. Use holistic approach to performance tuning.  (tuning for a data type not a specific tool)
+3. Duplicate data as needed to speed up applications
+   - Eliminate big complicated queries in the application.  Create more de normalized tables
+   - nosql database where appropriate (site search, record pages?)
+   - flat file stores for genome browsers
+
+** WDK Searches
+*** REST Search Result  / ID Query
+- GOAL :: as good as portal/or plasmo (< 1.5 seconds)
+
+- SOLUTION :: Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
+
+- COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
+  
+*** Results Page Completion
+- GOAL :: as good as portal/or plasmo (< 1.5 seconds)
+- SOLUTION :: There are [[https://docs.google.com/spreadsheets/d/1JF7MZ8cXjua9h0mMRNb3TkfuXjczI0Pl64yXqOJDXOo/edit#gid=2056082386][several queries]] which are run to make search results.  gene results are made worse because we insert transcripts which don't match the result.  Some possible solutions here are:
+  1. General wdk performance improvements including column filters.
+     - Filter perforamnce depends on result size.
+     - the biggy:  doing the group by, to transfer a distribution, not all raw data
+     - getting rid of slow single-gene filter
+     - using a dedicated, skinny, attribute table to get the organism
+  2. Preview results instead directly going to results page
+
+- COST :: TODO Steve
+
+
+*** Join To Attributes / Columns
+- GOAL :: as good as portal/or plasmo
+
+- SOLUTION :: On beta.veupathdb.org there are two issues we need to address:
+  1. 10K columns (bad response time and bad ux)
+     - this can be greatly ameliorated by dave's idea of filtering them based on the organisms in the result.  would require some wiring
+  2. the cost of joining large results to large attribute queries
+     - Need to demonstrate this as a problem
+
+- COST :: TODO Steve
+
+*** Download Results
+- GOAL :: TBD
+
+- SOLUTION :: Download seems like an area we have some flexibility if the user was made to understand this was a long running process (like multiblast).  Nothing to be done in the short term but long term could consider queue system like multiblast.  
+
+- COST :: TODO Steve
+
+- NOTE :: For the Download Page Form ... The large number of columns is an issue here too.  10K columns most from trasncriptomics datasets.  Same solution as above can be applied here.  Trim by organisms in result set
+
+*** Search Page Load (Parameters)
+- GOAL :: Vocab queries are cached;  All params on a search page should load < 5 seconds on initial run.
+
+- SOLUTION :: Same as ID Searches above.  Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
+
+- COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
+
+*** TODO Analysis Tools (example: GO Enrichment)
+** WDK Records
+
+*** Individual Tables
+ - GOAL :: as good as plasmo ( < 1 seconds)
+
+- SOLUTION :: Same as ID Searches above.  Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
+
+- COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
+
+*** Initial Page Load
+- GOAL :: as good as plasmo ( < 5 seconds)
+
+- SOLUTION :: Some improvements have already been made here for the GeneRecord page.  We are likely under 5 seconds for initial page load assuming only record overview is open.  We identified some record interal tables which were poor performing and fixed including (FungiDB specific Linkouts in the overview section).  We also need to evaluate examples from all record types to ensure we are < 5 seconds for each.
+
+*** Full Page Load
+- GOAL :: TBD
+
+- SOLUTION :: In the future we could explore caching all record tables/attributes in a nosql database.  JBrowse and DataPlotter graphs would still be loaded as they are now but tables and attributes would be loaded very quickly.
+
+** Genome and Protein Browsers
 - [ ] how to search?? gene annotation needs to be searchable
 - [ ] Add workflow steps to dump files for all feature tracks
 - JBrowse, Apollo and JBrowse 2
@@ -100,39 +133,67 @@ On this model it doesn't matter how many organisms are loaded into each build in
        return container;
        }          
   #+end_src
-- Files needed
-  - [ ] Gene gff
-  - [ ] Genome fasta
-  - [ ] syntney gff
-  - [ ] array probes gff
-  - [ ] EST alignments gff
-  - [ ] chip seq and chip chip gff
-  - [ ] SNP GFF or wait for vcf?
-  - [ ] Haploblocks
-  - [ ] Microsatelites
-  - [ ] Low Complexity
-  - [ ] Tandem Repeats
-  - [ ] custom GFF Datasets
-  - [ ] popset isolates
-  - [ ] splice sites
-  - [ ] cloned insert ends
-  - [ ] MS peptides
-  - [ ] Intron Junctions
-  - [ ] Apollo GFF
-  - [ ] Centromere
-  - [ ] Scaffolds and Gaps
-  - [ ] CGH Array
-  - [ ] tRNAScan
-  - [ ] Organism Specific Tracks (hard coded)
-    - [ ] Transposable Elemments
-    - [ ] Crispr
-    - [ ] SplicedLeader and PolyA Sites
-    - [ ] maxicircle
-    - [ ] Repeat elements
-    - [ ] noseq
-    - [ ] craig
-    - [ ] toxo b7.3 transcripts
-    - [ ] tf binding sites
+
+** MapVEu Application
+This will be an EDA Application.  Those tables have been optimized for study data.  We may need to address special issues as they arise
+** Sequence Retrieval Tool
+
+** TODO MultiBLAST
+** DONE Site Search
+- GOAL :: as good as portal/plasmo ( < 1.5 slower)
+** DONE Home Page
+- GOAL :: as good as portal/plasmo ( < 5 slower)
+
+* Data Loading - Shorten Loading time
+
+** Reflow workflow
+** Tuning Manager
+** webservice / download files
+** Unified Relational Database
+
+
+* Relational Databases
+** Build Databases
+- Create organism specific tuning tables as the last step in the organism workflow
+- The tuning manager is already able to make organism specific tables
+- This step should be fairly stable.  Should only be rerun when organism is undone/ reloaded or global data like GO terms/taxonomy refreshed
+- The resulting tuning tables should be self contained
+  - [ ] remove any GUS ids (fks to non apidbtuning tables)
+- The Build databases can be any size.  One organism to all organisms
+#+begin_src example
+  apidbtuning.pfal3d7_interprodomains1234
+#+end_src
+** Application Specific Database (previously called UniDB)
+- Workflow to "union" all organism specific tables from build database(s)
+  - use nextflow as this will be run always from start with no "undo".
+  - The "deletes" will happen when necessary
+- Use sqlloader or postgres bulk loader
+- Only load organisms which have changed.
+  - use the build database workflowstep name/ date to determine when we need to refresh an organism
+- Partition by organism?
+  - refresh would first drop the partition for a table instead of trying to delete rows
+** Model
+- Search id query, param queries, record table and possibly pbrowse track data should be gotten with smallest table joins (one table)
+  - current model uses lots of tables from normalized schemas
+    | *Table*     | *File Count* | *Notes*                                                     |
+    |-------------+--------------+-------------------------------------------------------------|
+    | ApiDBTuning |           100 | remove fk to other schemas                                  |
+    | ApidB       |           41 | can we retain these or do we need to move to tuning tables? |
+    | DoTS        |           57 | Remove                                                      |
+    | Sres        |           13 | Remove                                                      |
+    | Core        |            3 | Remove                                                      |
+    | chebi       |            5 | ok                                                          |
+    | hmdb        |            1 | ok                                                          |
+    | platform    |            2 | can we retain these or do we need to move to tuning tables? |
+    | Results     |            7 | can we retain these or do we need to move to tuning tables? |
+    | Study       |            8 | eventually replaced with EDA                                |
+** More Thinking about Build Databases
+On this model it doesn't matter how many organisms are loaded into each build instance.  However, the data load team has been hitting issues with Undo
+- can we partition by Row_Alg_invocation_id ?
+  - The Undo mechanism we have in place could drop the partition instead of deleting the rows.
+** tuning manager
+- still need a tuning job for dataset presenters and other global dbs
+
 * Webservice Files (and Download Files)
 The above workflow should manage the rsync of ws and download files to apiSiteFiles Staging
 - [ ] Build table to drive the download file record
