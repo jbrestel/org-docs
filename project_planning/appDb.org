@@ -18,7 +18,20 @@
 *** REST Search Result  / ID Query
 - GOAL :: as good as portal/or plasmo (< 1.5 seconds)
 
-- SOLUTION :: Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
+- SOLUTION :: Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.  Search id query, param queries, record table and possibly pbrowse track data should be gotten with smallest table joins (one table properly indexed if possible)
+  - current model uses lots of tables from normalized schemas
+    | *Schema*    | *Notes*                                                     |
+    |-------------+-------------------------------------------------------------|
+    | ApiDBTuning | remove fk to other schemas                                  |
+    | ApidB       | can we retain these or do we need to move to tuning tables? |
+    | DoTS        | Do not use in the website application                       |
+    | Sres        | Do not use in the website application                       |
+    | Core        | Do not use in the website application                       |
+    | chebi       | ok                                                          |
+    | hmdb        | ok                                                          |
+    | platform    | can we retain these or do we need to move to tuning tables? |
+    | Results     | can we retain these or do we need to move to tuning tables? |
+    | Study       | replace with EDA                                            |
 
 - COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
   
@@ -83,13 +96,88 @@
 - SOLUTION :: In the future we could explore caching all record tables/attributes in a nosql database.  JBrowse and DataPlotter graphs would still be loaded as they are now but tables and attributes would be loaded very quickly.
 
 ** Genome and Protein Browsers
-- [ ] how to search?? gene annotation needs to be searchable
-- [ ] Add workflow steps to dump files for all feature tracks
-- JBrowse, Apollo and JBrowse 2
-- [ ] Popups can use web service calls when needed
-  #+begin_src bash
+*** Initial Page Load
+- GOAL :: < 5 seconds
+
+- SOLUTION :: There are 2 areas we can explore:
+  1. We currently use webservice calls to create configuration of jbrwose tracks per organism.
+     - We currently cache only some of these but we can explore caching all of them
+  2. For organisms with a lot of functional data (RNASeq) those configurations are large and take a long time (5-7 seconds) to load
+     - Need to explore if this is related to #1 or if the files can be made smaller
+
+- COST :: If the size of the config file is truly probelmatic... would need to explore some sort of lazy loading mechanism which is costly as it would be a jbrowse appliation feature.
+
+*** Individual Tracks
+- GOAL :: < 1 seconds
+
+- SOLUTION :: JBrowse is meant to be use files as data stores.  We currently use a REST store which queries the GUS Database for many of the tracks.  We can update the ReFlow workflow to dump gff files for all tracks which currently use the REST Store.  Popups can use web service calls (wdk record tables and attributes).
+
+- COST :: There are 30 Genome Queries and ~ 10 PBrowse Queries which we need to update (few weeks effort).  The data loaders would need to create the files in webservices.  The Synteny Track and Intron Junctions are problematic.  For junctions, we need to move data out of tuning manager and into the workflow (high cost; ask Brian).  For Synteny we need to write a custom endpoint which would do the scaling for the visible region.  that is currently being done in sql. Lastly, we would need to change the way we search for genes within jbrowse application.  Currently this is done with another REST service but we'd need to do this from files.
+
+- NOTE :: Even thought this is a big cost, there are some other advantages to doing this:  
+  - it would simplify Apollo
+  - allow us to run one JBrowse instead of one per site
+  - could run JBrowse2 from the same files
+
+*** Gene Page Context (iframes)
+
+- GOAL :: iframes load the entire application so the initial load will not be faster than time to load jbrowse
+
+- SOLUTION :: We already limit the configurations per section.  Ideally each section would only know about the tracks we display in that section but for some sections we are loading more than needed.
+
+- COST :: Refactoring JBRowse configurations per organism could be done as part of the ReFlow steps above.
+** MapVEu Application
+This will be an EDA Application.  Those tables have been optimized for study data.  We may need to address special issues as they arise
+** TODO Sequence Retrieval Tool
+** TODO MultiBLAST
+** DONE Site Search
+- GOAL :: as good as portal/plasmo ( < 1.5 slower)
+** DONE Home Page
+- GOAL :: as good as portal/plasmo ( < 5 slower)
+
+* Data Loading - Shorten Loading time
+
+** Reflow workflow
+- use the tuning manager (or other mechanism) to create organism specific tables as the last step in the organism workflow
+  - The tuning manager is already able to make organism specific tables
+    #+begin_src example
+    apidbtuning.pfal3d7_interprodomains1234
+    #+end_src
+- This step should be fairly stable.  Should only be rerun when organism is undone/ reloaded or global data like GO terms/taxonomy refreshed
+- The resulting tuning tables should be self contained
+  - [ ] remove any GUS ids (fks to non apidbtuning tables)
+- The Build databases can be any number of organisms.  One organism to all organisms
+  - component dbs currently control pairwise syntenic alignments
+- On this model it doesn't matter how many organisms are loaded into each build instance.  However, the data load team has been hitting issues with Undo
+- can we partition by Row_Alg_invocation_id ? (after postgres migration)
+  - The Undo mechanism we have in place could drop the partition instead of deleting the rows.
+** Tuning Manager
+- still need a tuning job for dataset presenters and other global dbs
+- tuning job (post reflow) would continue to be quick/dirty way to add features until full reflow wf can be run
+** webservice / download files
+- The above workflow should manage the rsync of ws and download files to apiSiteFiles Staging
+  - [ ] drive the download file record (see UX channel in slack)
+
+** Unified Relational Database for WDK Application
+- Workflow to "union" all organism specific tables from build database(s)
+  - use nextflow as this will be run always from start with no "undo".
+  - The "deletes" will happen when necessary
+- Use sqlloader or postgres bulk loader
+- Only load organisms which have changed.
+  - use the build database workflowstep name/ date to determine when we need to refresh an organism
+- Partition by organism?
+  - refresh would first drop the partition for a table instead of trying to delete rows
+
+
+
+
+
+* Appendix
+** JBrowse 
+- Example POST to get wdk Table for a gene
+  #+begin_example
   curl -X POST -d '{primaryKey: [{name: "source_id", value: "PF3D7_1133400"}, {name: "project_id", value: "PlasmoDB"}], attributes: [], tables: ["GOTerms"]}' -H 'Content-Type: application/json'  https://w2.plasmodb.org/plasmo/service/record-types/gene/records
-  #+end_src
+  #+end_example
 - Example Track
   #+begin_example
   [tracks.testGene]
@@ -104,7 +192,8 @@
   onClick.content={geneTestDetails}
   menuTemplate+=json:{"label": "View Details", "content": "{geneTestDetails}"}
   #+end_example
-  #+begin_src js
+- Example function to create popup from POST
+ #+begin_src js
     geneTestDetails = function(track, feature, featureDiv, coreDetails) {
        var c = track.browser.config;
        container = dojo.create('div', {
@@ -134,290 +223,63 @@
        }          
   #+end_src
 
-** MapVEu Application
-This will be an EDA Application.  Those tables have been optimized for study data.  We may need to address special issues as they arise
-** Sequence Retrieval Tool
 
-** TODO MultiBLAST
-** DONE Site Search
-- GOAL :: as good as portal/plasmo ( < 1.5 slower)
-** DONE Home Page
-- GOAL :: as good as portal/plasmo ( < 5 slower)
-
-* Data Loading - Shorten Loading time
-
-** Reflow workflow
-** Tuning Manager
-** webservice / download files
-** Unified Relational Database
-
-
-* Relational Databases
-** Build Databases
-- Create organism specific tuning tables as the last step in the organism workflow
-- The tuning manager is already able to make organism specific tables
-- This step should be fairly stable.  Should only be rerun when organism is undone/ reloaded or global data like GO terms/taxonomy refreshed
-- The resulting tuning tables should be self contained
-  - [ ] remove any GUS ids (fks to non apidbtuning tables)
-- The Build databases can be any size.  One organism to all organisms
-#+begin_src example
-  apidbtuning.pfal3d7_interprodomains1234
-#+end_src
-** Application Specific Database (previously called UniDB)
-- Workflow to "union" all organism specific tables from build database(s)
-  - use nextflow as this will be run always from start with no "undo".
-  - The "deletes" will happen when necessary
-- Use sqlloader or postgres bulk loader
-- Only load organisms which have changed.
-  - use the build database workflowstep name/ date to determine when we need to refresh an organism
-- Partition by organism?
-  - refresh would first drop the partition for a table instead of trying to delete rows
-** Model
-- Search id query, param queries, record table and possibly pbrowse track data should be gotten with smallest table joins (one table)
-  - current model uses lots of tables from normalized schemas
-    | *Table*     | *File Count* | *Notes*                                                     |
-    |-------------+--------------+-------------------------------------------------------------|
-    | ApiDBTuning |           100 | remove fk to other schemas                                  |
-    | ApidB       |           41 | can we retain these or do we need to move to tuning tables? |
-    | DoTS        |           57 | Remove                                                      |
-    | Sres        |           13 | Remove                                                      |
-    | Core        |            3 | Remove                                                      |
-    | chebi       |            5 | ok                                                          |
-    | hmdb        |            1 | ok                                                          |
-    | platform    |            2 | can we retain these or do we need to move to tuning tables? |
-    | Results     |            7 | can we retain these or do we need to move to tuning tables? |
-    | Study       |            8 | eventually replaced with EDA                                |
-** More Thinking about Build Databases
-On this model it doesn't matter how many organisms are loaded into each build instance.  However, the data load team has been hitting issues with Undo
-- can we partition by Row_Alg_invocation_id ?
-  - The Undo mechanism we have in place could drop the partition instead of deleting the rows.
-** tuning manager
-- still need a tuning job for dataset presenters and other global dbs
-
-* Webservice Files (and Download Files)
-The above workflow should manage the rsync of ws and download files to apiSiteFiles Staging
-- [ ] Build table to drive the download file record
-* nosql (SOLR)
-The above workflow should manage the rsync of ws and download files to apiSiteFiles Staging
-** Use Cases
-- Site Search
-- Record Pages?
-  
-
-
-
-* Tables
-** ApiDB
-*** ApiDB.AGPPIECE
+** Table Usage
+*** ApiDBTuning
+**** ApiDBTuning.AASEQUENCEINFO
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
-*** ApiDB.BLATPROTEINALIGNMENT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDB.CHRCOPYNUMBER
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/genomicQueries.xml
-*** ApiDB.COMPOUNDMASSSPECRESULT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
-*** ApiDB.COMPOUNDPEAKS
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
-*** ApiDB.COMPOUNDPEAKSCHEBI
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
-*** ApiDB.CRISPRPHENOTYPE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/PhenotypeScore.pm
-*** ApiDB.DATASOURCE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismAttributeQueries.xml
+**** ApiDBTuning.ANNOTATEDGENOMESUMMARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/.organismParams.xml.swp
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonModel/Model/DataSourceList.pm
-*** ApiDB.EXTERNALRESOURCEURL
+**** ApiDBTuning.ANNOTATIONCHANGE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDB.FEATURELOCATION
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/orfTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/orfQueries.xml
-*** ApiDB.GENEFEATUREPRODUCT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDB.GENEINTERACTION
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.GFF3
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDB.LOPITRESULTS
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDB.MASSSPECSUMMARY
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+**** ApiDBTuning.APOLLOID
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** ApiDB.NAFEATUREHAPLOBLOCK
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/spanQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.NAFEATUREIMAGE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/GeneImage.pm
-*** ApiDB.NAFEATUREMETACYCLE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.NAFEATUREPHENOTYPE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDB.NAFEATUREPHENOTYPEMODEL
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDB.OLDANNOTATION
+**** ApiDBTuning.APOLLOUPDATE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.OLDCODINGSEQUENCE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDB.ONTOLOGYTERMRESULT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDB.ORGANISM
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/templates/RnaSeqGbrowseTemplates.xml
+**** ApiDBTuning.BLASTX
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/estTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/multipleSeqAlignment.pm
-*** ApiDB.PATHWAYREACTIONXREF
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
-*** ApiDB.PHENOTYPEGROWTHRATE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/PhenotypeScore.pm
-*** ApiDB.PHENOTYPEMODEL
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDB.PHENOTYPEMUTANTS
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.PHENOTYPERESULT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDB.PHENOTYPESCORE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/PhenotypeScore.pm
-*** ApiDB.PHYLOGENETICPROFILE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.PUBCHEMSUBSTANCE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
-*** ApiDB.RFLPGENOTYPE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/rflpIsolateTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/rflpIsolateParams.xml
-*** ApiDB.SEQEDIT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDB.SEQUENCEVARIATION
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
-*** ApiDB.SPLICESITEFEATURE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.SPLICESITEGENES
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDB.SYNTENICGENE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDB.SYNTENY
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
-*** ApiDB.TRANSCRIPTLOCATION
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDB.TRANSCRIPTPRODUCT
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-** ApiDBTuning
-*** ApiDBTuning.AASEQUENCEINFO
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.ANNOTATEDGENOMESUMMARY
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
-*** ApiDBTuning.ANNOTATIONCHANGE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.APOLLOID
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
-*** ApiDBTuning.APOLLOUPDATE
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.BLASTX
-  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.CHANGEDGENEPRODUCT
+**** ApiDBTuning.CHANGEDGENEPRODUCT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
-*** ApiDBTuning.CHIPCHIPTRANSCRIPT
+**** ApiDBTuning.CHIPCHIPTRANSCRIPT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.CHRCOPYNUMBERS
+**** ApiDBTuning.CHRCOPYNUMBERS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.CODINGSEQUENCE
+**** ApiDBTuning.CODINGSEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolGeneOrf.pm
-*** ApiDBTuning.COMPOUNDATTRIBUTES
+**** ApiDBTuning.COMPOUNDATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
-*** ApiDBTuning.COMPOUNDID
+**** ApiDBTuning.COMPOUNDID
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/pathwayQueries.xml
-*** ApiDBTuning.DATASETCONTACT
+**** ApiDBTuning.DATASETCONTACT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/DataProviderContactEmail.pm
-*** ApiDBTuning.DATASETEXAMPLESOURCEID
+**** ApiDBTuning.DATASETEXAMPLESOURCEID
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** ApiDBTuning.DATASETGENELIST
+**** ApiDBTuning.DATASETGENELIST
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebService/WSFPlugin/geneListComparison.pl
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebService/WSFPlugin/fisherExactTest.pl
-*** ApiDBTuning.DATASETHISTORY
+**** ApiDBTuning.DATASETHISTORY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/eupathBuildRecord.xml
-*** ApiDBTuning.DATASETMODELREF
+**** ApiDBTuning.DATASETMODELREF
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/datasetQueries.xml
-*** ApiDBTuning.DATASETNAMETAXON
+**** ApiDBTuning.DATASETNAMETAXON
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
@@ -434,7 +296,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/profileGraphs.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/View/GraphPackage/Util.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/DataProviderContactEmail.pm
-*** ApiDBTuning.DATASETPRESENTER
+**** ApiDBTuning.DATASETPRESENTER
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
@@ -455,29 +317,29 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ElementNamesWithDisplayName.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/DataProviderContactEmail.pm
-*** ApiDBTuning.DATASETPROPERTY
+**** ApiDBTuning.DATASETPROPERTY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/datasetQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/profileGraphs.dst
-*** ApiDBTuning.DATASETPUBLICATION
+**** ApiDBTuning.DATASETPUBLICATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
-*** ApiDBTuning.DEFAULTCHARS
+**** ApiDBTuning.DEFAULTCHARS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.EPITOPESUMMARY
+**** ApiDBTuning.EPITOPESUMMARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
 
-*** ApiDBTuning.EQTLSPAN
+**** ApiDBTuning.EQTLSPAN
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.ESTALIGNMENTGENESUMMARY
+**** ApiDBTuning.ESTALIGNMENTGENESUMMARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/estTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/estQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.ESTATTRIBUTES
+**** ApiDBTuning.ESTATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/estAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/estTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanTableQueries.xml
@@ -486,22 +348,22 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
-*** ApiDBTuning.ESTSEQUENCE
+**** ApiDBTuning.ESTSEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
-*** ApiDBTuning.EUPATHBUILDDATES
+**** ApiDBTuning.EUPATHBUILDDATES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** ApiDBTuning.EXPRESSIONGRAPHSDATA
+**** ApiDBTuning.EXPRESSIONGRAPHSDATA
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.EXTERNALDBDATASETPRESENTER
+**** ApiDBTuning.EXTERNALDBDATASETPRESENTER
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/sampleTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
 
-*** ApiDBTuning.GBROWSETRACKSORGANISM
+**** ApiDBTuning.GBROWSETRACKSORGANISM
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
-*** ApiDBTuning.GENEATTRIBUTES
+**** ApiDBTuning.GENEATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptSummaryQueries.xml
@@ -532,13 +394,13 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/KeggPathways.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/AbstractEnrichment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/PathwaysEnrichment.pm
-*** ApiDBTuning.GENECOPYNUMBERS
+**** ApiDBTuning.GENECOPYNUMBERS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.GENEGOTABLE
+**** ApiDBTuning.GENEGOTABLE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.GENEGROUPPROFILE
+**** ApiDBTuning.GENEGROUPPROFILE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.GENEID
+**** ApiDBTuning.GENEID
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -548,19 +410,19 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/UniprotDBXRefs.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolGeneOrf.pm
-*** ApiDBTuning.GENEINTJUNCSTATS
+**** ApiDBTuning.GENEINTJUNCSTATS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.GENEINTRONJUNCTION
+**** ApiDBTuning.GENEINTRONJUNCTION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.GENEPOPSETOVERLAP
+**** ApiDBTuning.GENEPOPSETOVERLAP
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/popsetQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
-*** ApiDBTuning.GENEPUBMED
+**** ApiDBTuning.GENEPUBMED
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.GENEWORD
+**** ApiDBTuning.GENEWORD
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/WordEnrichment.pm
-*** ApiDBTuning.GENOMICSEQATTRIBUTES
+**** ApiDBTuning.GENOMICSEQATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
@@ -584,35 +446,35 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/.organismParams.xml.swp
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/multipleSeqAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
-*** ApiDBTuning.GENOMICSEQUENCEID
+**** ApiDBTuning.GENOMICSEQUENCEID
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/genomicQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
-*** ApiDBTuning.GENOMICSEQUENCESEQUENCE
+**** ApiDBTuning.GENOMICSEQUENCESEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/IsolateAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolGeneOrf.pm
-*** ApiDBTuning.GOSUBSETLEAF
+**** ApiDBTuning.GOSUBSETLEAF
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.GOTERMSUMMARY
+**** ApiDBTuning.GOTERMSUMMARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/stepAnalysisParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/GoEnrichment.pm
-*** ApiDBTuning.INFERREDCHARS
+**** ApiDBTuning.INFERREDCHARS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
-*** ApiDBTuning.INFERREDPARAMS
+**** ApiDBTuning.INFERREDPARAMS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.INTERPRODATA
+**** ApiDBTuning.INTERPRODATA
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-*** ApiDBTuning.INTRONUTRCOORDS
+**** ApiDBTuning.INTRONUTRCOORDS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.METADATA
+**** ApiDBTuning.METADATA
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -621,23 +483,23 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/rflpIsolateParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ElementNamesWithMetaData.pm
-*** ApiDBTuning.MSMODIFIEDPEPTIDESUMMARY
+**** ApiDBTuning.MSMODIFIEDPEPTIDESUMMARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDBTuning.MSPEPTIDESUMMARY
+**** ApiDBTuning.MSPEPTIDESUMMARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.ONTOLOGY
+**** ApiDBTuning.ONTOLOGY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/rflpIsolateParams.xml
-*** ApiDBTuning.ORGANISMABBREVIATIONBLAST
+**** ApiDBTuning.ORGANISMABBREVIATIONBLAST
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
-*** ApiDBTuning.ORGANISMABBREVIATIONWS
+**** ApiDBTuning.ORGANISMABBREVIATIONWS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/similarityParams.xml
-*** ApiDBTuning.ORGANISMATTRIBUTES
+**** ApiDBTuning.ORGANISMATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -649,27 +511,27 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/organismQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/datasetParams.xml
-*** ApiDBTuning.ORGANISMSELECTTAXONRANK
+**** ApiDBTuning.ORGANISMSELECTTAXONRANK
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.ORGANISMTREE
+**** ApiDBTuning.ORGANISMTREE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/similarityParams.xml
-*** ApiDBTuning.ORTHOLOGOUSGENES
+**** ApiDBTuning.ORTHOLOGOUSGENES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebService/WSFPlugin/geneListComparison.pl
-*** ApiDBTuning.PANIO
+**** ApiDBTuning.PANIO
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDBTuning.PANRESULTS
+**** ApiDBTuning.PANRESULTS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/sampleTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/expression.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/View/GraphPackage/Util.pm
-*** ApiDBTuning.PATHWAYATTRIBUTES
+**** ApiDBTuning.PATHWAYATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayAttributeQueries.xml
@@ -677,7 +539,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/pathwayQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/pathwayParams.xml
-*** ApiDBTuning.PATHWAYCOMPOUNDS
+**** ApiDBTuning.PATHWAYCOMPOUNDS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
@@ -686,11 +548,11 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/pathwayQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/PathwaysEnrichment.pm
-*** ApiDBTuning.PATHWAYEDGES
+**** ApiDBTuning.PATHWAYEDGES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
-*** ApiDBTuning.PATHWAYNODES
+**** ApiDBTuning.PATHWAYNODES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
-*** ApiDBTuning.PATHWAYREACTIONS
+**** ApiDBTuning.PATHWAYREACTIONS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
@@ -698,13 +560,13 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/pathwayQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/PathwaysEnrichment.pm
-*** ApiDBTuning.PATHWAYSGENETABLE
+**** ApiDBTuning.PATHWAYSGENETABLE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.PDBSIMILARITY
+**** ApiDBTuning.PDBSIMILARITY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** ApiDBTuning.POPSETATTRIBUTES
+**** ApiDBTuning.POPSETATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetAttributeQueries.xml
@@ -713,11 +575,11 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
-*** ApiDBTuning.POPSETSEQUENCE
+**** ApiDBTuning.POPSETSEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/IsolateAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolContigs.pm
-*** ApiDBTuning.PROFILE
+**** ApiDBTuning.PROFILE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -726,7 +588,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/View/GraphPackage/Util.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ProfileByEC.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/Profile.pm
-*** ApiDBTuning.PROFILESAMPLES
+**** ApiDBTuning.PROFILESAMPLES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -738,9 +600,9 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/SenseAntisenseY.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ElementNamesWithMetaData.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ElementNamesWithDisplayName.pm
-*** ApiDBTuning.PROFILESETDISPLAYINFO
+**** ApiDBTuning.PROFILESETDISPLAYINFO
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.PROFILETYPE
+**** ApiDBTuning.PROFILETYPE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
@@ -749,12 +611,12 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/expression.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/metabolomics.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/View/GraphPackage/Util.pm
-*** ApiDBTuning.PROPERTYTYPE
+**** ApiDBTuning.PROPERTYTYPE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.PROTEINATTRIBUTES
+**** ApiDBTuning.PROTEINATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
-*** ApiDBTuning.PROTEINSEQUENCE
+**** ApiDBTuning.PROTEINSEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -767,70 +629,70 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/MendelGPI.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/WolfPSORT.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolGeneOrf.pm
-*** ApiDBTuning.RFLPGENOTYPES
+**** ApiDBTuning.RFLPGENOTYPES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/rflpIsolateAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/rflpIsolateQueries.xml
-*** ApiDBTuning.RNASEQSTATS
+**** ApiDBTuning.RNASEQSTATS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDBTuning.SAMPLEDISPLAYINFO
+**** ApiDBTuning.SAMPLEDISPLAYINFO
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDBTuning.SAMPLEPROCESS
+**** ApiDBTuning.SAMPLEPROCESS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/rflpIsolateAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/sampleTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/rflpIsolateQueries.xml
-*** ApiDBTuning.SAMPLES
+**** ApiDBTuning.SAMPLES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/rflpIsolateAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/rflpIsolateQueries.xml
-*** ApiDBTuning.SEQUENCEPIECECLOSURE
+**** ApiDBTuning.SEQUENCEPIECECLOSURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
-*** ApiDBTuning.SIMILARITYSPANLOCATION
+**** ApiDBTuning.SIMILARITYSPANLOCATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** ApiDBTuning.SNPATTRIBUTES
+**** ApiDBTuning.SNPATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/snpQueries.xml
-*** ApiDBTuning.SNPATTRIBUTESDOTS
+**** ApiDBTuning.SNPATTRIBUTESDOTS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/snpChipQueries.xml
-*** ApiDBTuning.SNPCHIPATTRIBUTES
+**** ApiDBTuning.SNPCHIPATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/snpChipQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/snpChipParams.xml
-*** ApiDBTuning.SNPCHIPSTRAINS
+**** ApiDBTuning.SNPCHIPSTRAINS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** ApiDBTuning.SNPSTRAINS
+**** ApiDBTuning.SNPSTRAINS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** ApiDBTuning.SPLICESITETRANSCRIPTS
+**** ApiDBTuning.SPLICESITETRANSCRIPTS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.STRINGDB
+**** ApiDBTuning.STRINGDB
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** ApiDBTuning.SUBCELLULAR
+**** ApiDBTuning.SUBCELLULAR
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** ApiDBTuning.TAXONOMY
+**** ApiDBTuning.TAXONOMY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
-*** ApiDBTuning.TAXONSPECIES
+**** ApiDBTuning.TAXONSPECIES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** ApiDBTuning.TFBSGENE
+**** ApiDBTuning.TFBSGENE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** ApiDBTuning.TRANSCRIPTATTRIBUTES
+**** ApiDBTuning.TRANSCRIPTATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
@@ -855,50 +717,206 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/multipleSeqAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/IsolateAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolGeneOrf.pm
-*** ApiDBTuning.TRANSCRIPTCENDISTANCE
+**** ApiDBTuning.TRANSCRIPTCENDISTANCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/.organismParams.xml.swp
-*** ApiDBTuning.TRANSCRIPTPATHWAY
+**** ApiDBTuning.TRANSCRIPTPATHWAY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/pathwayQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/pathwayParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/Model/PathwaysEnrichment.pm
-*** ApiDBTuning.TRANSCRIPTSEQUENCE
+**** ApiDBTuning.TRANSCRIPTSEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/IsolateAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/SequenceRetrievalToolGeneOrf.pm
-** chEBI
-*** chEBI.CHEMICAL_DATA
+*** ApiDB
+**** ApiDB.AGPPIECE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
+**** ApiDB.BLATPROTEINALIGNMENT
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+**** ApiDB.CHRCOPYNUMBER
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/genomicQueries.xml
+**** ApiDB.COMPOUNDMASSSPECRESULT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
-*** chEBI.COMPOUNDS
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
+**** ApiDB.COMPOUNDPEAKS
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
+**** ApiDB.COMPOUNDPEAKSCHEBI
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
+**** ApiDB.CRISPRPHENOTYPE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/PhenotypeScore.pm
+**** ApiDB.DATASOURCE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/organismTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/.organismParams.xml.swp
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonModel/Model/DataSourceList.pm
+**** ApiDB.EXTERNALRESOURCEURL
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+**** ApiDB.FEATURELOCATION
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/dynSpanAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/orfTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/orfQueries.xml
+**** ApiDB.GENEFEATUREPRODUCT
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+**** ApiDB.GENEINTERACTION
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.GFF3
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+**** ApiDB.LOPITRESULTS
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+**** ApiDB.MASSSPECSUMMARY
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
+**** ApiDB.NAFEATUREHAPLOBLOCK
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/spanQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.NAFEATUREIMAGE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/GeneImage.pm
+**** ApiDB.NAFEATUREMETACYCLE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.NAFEATUREPHENOTYPE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+**** ApiDB.NAFEATUREPHENOTYPEMODEL
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+**** ApiDB.OLDANNOTATION
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.OLDCODINGSEQUENCE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+**** ApiDB.ONTOLOGYTERMRESULT
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+**** ApiDB.ORGANISM
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/templates/RnaSeqGbrowseTemplates.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/estTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/sharedParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/multipleSeqAlignment.pm
+**** ApiDB.PATHWAYREACTIONXREF
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayTableQueries.xml
+**** ApiDB.PHENOTYPEGROWTHRATE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/PhenotypeScore.pm
+**** ApiDB.PHENOTYPEMODEL
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+**** ApiDB.PHENOTYPEMUTANTS
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.PHENOTYPERESULT
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+**** ApiDB.PHENOTYPESCORE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/PhenotypeScore.pm
+**** ApiDB.PHYLOGENETICPROFILE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.PUBCHEMSUBSTANCE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
+**** ApiDB.RFLPGENOTYPE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/rflpIsolateTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/rflpIsolateParams.xml
+**** ApiDB.SEQEDIT
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+**** ApiDB.SEQUENCEVARIATION
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
+**** ApiDB.SPLICESITEFEATURE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.SPLICESITEGENES
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
+**** ApiDB.SYNTENICGENE
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+**** ApiDB.SYNTENY
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
+**** ApiDB.TRANSCRIPTLOCATION
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+**** ApiDB.TRANSCRIPTPRODUCT
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
+*** chEBI
+**** chEBI.CHEMICAL_DATA
+  - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
+**** chEBI.COMPOUNDS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
-*** chEBI.DEFAULT_STRUCTURES
+**** chEBI.DEFAULT_STRUCTURES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundAttributeQueries.xml
-*** chEBI.NAMES
+**** chEBI.NAMES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundAttributeQueries.xml
-*** chEBI.STRUCTURES
+**** chEBI.STRUCTURES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/compoundAttributeQueries.xml
-** Core
-*** Core.ALGORITHM
+*** Core
+**** Core.ALGORITHM
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetPresenters/ToxoDB.xml
-*** Core.ALGORITHMINVOCATION
+**** Core.ALGORITHMINVOCATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/sql/installReflowSchema.sql
-*** Core.TABLEINFO
+**** Core.TABLEINFO
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
 
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-** DoTS
-*** DoTS.AAFEATURE
+*** DoTS
+**** DoTS.AAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
     - [ ] Uniprot
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -906,7 +924,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] 3dpreds
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] GenesWithStructurePrediction
-*** DoTS.AALOCATION
+**** DoTS.AALOCATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] LowComplexity
     - [ ] SignalP
@@ -918,7 +936,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] TMHMM
     - [ ] signalp
     - [ ] lowcomplexity
-*** DoTS.AASEQUENCE
+**** DoTS.AASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] LowComplexity
     - [ ] exportpred
@@ -926,7 +944,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] UnifiedMassSpec     
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] LowComplexity    
-*** DoTS.AASEQUENCEENZYMECLASS
+**** DoTS.AASEQUENCEENZYMECLASS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
     - [ ] pathway plot
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -943,13 +961,13 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] pathway plot
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ProfileByEC.pm
     - [ ] pathway plot
-*** DoTS.AASEQVARIATION :SteveF:DELETE:
+**** DoTS.AASEQVARIATION                                   :SteveF:DELETE:
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/WDK/Model/GDUtil/Transducer/GUSAASequenceTransducer.pm
     - [ ] DELETE
-*** DoTS.BINDINGSITEFEATURE
+**** DoTS.BINDINGSITEFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] Binding Site Feature
-*** DoTS.BLATALIGNMENT
+**** DoTS.BLATALIGNMENT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] piggyBac transposable elements
     - [ ] generic end feature
@@ -964,14 +982,14 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] ESTs by location
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
     - [ ] withchrom est
-*** DoTS.CHROMOSOMEELEMENTFEATURE
+**** DoTS.CHROMOSOMEELEMENTFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] haplotype block feature (eqtl)
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/spanQueries.xml
     - [ ] eqtl segments
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] eqtl segments    
-*** DoTS.DBREFAAFEATURE
+**** DoTS.DBREFAAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
     - [ ] Uniprot
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -980,7 +998,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] Reagents
     - [ ] StructurePrediction
-*** DoTS.DBREFNAFEATURE
+**** DoTS.DBREFNAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] Metabolic Pathways
     - [ ] Antibody
@@ -993,10 +1011,10 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] Reagents (Crypto??) 
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
     - [ ] Metabolic Pathways
-*** DoTS.DBREFNASEQUENCE
+**** DoTS.DBREFNASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
     - [ ] db refs
-*** DoTS.DOMAINFEATURE
+**** DoTS.DOMAINFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [X] Interpro
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -1005,12 +1023,12 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [X] Interpro
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
     - [X] Interpro
-*** DoTS.EPITOPEFEATURE
+**** DoTS.EPITOPEFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] GenesWithEpitopes
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/WDK/Model/GDUtil/Transducer/GUSAASequenceTransducer.pm
     - [ ] probably unused??
-*** DoTS.EST
+**** DoTS.EST
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
     - [ ] ESTs
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
@@ -1024,7 +1042,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
     - [ ] ESTs    
 
-*** DoTS.EXTERNALNASEQUENCE
+**** DoTS.EXTERNALNASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
@@ -1034,7 +1052,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/genomicQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** DoTS.GENEFEATURE
+**** DoTS.GENEFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] repeat region
     - [ ] alternate gene models
@@ -1050,23 +1068,23 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] Steve
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/GeneImage.pm
     - [ ] Gene Image (Cellular location??)
-*** DoTS.GOASSOCINSTEVIDCODE
+**** DoTS.GOASSOCINSTEVIDCODE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] PreferredProducts
     - [ ] AlternativeProducts
-*** DoTS.ISOLATEFEATURE
+**** DoTS.ISOLATEFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
-*** DoTS.ISOLATESOURCE
+**** DoTS.ISOLATESOURCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
-*** DoTS.LIBRARY
+**** DoTS.LIBRARY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] dbest
-*** DoTS.LOWCOMPLEXITYAAFEATURE
+**** DoTS.LOWCOMPLEXITYAAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] Low Complexity
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] Low Complexity    
-*** DoTS.LOWCOMPLEXITYNAFEATURE
+**** DoTS.LOWCOMPLEXITYNAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] Low Complexity    
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
@@ -1075,25 +1093,25 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] Steve
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/WDK/Model/GDUtil/Transducer/GUSGenomicSeqTransducer.pm
     - [ ] Steve    
-*** DoTS.MASSSPECFEATURE
+**** DoTS.MASSSPECFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] Mass Spec
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
     - [ ] ms_assay
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/WDK/Model/GDUtil/Transducer/GUSAASequenceTransducer.pm
     - [ ] Steve    
-*** DoTS.MOTIFAASEQUENCE
+**** DoTS.MOTIFAASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] GenesWithEpitopes
-*** DoTS.NAFEATURE
+**** DoTS.NAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] Various Queries (ok if we dump these as files)
-*** DoTS.NAFEATURECOMMENT
+**** DoTS.NAFEATURECOMMENT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] Notes
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
     - [ ] Repeats
-*** DoTS.NALOCATION
+**** DoTS.NALOCATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] Various Queries (ok if we dump these as files)
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
@@ -1101,7 +1119,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/popsetQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/spanQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** DoTS.NASEQUENCE
+**** DoTS.NASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -1116,49 +1134,49 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/HtsSNPAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/IsolateAlignment.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/CgiApp/MultipleAlignmentMercatorMavid.pm
-*** DoTS.NASEQUENCEREF
+**** DoTS.NASEQUENCEREF
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
-*** DoTS.REPEATS
+**** DoTS.REPEATS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** DoTS.RNAFEATURE
+**** DoTS.RNAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] trnas
-*** DoTS.RNAFEATUREEXON
+**** DoTS.RNAFEATUREEXON
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] gene models
-*** DoTS.SCAFFOLDGAPFEATURE
+**** DoTS.SCAFFOLDGAPFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/WDK/Model/GDUtil/Transducer/GUSGenomicSeqTransducer.pm
     - [ ] Steve    
-*** DoTS.SECONDARYSTRUCTURE
+**** DoTS.SECONDARYSTRUCTURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** DoTS.SECONDARYSTRUCTURECALL
+**** DoTS.SECONDARYSTRUCTURECALL
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** DoTS.SIGNALPEPTIDEFEATURE
+**** DoTS.SIGNALPEPTIDEFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
-*** DoTS.SIMILARITY
+**** DoTS.SIMILARITY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] popset
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
     - [ ] popset
-*** DoTS.SNPFEATURE
+**** DoTS.SNPFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
     - [ ] barcode snps
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/snpChipQueries.xml
-*** DoTS.SPLICEDNASEQUENCE
+**** DoTS.SPLICEDNASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] Sequences table
-*** DoTS.STS
+**** DoTS.STS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
     - [ ] Microsatellite
-*** DoTS.TANDEMREPEATFEATURE
+**** DoTS.TANDEMREPEATFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
-*** DoTS.TRANSCRIPT
+**** DoTS.TRANSCRIPT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] get_feature_by_name (i dont' think this is used anymore???)
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
@@ -1169,7 +1187,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] PreferredProducts
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] GiardiaGenesByDifferentialExpression (unused???)
-*** DoTS.TRANSLATEDAAFEATURE
+**** DoTS.TRANSLATEDAAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] get_feature_by_name (i dont' think this is used anymore???)
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -1177,46 +1195,46 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
     - [ ] LowComplexity
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
     - [ ] Reagents
-*** DoTS.TRANSLATEDAASEQUENCE
+**** DoTS.TRANSLATEDAASEQUENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] get_feature_by_name (i dont' think this is used anymore???)
     - [ ] get_sequence (i dont' think this is used anymore???)      
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] TMHMM
-*** DoTS.TRANSMEMBRANEAAFEATURE
+**** DoTS.TRANSMEMBRANEAAFEATURE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
     - [ ] TMHMM    
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
     - [ ] TMHMM    
-*** DoTS.TRANSPOSABLEELEMENT
+**** DoTS.TRANSPOSABLEELEMENT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-** EDA
-*** EDA.ATTRIBUTE
+*** EDA
+**** EDA.ATTRIBUTE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** EDA.ENTITYATTRIBUTES
+**** EDA.ENTITYATTRIBUTES
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** EDA.ENTITYTYPE
+**** EDA.ENTITYTYPE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** EDA.ENTITYTYPEGRAPH
+**** EDA.ENTITYTYPEGRAPH
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** EDA.STUDY
+**** EDA.STUDY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-** hmdb
-*** hmdb.COMPOUNDS
+*** hmdb
+**** hmdb.COMPOUNDS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
-** Platform
-*** Platform.REPORTER
+*** Platform
+**** Platform.REPORTER
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** Platform.REPORTERLOCATION
+**** Platform.REPORTERLOCATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-** Results
-*** Results.COMPOUNDMASSSPEC
+*** Results
+**** Results.COMPOUNDMASSSPEC
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/compoundQueries.xml
-*** Results.NAFEATUREDIFFRESULT
+**** Results.NAFEATUREDIFFRESULT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/expression.dst
-*** Results.NAFEATUREEXPRESSION
+**** Results.NAFEATUREEXPRESSION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -1226,23 +1244,23 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/SenseAntisenseY.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/RNASeq.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/Proteomics/NonRatio.pm
-*** Results.NAFEATUREHOSTRESPONSE
+**** Results.NAFEATUREHOSTRESPONSE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** Results.REPORTERINTENSITY
+**** Results.REPORTERINTENSITY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** Results.SEGMENTRESULT
+**** Results.SEGMENTRESULT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
-*** Results.SEQVARIATION
+**** Results.SEQVARIATION
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/snpChipTableQueries.xml
-** SRes
-*** SRes.BIBLIOGRAPHICREFERENCE
+*** SRes
+**** SRes.BIBLIOGRAPHICREFERENCE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/popsetQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
-*** SRes.CONTACT
+**** SRes.CONTACT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/estAttributeQueries.xml
-*** SRes.DBREF
+**** SRes.DBREF
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -1250,14 +1268,14 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/commentTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** SRes.ENZYMECLASS
+**** SRes.ENZYMECLASS
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/PathwayGeneraData.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/EbrcWebsiteCommon/Model/CannedQuery/ProfileByEC.pm
-*** SRes.EXTERNALDATABASE
+**** SRes.EXTERNALDATABASE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
@@ -1283,7 +1301,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/rnaSeqTemplates.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/spliceSitesTemplates.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/expression.dst
-*** SRes.EXTERNALDATABASERELEASE
+**** SRes.EXTERNALDATABASERELEASE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/proteinQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
@@ -1309,14 +1327,14 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/rnaSeqTemplates.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/spliceSitesTemplates.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/expression.dst
-*** SRes.GENETICCODE
+**** SRes.GENETICCODE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicAttributeQueries.xml
-*** SRes.ONTOLOGYRELATIONSHIP
+**** SRes.ONTOLOGYRELATIONSHIP
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
-*** SRes.ONTOLOGYSYNONYM
+**** SRes.ONTOLOGYSYNONYM
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** SRes.ONTOLOGYTERM
+**** SRes.ONTOLOGYTERM
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
@@ -1330,10 +1348,10 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/.organismParams.xml.swp
-*** SRes.PATHWAY
+**** SRes.PATHWAY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/pathwayAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/pathwayQueries.xml
-*** SRes.TAXON
+**** SRes.TAXON
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/transcriptAttributeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/genomicTableQueries.xml
@@ -1341,7 +1359,7 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/genomicQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/organismParams.xml
-*** SRes.TAXONNAME
+**** SRes.TAXONNAME
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/datasetClass/classes.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
@@ -1356,13 +1374,13 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/.organismParams.xml.swp
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonModel/Model/DataSourceList.pm
-** Study
-*** Study.CHARACTERISTIC
+*** Study
+**** Study.CHARACTERISTIC
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
-*** Study.OUTPUT
+**** Study.OUTPUT
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** Study.PROTOCOLAPPNODE
+**** Study.PROTOCOLAPPNODE
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/geneTableQueries.xml
@@ -1374,12 +1392,12 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/RNASeq.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/Proteomics/NonRatio.pm
-*** Study.PROTOCOLAPPPARAM
+**** Study.PROTOCOLAPPPARAM
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/geneParams.xml
-*** Study.PROTOCOLPARAM
+**** Study.PROTOCOLPARAM
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/geneQueries.xml
-*** Study.STUDY
+**** Study.STUDY
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/datasetRecords.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
@@ -1395,11 +1413,11 @@ The above workflow should manage the rsync of ws and download files to apiSiteFi
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/dst/expression.dst
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/RNASeq.pm
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/perl/ApiCommonWebsite/View/GraphPackage/Templates/Proteomics/NonRatio.pm
-*** Study.STUDYBIBREF
+**** Study.STUDYBIBREF
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/queries/popsetQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/questions/params/popsetParams.xml
-*** Study.STUDYLINK
+**** Study.STUDYLINK
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/dataPlotter/queries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/xml/jbrowse/genomeQueries.xml
   - /var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/wdk/model/records/popsetTableQueries.xml
