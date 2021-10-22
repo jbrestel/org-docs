@@ -36,7 +36,7 @@
   | Home Page                     | < 5 seconds   | DONE                | NONE                                  |                |
   
 ** WDK Searches
-*** REST Search Result  / ID Query
+*** REST Search Result  / ID Query :JohnB:JohnI:MarkH:
 - GOAL :: as good as portal/or plasmo and < 1.5 seconds
 
 - SOLUTION :: Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.  Search id query, param queries, record table and possibly pbrowse track data should be gotten with smallest table joins (one table properly indexed if possible)
@@ -56,7 +56,7 @@
 
 - COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
   
-*** Results Page Completion
+*** Results Page Completion :Steve:Cristina:
 - GOAL :: as good as portal/or plasmo and < 1.5 seconds
 - SOLUTION :: There are [[https://docs.google.com/spreadsheets/d/1JF7MZ8cXjua9h0mMRNb3TkfuXjczI0Pl64yXqOJDXOo/edit#gid=2056082386][several queries]] which are run to make search results.  gene results are made worse because we insert transcripts which don't match the result.  Some possible solutions here are:
   1. General wdk performance improvements including column filters.
@@ -69,7 +69,7 @@
 - COST :: TODO Steve
 
 
-*** Join To Attributes / Columns
+*** Join To Attributes / Columns :Steve:Cristina:
 - GOAL :: as good as portal/or plasmo
 
 - SOLUTION :: On beta.veupathdb.org there are two issues we need to address:
@@ -80,7 +80,7 @@
 
 - COST :: TODO Steve
 
-*** Download Results
+*** Download Results :Steve:Cristina:
 - GOAL :: TBD
 
 - SOLUTION :: Download seems like an area we have some flexibility if the user was made to understand this was a long running process (like multiblast).  Nothing to be done in the short term but long term could consider queue system like multiblast.  
@@ -89,7 +89,7 @@
 
 - NOTE :: For the Download Page Form ... The large number of columns is an issue here too.  10K columns most from trasncriptomics datasets.  Same solution as above can be applied here.  Trim by organisms in result set
 
-*** Search Page Load (Parameters)
+*** Search Page Load (Parameters) :JohnB:JohnI:MarkH:
 - GOAL :: Vocab queries are cached;  All params on a search page should load < 5 seconds on initial run.
 
 - SOLUTION :: Same as ID Searches above.  Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
@@ -98,14 +98,14 @@
 
 *** TODO Analysis Tools (example: GO Enrichment)
 ** WDK Records
-*** Individual Tables
+*** Individual Tables :JohnB:JohnI:MarkH:
  - GOAL :: as good as plasmo ( < 1 seconds)
 
 - SOLUTION :: Same as ID Searches above.  Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
 
 - COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
 
-*** Initial Page Load
+*** Initial Page Load :JohnB:JohnI:MarkH:
 - GOAL :: as good as plasmo ( < 5 seconds)
 
 - SOLUTION :: Some improvements have already been made here for the GeneRecord page.  We are likely under 5 seconds for initial page load assuming only record overview is open.  We identified some record interal tables which were poor performing and fixed including (FungiDB specific Linkouts in the overview section).  We also need to evaluate examples from all record types to ensure we are < 5 seconds for each.
@@ -116,7 +116,7 @@
 - SOLUTION :: In the future we could explore caching all record tables/attributes in a nosql database.  JBrowse and DataPlotter graphs would still be loaded as they are now but tables and attributes would be loaded very quickly.
 
 ** Genome and Protein Browsers
-*** Initial Page Load
+*** Initial Page Load :JohnB:JohnI:MarkH:
 - GOAL :: < 5 seconds
 
 - SOLUTION :: There are 2 areas we can explore:
@@ -127,7 +127,7 @@
 
 - COST :: If the size of the config file is truly probelmatic... would need to explore some sort of lazy loading mechanism which is costly as it would be a jbrowse appliation feature.
 
-*** Individual Tracks
+*** Individual Tracks :JohnB:JohnI:MarkH:
 - GOAL :: < 1 seconds
 
 - SOLUTION :: JBrowse is meant to be use files as data stores.  We currently use a REST store which queries the GUS Database for many of the tracks.  We can update the ReFlow workflow to dump gff files for all tracks which currently use the REST Store.  Popups can use web service calls (wdk record tables and attributes).
@@ -139,23 +139,23 @@
   - allow us to run one JBrowse instead of one per site
   - could run JBrowse2 from the same files
 
-*** Gene Page Context (iframes)
+*** Gene Page Context (iframes) :JohnB:JohnI:MarkH:
 
 - GOAL :: iframes load the entire application so the initial load will not be faster than time to load jbrowse
 
 - SOLUTION :: We already limit the configurations per section.  Ideally each section would only know about the tracks we display in that section but for some sections we are loading more than needed.
 
 - COST :: Refactoring JBRowse configurations per organism could be done as part of the ReFlow steps above.
-** MapVEu Application
+** MapVEu Application :BobM:Jay:JohnB:
 This will be an EDA Application.  Those tables have been optimized for study data.  We may need to address special issues as they arise
-** TODO Sequence Retrieval Tool
-** TODO MultiBLAST
+** TODO Sequence Retrieval Tool 
+** TODO MultiBLAST :Steve:Cristina:
 ** DONE Site Search
 - GOAL :: as good as portal/plasmo ( < 1.5 seconds)
 ** DONE Home Page
 - GOAL :: as good as portal/plasmo ( < 5 slower)
 
-* Data Loading
+* Data Loading :JohnB:JohnI:Wei:
 The Goal is to Shorten the Loading time
 ** Reflow workflow
 - use the tuning manager (or other mechanism) to create organism specific tables as the last step in the organism workflow
