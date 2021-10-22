@@ -153,11 +153,10 @@
 
 ** DONE Bulk Loader for SNP / Seqvars
 ** DONE Add Mass Spec profile (Llinas) [[redmine:45318][redmine:45318]]
-** TODO Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy
-- [ ] Update NCBI Taxonomy
-- [ ] Test Taxonomy Update 
-- [ ] Run Tuning manager
-- [ ] use inc databases to set the scientific names for all taxa
+** DONE Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy
+- [X] Update NCBI Taxonomy
+- [X] Test Taxonomy Update 
+- [X] Run Tuning manager
 ** DONE Undo unidbcomponents
 ** DONE Patch ids for other tables ( uni-inc, uni054n )
 - ApiDB.AGPPiece
@@ -297,22 +296,22 @@ perl includedWdkElements.pl --check_params --unidb_website beta.veupathdb.org
 #+end_src
 - this test can also run param queries and compare values (use --check_params flag)
 - [[https://github.com/VEuPathDB/FunctionalTests/blob/main/bin/includedWdkElements.pl]]
-- [ ] Record expected and Actual Results
+- [X] Record expected and Actual Results
 *** Selenium Tests for Search Pages :Bindu:
 *** Compare attribute tables :JohnI:
-- [ ] using sql minus operation, compare production attribute tables in eupa database to production uni database (example eupa054n to uni054n)
-- [ ] Record expected and Actual Results
+- [X] using sql minus operation, compare production attribute tables in eupa database to production uni database (example eupa054n to uni054n)
+- [X] Record expected and Actual Results
 *** Test Record page tables against component databases :JohnB:
 #+begin_src example
 perl regresssionTestForRecordQueries.pl --dir /home/jbrestel/unidb/record_queries_output --instance_suffix 054n >rq.err 2>&1
 #+end_src
-- [ ] foreach record table, run the sql and compare counts (union for all components)
+- [X] foreach record table, run the sql and compare counts (union for all components)
 - [ ] address faiures
-- [ ] Record expected and Actual Results
+- [X] Record expected and Actual Results
 ** Performance Tests :Mark:Steve:Cristina:
 *** Webserive queries for Performance Tests :MarkH:
-- [ ] compare plasmodb.org (b52) to feature.veupathdb.org
-- [ ] Record expected and Actual Results
+- [X] compare plasmodb.org (b52) to feature.veupathdb.org
+- [X] Record expected and Actual Results
 
 * Future Releases :JohnI:JohnB:MarkH:Bindu:
 ** TODO Schema Changes
@@ -362,8 +361,6 @@ perl regresssionTestForRecordQueries.pl --dir /home/jbrestel/unidb/record_querie
 - [ ] remove project_id from webservice queries (once we remove federated portal)
 - [ ] Text Searches (will site search fix these?)
 ** wgcna (host /pathogen)
-
-
 * SOP for schema changes
 - [ ] How to handle schema changes?
   - [ ] add columns
