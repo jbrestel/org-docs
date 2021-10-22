@@ -1,7 +1,7 @@
 #+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     Website Performance and Application Specific Databases
-#+AUTHOR:    John,Cristina,Steve
+#+AUTHOR:    John Brestelli
 #+DESCRIPTION: How to solve performance issues with Genomics websites by building Application Specific Databases
 #+OPTIONS:   H:5 num:nil toc:3 p:t tags:not-in-toc
 * Website Performance
@@ -14,26 +14,8 @@
    - nosql database where appropriate (site search, record pages?)
    - flat file stores for genome browsers
 
-     
-  | *Area of Concern*             | *Target*      | *TODOs*             | *Cost*                                | *Who*          |
-  |-------------------------------+---------------+---------------------+---------------------------------------+----------------|
-  | REST Search Result / ID Query | < 1.5 seconds | query tuning        | 2-3 Release cycles (all query tuning) | DD (JI,JB,MH?) |
-  | Search Page Load              | < 5 seconds   | query tuning        |                                       | DD (JI,JB,MH?) |
-  | Record Table                  | < 1 second    | query tuning        |                                       | DD (JI,JB,MH?) |
-  | Record Initial Page Load      | < 5 seconds   | query tuning        |                                       | DD (JI,JB,MH?) |
-  | Results Page Completion       | < 1.5 seconds | general wdk         | TODO Steve                            | Infra          |
-  | Join To Attributes / Columns  | = component   | general wdk         | TODO Steve                            | Infra          |
-  | Download Results              | TBD           | general wdk         | TODO Steve                            | Infra          |
-  | Analysis Tools                | TBD           | ??                  | ??                                    | DD             |
-  | Record Full Page Load         | TBD           | nosql??             | ??                                    | ??             |
-  | Browser Initial Page Load     | < 5 seconds   | jbrowse files       | 2 Release cycles (all jbrowse)        | DD (JB)        |
-  | Browser Track                 | < 1 second    | jbrowse files       |                                       | DD (JB)        |
-  | Browser iframe                | < 5 seconds   | jbrowse files       |                                       | DD (JB)        |
-  | MapVEu                        | same as EDA   | load as EDA studies | 1-2 Release cycles (eda dev/loading)  | DD (JB,JH)     |
-  | SRT                           | TBD           | ??                  | ??                                    | ??             |
-  | MultiBLAST                    | TBD           | ??                  | ??                                    | Infra          |
-  | Site Search                   | < 1.5 seconds | DONE                | NONE                                  |                |
-  | Home Page                     | < 5 seconds   | DONE                | NONE                                  |                |
+
+A summary of the details below can be found in [[https://docs.google.com/spreadsheets/d/1JF7MZ8cXjua9h0mMRNb3TkfuXjczI0Pl64yXqOJDXOo/edit#gid=358028577][Google Docs]]
   
 ** WDK Searches
 *** REST Search Result  / ID Query :JohnB:JohnI:MarkH:
