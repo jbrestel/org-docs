@@ -7,12 +7,15 @@
   The file [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/xml/jbrowseQueries.xml][jbrowseQueries.xml]] defines quries to dump features.  It also contains lists property values when extra configurations are needed
 
 ** Queries
-   1. Each Query MUST return rows for Features and Subfeatures.
+   1. Existing jbrowse queries can be found in "ApiCommonModel/Model/lib/xml/jbrowse/*"
+   2. The list of tracks to be migrated can be found at the bottom of the "jbrowseQueries.xml" file (ie. we dont' need to move over all queries).
+   3. jbrowseQueries will be run by the workflow.  Do not include any tuning tables!
+   4. Each Query MUST return rows for Features and Subfeatures.
       - *NOTE*:  Previously jbrowse adaptor separated bulksubfeatures from features
-   2. The query must retain a special MACRO for "$srcfeature_id".  This will be either an "na_sequence_id" or an "aa_sequence_id)
+   5. The query must retain a special MACRO for "$srcfeature_id".  This will be either an "na_sequence_id" or an "aa_sequence_id)
       - *NOTE*:  Previously jbrowse queries specified "$base_start" and "$rend".  We should not have these as the flat files will dump ALL features for each sequence
-   3. Each track element MUST specify attributes for "type ["genomic","protein"] and fileSuffix ["gff", "bw", ...]
-   4. Each query must return fields which corespond to GFF3 spec (order does not matter). (
+   6. Each track element MUST specify attributes for "type ["genomic","protein"] and fileSuffix ["gff", "bw", ...]
+   7. Each query must return fields which corespond to GFF3 spec (order does not matter). (
       - source :: (required) name of the program that generated this feature, or the data source (database or project name)
       - feature :: (required) feature type name, e.g. Gene, Variation, Similarity.  *NOTE* jbrowse has something called "type" but not used for anything.  we should be consistent with the feature name here moving forward as we'll likely provide these files in downloads
       - startm :: (required) Start position* of the feature, with sequence numbering starting at 1.
