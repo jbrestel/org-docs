@@ -1,0 +1,117 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     JBrowse Flat File Migration
+#+AUTHOR:    John Brestelli
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc ^:nil
+* Configurations
+  The file [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/xml/jbrowseQueries.xml][jbrowseQueries.xml]] defines quries to dump features.  It also contains lists property values when extra configurations are needed
+
+** Queries
+   1. Each Query MUST return rows for Features and Subfeatures.
+      - *NOTE*:  Previously jbrowse adaptor separated bulksubfeatures from features
+   2. The query must retain a special MACRO for "$srcfeature_id".  This will be either an "na_sequence_id" or an "aa_sequence_id)
+      - *NOTE*:  Previously jbrowse queries specified "$base_start" and "$rend".  We should not have these as the flat files will dump ALL features for each sequence
+   3. Each track element MUST specify attributes for "type ["genomic","protein"] and fileSuffix ["gff", "bw", ...]
+   4. Each query must return fields which corespond to GFF3 spec (order does not matter). (
+      - source :: (required) name of the program that generated this feature, or the data source (database or project name)
+      - feature :: (required) feature type name, e.g. Gene, Variation, Similarity.  *NOTE* jbrowse has something called "type" but not used for anything.  we should be consistent with the feature name here moving forward as we'll likely provide these files in downloads
+      - startm :: (required) Start position* of the feature, with sequence numbering starting at 1.
+      - end :: (required) End position* of the feature, with sequence numbering starting at 1.
+      - score ::  A floating point value.
+      - strand :: (required) defined as + (forward) or - (reverse).
+      - frame :: One of '0', '1' or '2'. '0' indicates that the first base of the feature is the first base of a codon, '1' that the second base is the first base of a codon, and so on..
+      - atts :: A semicolon-separated list of tag-value pairs, providing additional information about each feature.  *NOTE* when we use additional trackConfigurations (below) we need to include here values we can use as filters.  Mostly the dataset=$edName is what we want.
+      - feature_id :: (required) Unique ID for the Feature
+      - parent_id :: Unique ID of the parent feature
+      - tstarts :: comma sep list of subfeature starts
+      - blocksizes :: comma sep list of subfeature lengths
+
+** Track Configuration (Optional)
+   The Query above will be run for each configuration and ALL features will be dumped into the same output file.
+      #+begin_src xml
+        <!-- GenericEndFeature Example -->
+	<trackConfigurations>
+	  <properties>
+	    <prop name="edName">tgonME49_Vinayak_FosmidEnds_clonedInsertEnds_RSRC</prop>
+	    <prop name="type">fosmid</prop>
+	    <prop name="sourceIdField">source_id</prop>
+	    <prop name="sourceIdJoiningRegex">(.*)[^(for|rev).ab1)]</prop>
+	    <prop name="spanLengthCutoff">5000</prop>
+	    <prop name="includeMultipleSpans">true</prop>
+	  </properties>
+	</trackConfigurations>
+      #+end_src
+
+      Track Configurations can be gotten in a few different ways.  All can be found in ApiCommonModel (and ApiCommonPresenters)
+
+      #+being_src example
+      [jbrestel@ash ApiCommonModel]$grep 'alignment:GenericEndFeature' * -rl
+      Model/lib/xml/jbrowse/genomeQueries.xml
+      Model/lib/dst/jbrowse.dst
+      #+end_src
+
+      1. jbrowse conf files
+	 #+begin_example
+	 [jbrestel@ash jbrowse]$ grep -r 'Microsatellite:sts' $PWD/*
+	 ApiCommonModel/Model/lib/jbrowse/pfal3D7/tracks.conf:query.feature=Microsatellite:sts
+	 #+end_example
+	 
+      2. Injected datasets
+	 If the jbrowse track is defined in a dst file, then we need to backtrack to find the dataset (presenter).
+	 #+begin_example
+	 [jbrestel@ash ApiCommonModel]$ grep -B 15 'alignment:GenericEndFeature' Model/lib/dst/jbrowse.dst 
+	 [templateStart] 
+	 name=jbrowseClonedInsertEnds
+	 anchorFile=ApiCommonModel/Model/lib/jbrowse/auto_generated/${organismAbbrev}/tracks.conf
+	 prop=organismAbbrev
+	 ...
+	 prop=summary
+	 >templateTextStart<
+	 [tracks.clonedInsertEnds_${datasetName}]
+	 query.feature=alignment:GenericEndFeature
+	 #+end_example
+
+	 find the template name in the Injector java classes
+	 #+begin_example
+	 [jbrestel@ash src]$ grep jbrowseClonedInsertEnds $PWD/* -rl
+	 ApiCommonModel/Model/src/main/java/org/apidb/apicommon/model/datasetInjector/ClonedInsertEnds.java
+	 #+end_example
+
+	 find all dataset presenter xmls
+	 #+begin_example
+	 [jbrestel@ash ApiCommonPresenters]$ grep -A 10 ClonedInsertEnds * -r
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml:    <templateInjector className="org.apidb.apicommon.model.datasetInjector.ClonedInsertEnds">
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml-       <prop name="type">fosmid</prop>
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml-       <prop name="sourceIdField">source_id</prop>
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml-       <prop name="sourceIdJoiningRegex">(.*)[^(for|rev).ab1)]</prop>
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml-       <prop name="spanLengthCutoff">5000</prop>
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml-       <prop name="includeMultipleSpans">true</prop>
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml-   </templateInjector>
+	 Model/lib/xml/datasetPresenters/ToxoDB.xml- </datasetPresenter>
+	 --
+	  ....
+	 #+end_example
+
+      3. configuration generated by ws calls
+	 #+begin_example
+	 [jbrestel@ash bin]$ grep 'domain:MassSpecPeptide' $PWD/*
+	 ApiCommonModel/Model/bin/jbrowseOrganismSpecificPbrowseTracks:    my $feature = "domain:MassSpecPeptide";
+	 ApiCommonModel/Model/bin/jbrowseOrganismSpecificPbrowseTracks:      $feature = "domain:MassSpecPeptidePhospho";
+	 ApiCommonModel/Model/bin/jbrowseOrganismSpecificTracks:                    query => {'feature' => "domain:MassSpecPeptide",
+	 #+end_example
+
+	 This one requires some database queries to find datasets.  Look in the script to determine how to find datasets and other parameter values
+      
+* Script
+  The script [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/bin/jbrowseDumpAllFeatures][jbrowseDumpAllFeatures]] will loop through all tracks defined in the xml configuration and dump a file for each (per organism).  The output directory has the same structure as the workflow's webservices directory.  
+
+    #+begin_src example
+     usage:  jbrowseDumpAllFeatures $OUTPUT_DIR \\
+                                    $ORG_ABBREV \\
+                                    $REPLACE_EXISTING
+    #+end_src
+
+
+
+* Front end
+  JBrowse Application will read from file based Store (GFF or BW).  We will need to filter features by dataset name when appropriate. See GenericEndFeature above.

@@ -248,6 +248,7 @@
          :base-directory "./"
          :include '("SOPs/rnaseq.org"
 		    "SOPs/taskBacklog.org"
+		    "SOPs/jbrowseFlatFileMigration.org"
        		    "SOPs/taxonomyUpdate.org"
 		    )
          :base-extension "org"
