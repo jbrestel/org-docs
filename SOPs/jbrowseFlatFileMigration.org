@@ -109,9 +109,10 @@
   The script [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/bin/jbrowseDumpAllFeatures][jbrowseDumpAllFeatures]] will loop through all tracks defined in the xml configuration and dump a file for each (per organism).  The output directory has the same structure as the workflow's webservices directory.  
 
     #+begin_src example
-     usage:  jbrowseDumpAllFeatures $OUTPUT_DIR \\
-                                    $ORG_ABBREV \\
-                                    $REPLACE_EXISTING
+     usage: jbrowseDumpAllFeatures --output_directory $OUTPUT_DIR \\
+                                   [--organism_abbrev_filter $ORG_ABBREV] \\
+                                   [--replace_existing ]
+
     #+end_src
 
 
