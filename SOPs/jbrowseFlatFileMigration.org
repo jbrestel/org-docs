@@ -118,3 +118,5 @@
 
 * Front end
   JBrowse Application will read from file based Store (GFF or BW).  We will need to filter features by dataset name when appropriate. See GenericEndFeature above.
+
+  We'll need to use filters to only show track data for one dataset.  May need a new 
