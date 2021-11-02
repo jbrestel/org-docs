@@ -6,11 +6,11 @@
 #+OPTIONS:   H:0 num:nil p:t tags:not-in-toc
 * Projects
 ** [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
-*** ESTs
+*** ESTs :Jay:
 *** GPIAnchor and MitoProt
 *** Intron Junctions
 *** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                         :Mark:Kathryn:JohnB:
-
+*** [[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]                                  :JohnI:JohnB:
 ** [[orgdocs:/project_planning/unidb.html][UniDB]]                                                             :JohnB:
 ** [[orgdocs:/project_planning/appDb.html][Performance and App Specific Databases]]                            :JohnB:MarkH:JohnI:
 ** WDK Model
@@ -23,6 +23,10 @@
 ** [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]]                                  :Ann:
 *** Gene Lists as User Datasets                                      :Omar:
 ** [[orgdocs:/project_planning/selenium.html][Selenium Tests]]
+- [ ] test links on dataset page
+- [ ] rnaseq default organism rnaseq (make sure all keys are unique)
+- [ ] strand specific rnaseq
+- [ ] compound
 ** SOPs
 *** Schema Changes
 - [ ] Alter Table
