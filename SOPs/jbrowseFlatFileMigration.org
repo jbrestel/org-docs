@@ -114,7 +114,8 @@
 
     #+end_src
 
-
+    - [ ] make bw files
+    - [ ] check one off error for tstarts
 
 * Front end
   JBrowse Application will read from file based Store (GFF or BW).  We will need to filter features by dataset name when appropriate. See GenericEndFeature above.
