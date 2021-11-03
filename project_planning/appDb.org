@@ -3,7 +3,7 @@
 #+TITLE:     UniDB Performance and Application Specific Databases
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: How to solve performance issues with Genomics websites by building Application Specific Databases
-#+OPTIONS:   H:5 num:nil toc:3 p:t tags:not-in-toc
+#+OPTIONS:   H:5 num:nil toc:3 p:t tags:not-in-toc eval:never-export
 #+STARTUP: overview
 * Website Performance
 
@@ -180,7 +180,7 @@ The Goal is to Shorten the Loading time
 
 * Interpro Example
 #+name: sqlplus_input 
-#+BEGIN_SRC emacs-lisp :var blk="abc" :var sep="\n" :results file :file /home/jbrestel/org_sqlplus.sql :exports none
+#+BEGIN_SRC emacs-lisp :var blk="QUERY_NEW_GeneTable" :var sep="\n" :results file :file /home/jbrestel/org_sqlplus.sql :exports none
     (concat "SET AUTOTRACE TRACEONLY;\n"
             "SET TIMING ON;\n"
             "WHENEVER SQLERROR EXIT SQL.SQLCODE;\n"
@@ -242,7 +242,7 @@ transcript_ids
 ) o
 
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GeneTable"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GeneTable")) :exports none
 
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_GeneTable"))
 | QUERY_NEW_GeneTable | Elapsed: 00:00:00.02 | 60  consistent gets |
@@ -271,7 +271,7 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
              and ir.interpro_start_min < 100000
              and ir.protein_source_id = pa.source_id
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_PBrowse"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_PBrowse")) :exports none
 
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_PBrowse"))
 | QUERY_NEW_PBrowse | Elapsed: 00:00:00.01 | 15  consistent gets |
@@ -332,7 +332,7 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
             ) o
     ) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain")) :exports none
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
 | QUERY_GenesByInterproDomain | Elapsed: 00:00:21.16 | 1015065  consistent gets |
 
@@ -380,7 +380,7 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
                 GROUP BY ir.transcript_source_id,ir.gene_source_id,ir.project_id
   ) o) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain")) :exports none
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
 | QUERY_NEW_GenesByInterproDomain | Elapsed: 00:00:00.57 | 10056  consistent gets |
 
@@ -432,7 +432,7 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
             ) o
     ) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainDatabase")) :exports none
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
 | QUERY_DomainDatabase | Elapsed: 00:01:06.40 | 28027001  consistent gets |
 
@@ -446,7 +446,7 @@ SELECT 4 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
               order by term
 ) o) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase")) :exports none
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
 | QUERY_NEW_DomainDatabase | Elapsed: 00:00:00.01 |   | 19  consistent gets |
 
@@ -490,7 +490,7 @@ SELECT 4 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
             ) o
     ) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainAccession")) :exports none
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
 | QUERY_DomainAccession | Elapsed: 00:00:30.42 | 4599061  consistent gets |
 
@@ -507,7 +507,7 @@ SELECT 8 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
               group by interpro_primary_id, interpro_secondary_id, interpro_desc
 ) o) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession")) :exports none
 
 #+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
 | QUERY_NEW_DomainAccession | Elapsed: 00:00:00.26 | 1189  consistent gets |
