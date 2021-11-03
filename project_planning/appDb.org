@@ -180,7 +180,7 @@ The Goal is to Shorten the Loading time
 
 * Interpro Example
 #+name: sqlplus_input 
-#+BEGIN_SRC emacs-lisp :var blk="QUERY_NEW_GeneTable" :var sep="\n" :results file :file /home/jbrestel/org_sqlplus.sql :exports none
+#+BEGIN_SRC lisp :var blk="QUERY_NEW_GeneTable" :var sep="\n" :results file :file /home/jbrestel/org_sqlplus.sql :exports none
     (concat "SET AUTOTRACE TRACEONLY;\n"
             "SET TIMING ON;\n"
             "WHENEVER SQLERROR EXIT SQL.SQLCODE;\n"
