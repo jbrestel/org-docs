@@ -1,6 +1,6 @@
 #+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+TITLE:     Website Performance and Application Specific Databases
+#+TITLE:     UniDB Performance and Application Specific Databases
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: How to solve performance issues with Genomics websites by building Application Specific Databases
 #+OPTIONS:   H:5 num:nil toc:3 p:t tags:not-in-toc
@@ -98,8 +98,11 @@ A summary of the details below can be found in [[https://docs.google.com/spreads
 
 - SOLUTION :: In the future we could explore caching all record tables/attributes in a nosql database.  JBrowse and DataPlotter graphs would still be loaded as they are now but tables and attributes would be loaded very quickly.
 
-** Genome and Protein Browsers
+** Genome and Protein Browsers :JohnI:JohnB:
+[[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]
+
 *** Initial Page Load :JohnB:JohnI:MarkH:
+
 - GOAL :: < 5 seconds
 
 - SOLUTION :: There are 2 areas we can explore:
@@ -177,7 +180,7 @@ The Goal is to Shorten the Loading time
 
 * Interpro Example
 #+name: sqlplus_input 
-#+BEGIN_SRC emacs-lisp :var blk="abc" :var sep="\n" :results file :file /home/jbrestel/org_sqlplus.sql
+#+BEGIN_SRC emacs-lisp :var blk="abc" :var sep="\n" :results file :file /home/jbrestel/org_sqlplus.sql :exports none
     (concat "SET AUTOTRACE TRACEONLY;\n"
             "SET TIMING ON;\n"
             "WHENEVER SQLERROR EXIT SQL.SQLCODE;\n"
@@ -196,242 +199,19 @@ The Goal is to Shorten the Loading time
     )
 #+END_SRC
 #+name: sqlplus
-#+BEGIN_SRC sh :noweb yes :results table :var input=sqlplus_input()
+#+BEGIN_SRC sh :noweb yes :results table :var input=sqlplus_input() :exports none
 sqlplus jbrestel/$DBI_PASS@uni054n @$input |grep 'QUERY\|Elapsed\|consistent' |perl -e 'while(<>){chomp; if(/consistent gets/) {print $_ . "\n"; }else {print $_ . "\t"} }'
   #+END_SRC
 
+New Tuning Table "InterproResults" in  [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml][apiTuningnManager.xml]]
+
+** Gene Page Queries
+
+#+CAPTION: Gene Page Queries Summary
 | NAME                | Time                 | Gets                |
 |---------------------+----------------------+---------------------|
 | QUERY_NEW_GeneTable | Elapsed: 00:00:00.02 | 60  consistent gets |
 | QUERY_NEW_PBrowse   | Elapsed: 00:00:00.01 | 15  consistent gets |
-
-| NAME                            | Time                 | Gets                     |
-|---------------------------------+----------------------+--------------------------|
-| QUERY_GenesByInterproDomain     | Elapsed: 00:00:21.16 | 1015065  consistent gets |
-| QUERY_NEW_GenesByInterproDomain | Elapsed: 00:00:00.57 | 10056  consistent gets   |
-
-| NAME                                | Time                 | Gets                      |
-|-------------------------------------+----------------------+---------------------------|
-| QUERY_DomainDatabase                | Elapsed: 00:01:06.40 | 28027001  consistent gets |
-| QUERY_NEW_DomainDatabase_PRE_TABLE  | Elapsed: 00:00:02.67 | 334333  consistent gets   |
-| QUERY_NEW_DomainDatabase_WITH_TABLE | Elapsed: 00:00:00.01 | 19  consistent gets       |
-
-| NAME                                 | Time                 | Gets                     |
-|--------------------------------------+----------------------+--------------------------|
-| QUERY_DomainAccession                | Elapsed: 00:00:30.42 | 4599061  consistent gets |
-| QUERY NEW_DomainAccession_PRE_INDEX  | Elapsed: 00:00:01.26 | 667528  consistent gets  |
-| QUERY_NEW_DomainAccession_WITH_INDEX | Elapsed: 00:00:01.57 | 38578  consistent gets   |
-| QUERY_NEW_DomainAccession_WITH_TABLE | Elapsed: 00:00:00.26 | 1189  consistent gets    |
-
-** Original Queries
-*** Gene ID Search: [[https://plasmodb.org/plasmo/app/search/transcript/GenesByInterproDomain][GenesByInterproDomain]]  
-#+NAME: QUERY_GenesByInterproDomain
-#+begin_src sql
-  SELECT 22 AS wdk_instance_id
-         , rownum AS wdk_row_id
-         ,  f.*
-    FROM (SELECT o.* , 10 AS wdk_weight
-            FROM (SELECT ga.source_id, ga.gene_source_id
-                                     , 'Y' as matched_result
-                                     , ga.project_id,
-                                     to_char(avg(trunc(df.e_value,100)),'9.999EEEE') as e_value,
-                                     max(df.e_value) as sorting_value 
-                    FROM dots.DomainFeature df, ApidbTuning.TranscriptAttributes ga,
-                                     dots.DbRefAaFeature draf, sres.DbRef dr
-                   WHERE ga.aa_sequence_id = df.aa_sequence_id
-                     AND df.aa_feature_id = draf.aa_feature_id
-                     AND draf.db_ref_id = dr.db_ref_id
-                     AND dr.external_database_release_id in (24,163,2680)
-                     AND (dr.primary_identifier IN('PF03011')
-                          OR dr.secondary_identifier IN('PF03011')
-                          OR lower(dr.primary_identifier) like lower(REPLACE('N/A', '*', '%'))
-                          OR lower(dr.secondary_identifier) like lower(REPLACE('N/A', '*', '%'))
-                          OR lower(dr.primary_identifier || ' : ' || dr.secondary_identifier)
-                          like lower(REPLACE('N/A', '*', '%'))
-                          OR lower(dr.remark) like lower(REPLACE('N/A', '*', '%')))
-                     AND ga.taxon_id IN (2320986,2320988,1551685,2321006,2320989,1551696,2321007,
-                                         1553638,1553633,1551592,1551586,2320993,1551497,2320996,
-                                         2320997,2320994,1551532,2320995,2320998,2320992,2321003,
-                                         2321000,2321002,2321001,2320999,2321020,2320991,2320990,
-                                         2321019,1553651,2321025,1553660,2321024,2321023,2321021,
-                                         2320987,2321004,2321005,2321018,2321014,2321016,2321015,
-                                         2321012,2321011,2321013,2321010,2321022,1553646,2321017,
-                                         2321008,1551691,2321009,2320964,1547847,2320962,1547852,
-                                         2320960,2320961,2320953,1547439,1547447,1547466,1547419,
-                                         2321089,1554984,2321086,2321087,2321083,2321080,1554981,
-                                         2321088,1554990,2321090,2321081,2320975,2320974,2320968,
-                                         2320971,2320970,2320969,2320967,2320972,2320973,1555386,
-                                         2320982,2320980,2320981,1556022,2321141,2320978,2320979,
-                                         1555669,1555666,1555652,1555664,1555667,1555655,1555659,
-                                         1555686,1555676,1555648,1555687,1555660,1555691,1555645,
-                                         1555633,2321079,1553628,1551490,1551489,1553658,1551664,
-                                         1551698,1553640,1552127,1551687,1547809,1547403,1554983,
-                                         1554989,1555490,1555051,1556009,1555698,1555626,1553779)
-                   GROUP BY ga.source_id,ga.gene_source_id,ga.project_id
-            ) o
-    ) f
-#+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
-| QUERY_GenesByInterproDomain | Elapsed: 00:00:21.16 | 1015065  consistent gets |
-
-*** Param Queries
-#+NAME: QUERY_DomainDatabase
-#+begin_src sql
-  SELECT 7 AS wdk_instance_id,
-         rownum AS wdk_row_id,
-         f.*
-    FROM (SELECT o.*
-            FROM (select database as term,
-                         listagg(external_database_release_id, ',') within group (order by external_database_release_id) as internal
-                    from (SELECT distinct upper(CASE WHEN (upper(ed.name)like 'INTERPRO%') 
-                                                     THEN 'INTERPRO'  ELSE ed.name END ) AS database,
-                                          edr.external_database_release_id
-                            FROM sres.DbRef dr, 
-                                 sres.ExternalDatabaseRelease edr,
-                                 sres.ExternalDatabase ed
-                           WHERE dr.external_database_release_id = edr.external_database_release_id
-                             AND edr.external_database_id = ed.external_database_id
-                             AND dr.db_ref_id IN (select draf.db_ref_id
-                                                    from dots.dbrefaafeature draf
-                                                         , dots.domainfeature df
-                                                         , sres.externaldatabase d
-                                                         , sres.externaldatabaserelease r
-                                                   where draf.aa_feature_id = df.aa_feature_id
-                                                     and df.external_database_release_id = r.external_database_release_id
-                                                     and r.external_database_id = d.external_database_id
-                                                     and d.name IN('InterproscanData_RSRC', 'INTERPRO',
-                                                                   'Prints', 'HAMAP', 'SFLD', 'TIGRFAM',
-                                                                   'SUPERFAMILY', 'Pfam', 'PIRSF',
-                                                                   'PROSITE patterns', 'Superfamily', 'PRINTS',
-                                                                   'InterProScan', 'PFAM', 'SMART', 'CDD', 'PANTHER')
-                             )
-                    )
-                   group by database
-                   order by term
-            ) o
-    ) f
-#+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
-| QUERY_DomainDatabase | Elapsed: 00:01:06.40 | 28027001  consistent gets |
-
-
-#+NAME: QUERY_DomainAccession
-#+begin_src sql
-  SELECT 8 AS wdk_instance_id,
-         rownum AS wdk_row_id,
-         f.*
-    FROM (SELECT o.*
-            FROM (select *
-                    from (SELECT dr.primary_identifier AS internal,
-                                 dr.primary_identifier || ' : ' || dr.secondary_identifier AS term,
-                                 dr.primary_identifier || ' : ' || dr.secondary_identifier || ' ' ||
-                                   dr.remark AS display,
-                                 count(*) as ct_hits
-                            from dots.domainfeature df, dots.dbrefaafeature draf,sres.dbref dr,
-                                 sres.ExternalDatabaseRelease edr, sres.ExternalDatabase ed
-                           where df.aa_feature_id = draf.aa_feature_id
-                             and dr.db_ref_id = draf.db_ref_id
-                             and dr.external_database_release_id = edr.external_database_release_id
-                             AND edr.external_database_id = ed.external_database_id
-                             AND edr.external_database_release_id IN (24,163,2680)
-                             AND dr.primary_identifier IS NOT NULL
-                           group by dr.primary_identifier,dr.secondary_identifier,dr.remark
-                           UNION
-                          SELECT 'N/A', 'N/A', 'N/A', 0.5 FROM dual)
-                   order by ct_hits desc
-            ) o
-    ) f
-#+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
-| QUERY_DomainAccession | Elapsed: 00:00:30.42 | 4599061  consistent gets |
-
-*** TODO Gene Record Table
-*** TODO PBrowse
-
-** New Queries
-*** Tuning Table [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml][apiTuningnManager.xml]]
-*** Gene ID Search
-#+NAME: QUERY_NEW_GenesByInterproDomain
-#+begin_src sql
-  SELECT 11 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.* , 10 AS wdk_weight FROM (SELECT ir.transcript_source_id as source_id, ir.gene_source_id, 'Y' as matched_result, ir.project_id,
-                     to_char(avg(trunc(ir.interpro_e_value,100)),'9.999EEEE') as e_value,
-                     max(ir.interpro_e_value) as sorting_value 
-              FROM ApiDBTuning.InterproResults ir
-              WHERE ir.interpro_db_name = 'PFAM'
-                AND (ir.interpro_primary_id IN('PF03011')
-                     OR ir.interpro_secondary_id IN('PF03011')
-                     OR lower(ir.interpro_primary_id) like lower(REPLACE('N/A', '*', '%'))
-                     OR lower(ir.interpro_secondary_id) like lower(REPLACE('N/A', '*', '%'))
-                     OR lower(ir.interpro_primary_id || ' : ' || ir.interpro_secondary_id)
-                        like lower(REPLACE('N/A', '*', '%'))
-                     OR lower(ir.interpro_desc) like lower(REPLACE('N/A', '*', '%')))
-                AND ir.organism IN ('Hepatocystis sp. ex Piliocolobus tephrosceles 2019','Plasmodium adleri G01','Plasmodium berghei ANKA',
-  'Plasmodium billcollinsi G01','Plasmodium blacklocki G01','Plasmodium chabaudi chabaudi','Plasmodium coatneyi Hackeri',
-  'Plasmodium cynomolgi strain B','Plasmodium cynomolgi strain M','Plasmodium falciparum 3D7','Plasmodium falciparum 7G8',
-  'Plasmodium falciparum CD01','Plasmodium falciparum Dd2','Plasmodium falciparum GA01','Plasmodium falciparum GB4',
-  'Plasmodium falciparum GN01','Plasmodium falciparum HB3','Plasmodium falciparum IT','Plasmodium falciparum KE01','Plasmodium falciparum KH01',
-  'Plasmodium falciparum KH02','Plasmodium falciparum ML01','Plasmodium falciparum SD01','Plasmodium falciparum SN01',
-  'Plasmodium falciparum TG01','Plasmodium fragile strain nilgiri','Plasmodium gaboni strain G01','Plasmodium gaboni strain SY75','Plasmodium gallinaceum 8A',
-  'Plasmodium inui San Antonio 1','Plasmodium knowlesi strain A1H1','Plasmodium knowlesi strain H','Plasmodium knowlesi strain Malayan Strain Pk1 A',
-  'Plasmodium malariae UG01','Plasmodium ovale curtisi GH01','Plasmodium praefalciparum strain G01','Plasmodium reichenowi CDC','Plasmodium reichenowi G01','Plasmodium relictum SGS1-like',
-  'Plasmodium vinckei Cameroon EL','Plasmodium vinckei brucechwatti DA','Plasmodium vinckei lentum DE','Plasmodium vinckei petteri CR 2020',
-  'Plasmodium vinckei petteri strain CR','Plasmodium vinckei vinckei CY','Plasmodium vinckei vinckei strain vinckei','Plasmodium vivax P01',
-  'Plasmodium vivax Sal-1','Plasmodium vivax-like Pvl01','Plasmodium yoelii yoelii 17X','Plasmodium yoelii yoelii 17XNL','Plasmodium yoelii yoelii YM',
-  'Babesia bigemina strain BOND','Babesia bovis T2Bo','Babesia divergens strain 1802A','Babesia microti strain RI','Babesia ovata strain Miyake',
-  'Babesia sp. Xinjiang Xinjiang','Cytauxzoon felis strain Winnie','Theileria annulata strain Ankara','Theileria equi strain WA',
-  'Theileria orientalis strain Shintoku','Theileria parva strain Muguga','Cryptosporidium andersoni isolate 30847','Cryptosporidium hominis TU502',
-  'Cryptosporidium hominis UdeA01','Cryptosporidium hominis isolate 30976','Cryptosporidium hominis isolate TU502_2012','Cryptosporidium meleagridis strain UKMEL1',
-  'Cryptosporidium muris RN66','Cryptosporidium parvum IOWA-ATCC','Cryptosporidium parvum Iowa II','Cryptosporidium tyzzeri isolate UGA55',
-  'Cryptosporidium ubiquitum isolate 39726','Cyclospora cayetanensis isolate NF1_C8','Cyclospora cayetanensis strain CHN_HEN01',
-  'Eimeria acervulina Houghton','Eimeria brunetti Houghton','Eimeria falciformis Bayer Haberkorn 1970','Eimeria maxima Weybridge','Eimeria mitis Houghton',
-  'Eimeria necatrix Houghton','Eimeria praecox Houghton','Eimeria tenella strain Houghton','Besnoitia besnoiti strain Bb-Ger1','Cystoisospora suis strain Wien I',
-  'Hammondia hammondi strain H.H.34','Neospora caninum Liverpool','Neospora caninum Liverpool 2019','Sarcocystis neurona SN3','Sarcocystis neurona SO SN1',
-  'Toxoplasma gondii ARI','Toxoplasma gondii CAST','Toxoplasma gondii COUG','Toxoplasma gondii FOU','Toxoplasma gondii GAB2-2007-GAL-DOM2','Toxoplasma gondii GT1','Toxoplasma gondii MAS',
-  'Toxoplasma gondii ME49','Toxoplasma gondii RH-88','Toxoplasma gondii RUB','Toxoplasma gondii TgCATBr9','Toxoplasma gondii TgCatPRC2','Toxoplasma gondii VAND','Toxoplasma gondii VEG',
-  'Toxoplasma gondii p89','Gregarina niphandrodes Unknown strain','Plasmodium cynomolgi','Plasmodium falciparum','Plasmodium gaboni','Plasmodium knowlesi','Plasmodium reichenowi',
-  'Plasmodium vinckei','Plasmodium vivax','Plasmodium vivax-like sp.','Plasmodium yoelii','Babesiidae','Theileria','Cryptosporidium hominis','Cryptosporidium parvum',
-  'Cyclospora','Eimeria','Neospora','Sarcocystis','Toxoplasma','Eugregarinorida')
-                GROUP BY ir.transcript_source_id,ir.gene_source_id,ir.project_id
-  ) o) f
-#+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
-| QUERY_NEW_GenesByInterproDomain | Elapsed: 00:00:00.57 | 10056  consistent gets |
-
-*** Param Queries
-#+NAME: QUERY_NEW_DomainDatabase
-#+begin_src sql
-SELECT 4 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (select distinct interpro_db_name as internal
-                            , case when upper(interpro_db_name) like 'INTERPRO%'
-                                   THEN 'INTERPRO'  ELSE interpro_db_name END  AS term
-               from apidbtuning.interprodomaindatabase
-              order by term
-) o) f
-#+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
-| QUERY_NEW_DomainDatabase | Elapsed: 00:00:00.01 |   | 19  consistent gets |
-
-
-#+NAME: QUERY_NEW_DomainAccession
-#+begin_src sql
-SELECT 8 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (select interpro_primary_id as internal
-                   , interpro_primary_id || ' : ' || interpro_secondary_id AS term
-                   , interpro_primary_id || ' : ' || interpro_secondary_id || ' ' ||
-                     interpro_desc as display
-                   , count(*) as ct_hits
-              from APIDBTUNING.INTERPRODOMAINACCESSION1394
-              where interpro_db_name = 'PFAM'
-              group by interpro_primary_id, interpro_secondary_id, interpro_desc
-) o) f
-#+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
-
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
-| QUERY_NEW_DomainAccession | Elapsed: 00:00:00.26 | 1189  consistent gets |
 
 
 *** Gene Record Table
@@ -497,8 +277,241 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
 | QUERY_NEW_PBrowse | Elapsed: 00:00:00.01 | 15  consistent gets |
 
 
+** Search 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+#+CAPTION: Search Query Summary
+| NAME                            | Time                 | Gets                     | Gets improvement |
+|---------------------------------+----------------------+--------------------------+------------------|
+| QUERY_GenesByInterproDomain     | Elapsed: 00:00:21.16 | 1015065  consistent gets |                  |
+| QUERY_NEW_GenesByInterproDomain | Elapsed: 00:00:00.57 | 10056  consistent gets   |             100x |
+
+*** Original Gene ID Search: [[https://plasmodb.org/plasmo/app/search/transcript/GenesByInterproDomain][GenesByInterproDomain]]  
+#+NAME: QUERY_GenesByInterproDomain
+#+begin_src sql
+  SELECT 22 AS wdk_instance_id
+         , rownum AS wdk_row_id
+         ,  f.*
+    FROM (SELECT o.* , 10 AS wdk_weight
+            FROM (SELECT ga.source_id, ga.gene_source_id
+                                     , 'Y' as matched_result
+                                     , ga.project_id,
+                                     to_char(avg(trunc(df.e_value,100)),'9.999EEEE') as e_value,
+                                     max(df.e_value) as sorting_value 
+                    FROM dots.DomainFeature df, ApidbTuning.TranscriptAttributes ga,
+                                     dots.DbRefAaFeature draf, sres.DbRef dr
+                   WHERE ga.aa_sequence_id = df.aa_sequence_id
+                     AND df.aa_feature_id = draf.aa_feature_id
+                     AND draf.db_ref_id = dr.db_ref_id
+                     AND dr.external_database_release_id in (24,163,2680)
+                     AND (dr.primary_identifier IN('PF03011')
+                          OR dr.secondary_identifier IN('PF03011')
+                          OR lower(dr.primary_identifier) like lower(REPLACE('N/A', '*', '%'))
+                          OR lower(dr.secondary_identifier) like lower(REPLACE('N/A', '*', '%'))
+                          OR lower(dr.primary_identifier || ' : ' || dr.secondary_identifier)
+                          like lower(REPLACE('N/A', '*', '%'))
+                          OR lower(dr.remark) like lower(REPLACE('N/A', '*', '%')))
+                     AND ga.taxon_id IN (2320986,2320988,1551685,2321006,2320989,1551696,2321007,
+                                         1553638,1553633,1551592,1551586,2320993,1551497,2320996,
+                                         2320997,2320994,1551532,2320995,2320998,2320992,2321003,
+                                         2321000,2321002,2321001,2320999,2321020,2320991,2320990,
+                                         2321019,1553651,2321025,1553660,2321024,2321023,2321021,
+                                         2320987,2321004,2321005,2321018,2321014,2321016,2321015,
+                                         2321012,2321011,2321013,2321010,2321022,1553646,2321017,
+                                         2321008,1551691,2321009,2320964,1547847,2320962,1547852,
+                                         2320960,2320961,2320953,1547439,1547447,1547466,1547419,
+                                         2321089,1554984,2321086,2321087,2321083,2321080,1554981,
+                                         2321088,1554990,2321090,2321081,2320975,2320974,2320968,
+                                         2320971,2320970,2320969,2320967,2320972,2320973,1555386,
+                                         2320982,2320980,2320981,1556022,2321141,2320978,2320979,
+                                         1555669,1555666,1555652,1555664,1555667,1555655,1555659,
+                                         1555686,1555676,1555648,1555687,1555660,1555691,1555645,
+                                         1555633,2321079,1553628,1551490,1551489,1553658,1551664,
+                                         1551698,1553640,1552127,1551687,1547809,1547403,1554983,
+                                         1554989,1555490,1555051,1556009,1555698,1555626,1553779)
+                   GROUP BY ga.source_id,ga.gene_source_id,ga.project_id
+            ) o
+    ) f
+#+end_src
+#+CALL: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
+#+RESULTS: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
+| QUERY_GenesByInterproDomain | Elapsed: 00:00:21.16 | 1015065  consistent gets |
+
+*** New Gene ID Search
+#+NAME: QUERY_NEW_GenesByInterproDomain
+#+begin_src sql
+  SELECT 11 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.* , 10 AS wdk_weight FROM (SELECT ir.transcript_source_id as source_id, ir.gene_source_id, 'Y' as matched_result, ir.project_id,
+                     to_char(avg(trunc(ir.interpro_e_value,100)),'9.999EEEE') as e_value,
+                     max(ir.interpro_e_value) as sorting_value 
+              FROM ApiDBTuning.InterproResults ir
+              WHERE ir.interpro_db_name = 'PFAM'
+                AND (ir.interpro_primary_id IN('PF03011')
+                     OR ir.interpro_secondary_id IN('PF03011')
+                     OR lower(ir.interpro_primary_id) like lower(REPLACE('N/A', '*', '%'))
+                     OR lower(ir.interpro_secondary_id) like lower(REPLACE('N/A', '*', '%'))
+                     OR lower(ir.interpro_primary_id || ' : ' || ir.interpro_secondary_id)
+                        like lower(REPLACE('N/A', '*', '%'))
+                     OR lower(ir.interpro_desc) like lower(REPLACE('N/A', '*', '%')))
+                AND ir.organism IN ('Hepatocystis sp. ex Piliocolobus tephrosceles 2019','Plasmodium adleri G01','Plasmodium berghei ANKA',
+  'Plasmodium billcollinsi G01','Plasmodium blacklocki G01','Plasmodium chabaudi chabaudi','Plasmodium coatneyi Hackeri',
+  'Plasmodium cynomolgi strain B','Plasmodium cynomolgi strain M','Plasmodium falciparum 3D7','Plasmodium falciparum 7G8',
+  'Plasmodium falciparum CD01','Plasmodium falciparum Dd2','Plasmodium falciparum GA01','Plasmodium falciparum GB4',
+  'Plasmodium falciparum GN01','Plasmodium falciparum HB3','Plasmodium falciparum IT','Plasmodium falciparum KE01','Plasmodium falciparum KH01',
+  'Plasmodium falciparum KH02','Plasmodium falciparum ML01','Plasmodium falciparum SD01','Plasmodium falciparum SN01',
+  'Plasmodium falciparum TG01','Plasmodium fragile strain nilgiri','Plasmodium gaboni strain G01','Plasmodium gaboni strain SY75','Plasmodium gallinaceum 8A',
+  'Plasmodium inui San Antonio 1','Plasmodium knowlesi strain A1H1','Plasmodium knowlesi strain H','Plasmodium knowlesi strain Malayan Strain Pk1 A',
+  'Plasmodium malariae UG01','Plasmodium ovale curtisi GH01','Plasmodium praefalciparum strain G01','Plasmodium reichenowi CDC','Plasmodium reichenowi G01','Plasmodium relictum SGS1-like',
+  'Plasmodium vinckei Cameroon EL','Plasmodium vinckei brucechwatti DA','Plasmodium vinckei lentum DE','Plasmodium vinckei petteri CR 2020',
+  'Plasmodium vinckei petteri strain CR','Plasmodium vinckei vinckei CY','Plasmodium vinckei vinckei strain vinckei','Plasmodium vivax P01',
+  'Plasmodium vivax Sal-1','Plasmodium vivax-like Pvl01','Plasmodium yoelii yoelii 17X','Plasmodium yoelii yoelii 17XNL','Plasmodium yoelii yoelii YM',
+  'Babesia bigemina strain BOND','Babesia bovis T2Bo','Babesia divergens strain 1802A','Babesia microti strain RI','Babesia ovata strain Miyake',
+  'Babesia sp. Xinjiang Xinjiang','Cytauxzoon felis strain Winnie','Theileria annulata strain Ankara','Theileria equi strain WA',
+  'Theileria orientalis strain Shintoku','Theileria parva strain Muguga','Cryptosporidium andersoni isolate 30847','Cryptosporidium hominis TU502',
+  'Cryptosporidium hominis UdeA01','Cryptosporidium hominis isolate 30976','Cryptosporidium hominis isolate TU502_2012','Cryptosporidium meleagridis strain UKMEL1',
+  'Cryptosporidium muris RN66','Cryptosporidium parvum IOWA-ATCC','Cryptosporidium parvum Iowa II','Cryptosporidium tyzzeri isolate UGA55',
+  'Cryptosporidium ubiquitum isolate 39726','Cyclospora cayetanensis isolate NF1_C8','Cyclospora cayetanensis strain CHN_HEN01',
+  'Eimeria acervulina Houghton','Eimeria brunetti Houghton','Eimeria falciformis Bayer Haberkorn 1970','Eimeria maxima Weybridge','Eimeria mitis Houghton',
+  'Eimeria necatrix Houghton','Eimeria praecox Houghton','Eimeria tenella strain Houghton','Besnoitia besnoiti strain Bb-Ger1','Cystoisospora suis strain Wien I',
+  'Hammondia hammondi strain H.H.34','Neospora caninum Liverpool','Neospora caninum Liverpool 2019','Sarcocystis neurona SN3','Sarcocystis neurona SO SN1',
+  'Toxoplasma gondii ARI','Toxoplasma gondii CAST','Toxoplasma gondii COUG','Toxoplasma gondii FOU','Toxoplasma gondii GAB2-2007-GAL-DOM2','Toxoplasma gondii GT1','Toxoplasma gondii MAS',
+  'Toxoplasma gondii ME49','Toxoplasma gondii RH-88','Toxoplasma gondii RUB','Toxoplasma gondii TgCATBr9','Toxoplasma gondii TgCatPRC2','Toxoplasma gondii VAND','Toxoplasma gondii VEG',
+  'Toxoplasma gondii p89','Gregarina niphandrodes Unknown strain','Plasmodium cynomolgi','Plasmodium falciparum','Plasmodium gaboni','Plasmodium knowlesi','Plasmodium reichenowi',
+  'Plasmodium vinckei','Plasmodium vivax','Plasmodium vivax-like sp.','Plasmodium yoelii','Babesiidae','Theileria','Cryptosporidium hominis','Cryptosporidium parvum',
+  'Cyclospora','Eimeria','Neospora','Sarcocystis','Toxoplasma','Eugregarinorida')
+                GROUP BY ir.transcript_source_id,ir.gene_source_id,ir.project_id
+  ) o) f
+#+end_src
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
+#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
+| QUERY_NEW_GenesByInterproDomain | Elapsed: 00:00:00.57 | 10056  consistent gets |
+
+
+** Domain Database Param
+
+
+#+CAPTION: Domain Database Param Query Summary
+| NAME                                | Time                 | Gets                      | Gets improvement |
+|-------------------------------------+----------------------+---------------------------+------------------|
+| QUERY_DomainDatabase                | Elapsed: 00:01:06.40 | 28027001  consistent gets |                  |
+| QUERY_NEW_DomainDatabase_PRE_TABLE  | Elapsed: 00:00:02.67 | 334333  consistent gets   | 80x              |
+| QUERY_NEW_DomainDatabase_WITH_TABLE | Elapsed: 00:00:00.01 | 19  consistent gets       | 1,475,105x       |
+
+*** Original Domain Database
+#+NAME: QUERY_DomainDatabase
+#+begin_src sql
+  SELECT 7 AS wdk_instance_id,
+         rownum AS wdk_row_id,
+         f.*
+    FROM (SELECT o.*
+            FROM (select database as term,
+                         listagg(external_database_release_id, ',') within group (order by external_database_release_id) as internal
+                    from (SELECT distinct upper(CASE WHEN (upper(ed.name)like 'INTERPRO%') 
+                                                     THEN 'INTERPRO'  ELSE ed.name END ) AS database,
+                                          edr.external_database_release_id
+                            FROM sres.DbRef dr, 
+                                 sres.ExternalDatabaseRelease edr,
+                                 sres.ExternalDatabase ed
+                           WHERE dr.external_database_release_id = edr.external_database_release_id
+                             AND edr.external_database_id = ed.external_database_id
+                             AND dr.db_ref_id IN (select draf.db_ref_id
+                                                    from dots.dbrefaafeature draf
+                                                         , dots.domainfeature df
+                                                         , sres.externaldatabase d
+                                                         , sres.externaldatabaserelease r
+                                                   where draf.aa_feature_id = df.aa_feature_id
+                                                     and df.external_database_release_id = r.external_database_release_id
+                                                     and r.external_database_id = d.external_database_id
+                                                     and d.name IN('InterproscanData_RSRC', 'INTERPRO',
+                                                                   'Prints', 'HAMAP', 'SFLD', 'TIGRFAM',
+                                                                   'SUPERFAMILY', 'Pfam', 'PIRSF',
+                                                                   'PROSITE patterns', 'Superfamily', 'PRINTS',
+                                                                   'InterProScan', 'PFAM', 'SMART', 'CDD', 'PANTHER')
+                             )
+                    )
+                   group by database
+                   order by term
+            ) o
+    ) f
+#+end_src
+#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
+#+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
+| QUERY_DomainDatabase | Elapsed: 00:01:06.40 | 28027001  consistent gets |
+
+*** New Domain Database
+#+NAME: QUERY_NEW_DomainDatabase
+#+begin_src sql
+SELECT 4 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (select distinct interpro_db_name as internal
+                            , case when upper(interpro_db_name) like 'INTERPRO%'
+                                   THEN 'INTERPRO'  ELSE interpro_db_name END  AS term
+               from apidbtuning.interprodomaindatabase
+              order by term
+) o) f
+#+end_src
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
+#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
+| QUERY_NEW_DomainDatabase | Elapsed: 00:00:00.01 |   | 19  consistent gets |
+
+
+** Domain Accession Param
+
+#+CAPTION: Domain Accession Param Query Summary
+| NAME                                 | Time                 | Gets                     | Gets improvement |
+|--------------------------------------+----------------------+--------------------------+------------------|
+| QUERY_DomainAccession                | Elapsed: 00:00:30.42 | 4599061  consistent gets |                  |
+| QUERY NEW_DomainAccession_PRE_INDEX  | Elapsed: 00:00:01.26 | 667528  consistent gets  |               7x |
+| QUERY_NEW_DomainAccession_WITH_INDEX | Elapsed: 00:00:01.57 | 38578  consistent gets   |             120x |
+| QUERY_NEW_DomainAccession_WITH_TABLE | Elapsed: 00:00:00.26 | 1189  consistent gets    |            3800x |
+
+
+*** Original Domain Accession
+#+NAME: QUERY_DomainAccession
+#+begin_src sql
+  SELECT 8 AS wdk_instance_id,
+         rownum AS wdk_row_id,
+         f.*
+    FROM (SELECT o.*
+            FROM (select *
+                    from (SELECT dr.primary_identifier AS internal,
+                                 dr.primary_identifier || ' : ' || dr.secondary_identifier AS term,
+                                 dr.primary_identifier || ' : ' || dr.secondary_identifier || ' ' ||
+                                   dr.remark AS display,
+                                 count(*) as ct_hits
+                            from dots.domainfeature df, dots.dbrefaafeature draf,sres.dbref dr,
+                                 sres.ExternalDatabaseRelease edr, sres.ExternalDatabase ed
+                           where df.aa_feature_id = draf.aa_feature_id
+                             and dr.db_ref_id = draf.db_ref_id
+                             and dr.external_database_release_id = edr.external_database_release_id
+                             AND edr.external_database_id = ed.external_database_id
+                             AND edr.external_database_release_id IN (24,163,2680)
+                             AND dr.primary_identifier IS NOT NULL
+                           group by dr.primary_identifier,dr.secondary_identifier,dr.remark
+                           UNION
+                          SELECT 'N/A', 'N/A', 'N/A', 0.5 FROM dual)
+                   order by ct_hits desc
+            ) o
+    ) f
+#+end_src
+#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
+#+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
+| QUERY_DomainAccession | Elapsed: 00:00:30.42 | 4599061  consistent gets |
+
+*** New Domain Accession
+#+NAME: QUERY_NEW_DomainAccession
+#+begin_src sql
+SELECT 8 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (select interpro_primary_id as internal
+                   , interpro_primary_id || ' : ' || interpro_secondary_id AS term
+                   , interpro_primary_id || ' : ' || interpro_secondary_id || ' ' ||
+                     interpro_desc as display
+                   , count(*) as ct_hits
+              from APIDBTUNING.INTERPRODOMAINACCESSION
+              where interpro_db_name = 'PFAM'
+              group by interpro_primary_id, interpro_secondary_id, interpro_desc
+) o) f
+#+end_src
+#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
+
+#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
+| QUERY_NEW_DomainAccession | Elapsed: 00:00:00.26 | 1189  consistent gets |
+
 
 * Appendix
 ** JBrowse 
