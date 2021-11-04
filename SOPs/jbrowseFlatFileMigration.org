@@ -121,3 +121,53 @@
   JBrowse Application will read from file based Store (GFF or BW).  We will need to filter features by dataset name when appropriate. See GenericEndFeature above.
 
   We'll need to use filters to only show track data for one dataset.  May need a new 
+** Popups
+- Example POST to get wdk Table for a gene
+  #+begin_example
+  curl -X POST -d '{primaryKey: [{name: "source_id", value: "PF3D7_1133400"}, {name: "project_id", value: "PlasmoDB"}], attributes: [], tables: ["GOTerms"]}' -H 'Content-Type: application/json'  https://w2.plasmodb.org/plasmo/service/record-types/gene/records
+  #+end_example
+- Example Track
+  #+begin_example
+  [tracks.testGene]
+  urlTemplate=PlasmoDB-54_Pfalciparum3D7_sorted.gff.gz
+  storeClass=JBrowse/Store/SeqFeature/GFF3Tabix
+  type=CanvasFeatures
+  category=Gene Models
+  key=Annotated Transcripts (UTRs in White when available) TEST
+  type=NeatCanvasFeatures/View/Track/NeatFeatures
+  glyph=JBrowse/View/FeatureGlyph/Gene
+  unsafePopup=true
+  onClick.content={geneTestDetails}
+  menuTemplate+=json:{"label": "View Details", "content": "{geneTestDetails}"}
+  #+end_example
+- Example function to create popup from POST
+ #+begin_src js
+    geneTestDetails = function(track, feature, featureDiv, coreDetails) {
+       var c = track.browser.config;
+       container = dojo.create('div', {
+           className: 'detail feature-detail feature-detail-' + track.name.replace(/\s+/g, '_').toLowerCase(),
+                innerHTML: ''
+              });
+       var coreDetails = dojo.create('div', {
+                className: 'core'
+              }, container);
+       var hitchCore = dojo.hitch(track, 'renderDetailField', coreDetails);
+       coreDetails.innerHTML += '<h2 class="sectiontitle">Gene Details</h2>';
+       var gene = feature.data.id;
+       hitchCore( 'Gene', gene, feature );
+       var endDetails = dojo.create('div', {
+                 className: 'end'
+              }, container);
+       var hitchEnd = dojo.hitch(track, 'renderDetailField', endDetails);
+       var goRows = new Array();
+       // how to get project_id here??
+       var data = {primaryKey: [{name: "source_id", value: gene}, {name: "project_id", value: "PlasmoDB"}], attributes: [], tables: ["GOTerms"]};
+       c.fetchWithPost("/a/service/record-types/gene/records", data)
+         .then(obj => {
+                    obj.tables.GOTerms.map(x => goRows.push(c.twoColRow(x.go_id, x.ontology)));
+                    hitchEnd('GOTerms', c.goTermTable(goRows), feature);
+                 });
+       return container;
+       }          
+  #+end_src
+

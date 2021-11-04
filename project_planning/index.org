@@ -10,7 +10,7 @@
 *** GPIAnchor and MitoProt
 *** Intron Junctions
 *** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                         :Mark:Kathryn:JohnB:
-*** [[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]                                  :JohnI:JohnB:
+*** [[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]                                         :JohnI:JohnB:
 ** [[orgdocs:/project_planning/unidb.html][UniDB]]                                                             :JohnB:
 ** [[orgdocs:/project_planning/appDb.html][Performance and App Specific Databases]]                            :JohnB:MarkH:JohnI:
 ** WDK Model
@@ -40,6 +40,7 @@
 ** [[orgdocs:/project_planning/apollo.html][Apollo]]
 ** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                               :Danielle:
 ** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                     :BobM:
+
 ** OrthoMCL
 *** Subtraction Analysis                                            :MarkH:
 

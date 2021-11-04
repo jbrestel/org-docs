@@ -17,7 +17,15 @@
 
 
 A summary of the details below can be found in [[https://docs.google.com/spreadsheets/d/1JF7MZ8cXjua9h0mMRNb3TkfuXjczI0Pl64yXqOJDXOo/edit#gid=358028577][Google Docs]]
-  
+
+When tuning queries, we will follow the SOP defined in the [[https://docs.google.com/document/d/1wozpZ2Fs-hSXRgZPcCV_RM4tzk4GEceRlAoVcwSLlDg/edit#heading=h.93xunpgpuq8v][Query Tuning Protocol]] Document.  In the model-config.xml for your website, make sure to set the "slow" value of the queryMonitor Configuration so that queries you are working on will be printed to the slow query log.  (path to slow query log can be  found by running cattail on your dev site).
+#+begin_src xml
+  <queryMonitor
+             baseline="0.1"
+             slow="0.01"
+             />
+#+end_src
+
 ** WDK Searches
 *** REST Search Result  / ID Query :JohnB:JohnI:MarkH:
 - GOAL :: as good as portal/or plasmo and < 1.5 seconds
@@ -39,6 +47,12 @@ A summary of the details below can be found in [[https://docs.google.com/spreads
 
 - COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
   
+*** Search Page Load (Parameters) :JohnB:JohnI:MarkH:
+- GOAL :: Vocab queries are cached;  All params on a search page should load < 5 seconds on initial run.
+
+- SOLUTION :: Same as ID Searches above.  Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
+
+- COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
 *** Results Page Completion :Steve:Cristina:
 - GOAL :: as good as portal/or plasmo and < 1.5 seconds
 - SOLUTION :: There are [[https://docs.google.com/spreadsheets/d/1JF7MZ8cXjua9h0mMRNb3TkfuXjczI0Pl64yXqOJDXOo/edit#gid=2056082386][several queries]] which are run to make search results.  gene results are made worse because we insert transcripts which don't match the result.  Some possible solutions here are:
@@ -72,13 +86,6 @@ A summary of the details below can be found in [[https://docs.google.com/spreads
 
 - NOTE :: For the Download Page Form ... The large number of columns is an issue here too.  10K columns most from trasncriptomics datasets.  Same solution as above can be applied here.  Trim by organisms in result set
 
-*** Search Page Load (Parameters) :JohnB:JohnI:MarkH:
-- GOAL :: Vocab queries are cached;  All params on a search page should load < 5 seconds on initial run.
-
-- SOLUTION :: Same as ID Searches above.  Use holistic approach to create new denormalized tables or add indexes to existing tables.  This will allow us to replace big queries which have many joins.  Each search will be evaluated and fixed as required.
-
-- COST :: few days per datatype (example interpro tuningtable,search,params,pbrowse,wdkTable took 3 days 1 fte)
-
 *** TODO Analysis Tools (example: GO Enrichment)
 ** WDK Records
 *** Individual Tables :JohnB:JohnI:MarkH:
@@ -100,7 +107,6 @@ A summary of the details below can be found in [[https://docs.google.com/spreads
 
 ** Genome and Protein Browsers :JohnI:JohnB:
 [[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]
-
 *** Initial Page Load :JohnB:JohnI:MarkH:
 
 - GOAL :: < 5 seconds
@@ -514,56 +520,6 @@ SELECT 8 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
 
 
 * Appendix
-** JBrowse 
-- Example POST to get wdk Table for a gene
-  #+begin_example
-  curl -X POST -d '{primaryKey: [{name: "source_id", value: "PF3D7_1133400"}, {name: "project_id", value: "PlasmoDB"}], attributes: [], tables: ["GOTerms"]}' -H 'Content-Type: application/json'  https://w2.plasmodb.org/plasmo/service/record-types/gene/records
-  #+end_example
-- Example Track
-  #+begin_example
-  [tracks.testGene]
-  urlTemplate=PlasmoDB-54_Pfalciparum3D7_sorted.gff.gz
-  storeClass=JBrowse/Store/SeqFeature/GFF3Tabix
-  type=CanvasFeatures
-  category=Gene Models
-  key=Annotated Transcripts (UTRs in White when available) TEST
-  type=NeatCanvasFeatures/View/Track/NeatFeatures
-  glyph=JBrowse/View/FeatureGlyph/Gene
-  unsafePopup=true
-  onClick.content={geneTestDetails}
-  menuTemplate+=json:{"label": "View Details", "content": "{geneTestDetails}"}
-  #+end_example
-- Example function to create popup from POST
- #+begin_src js
-    geneTestDetails = function(track, feature, featureDiv, coreDetails) {
-       var c = track.browser.config;
-       container = dojo.create('div', {
-           className: 'detail feature-detail feature-detail-' + track.name.replace(/\s+/g, '_').toLowerCase(),
-                innerHTML: ''
-              });
-       var coreDetails = dojo.create('div', {
-                className: 'core'
-              }, container);
-       var hitchCore = dojo.hitch(track, 'renderDetailField', coreDetails);
-       coreDetails.innerHTML += '<h2 class="sectiontitle">Gene Details</h2>';
-       var gene = feature.data.id;
-       hitchCore( 'Gene', gene, feature );
-       var endDetails = dojo.create('div', {
-                 className: 'end'
-              }, container);
-       var hitchEnd = dojo.hitch(track, 'renderDetailField', endDetails);
-       var goRows = new Array();
-       // how to get project_id here??
-       var data = {primaryKey: [{name: "source_id", value: gene}, {name: "project_id", value: "PlasmoDB"}], attributes: [], tables: ["GOTerms"]};
-       c.fetchWithPost("/a/service/record-types/gene/records", data)
-         .then(obj => {
-                    obj.tables.GOTerms.map(x => goRows.push(c.twoColRow(x.go_id, x.ontology)));
-                    hitchEnd('GOTerms', c.goTermTable(goRows), feature);
-                 });
-       return container;
-       }          
-  #+end_src
-
 
 ** Table Usage
 *** ApiDBTuning
