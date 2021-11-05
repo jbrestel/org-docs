@@ -7,41 +7,47 @@
 * Projects
 ** [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
 *** ESTs :Jay:
-*** GPIAnchor and MitoProt
-*** Intron Junctions
+*** GPIAnchor and MitoProt :JohnB:
+*** Intron Junctions  :Brian:JohnI:
 *** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                         :Mark:Kathryn:JohnB:
 *** [[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]                                         :JohnI:JohnB:
-** [[orgdocs:/project_planning/unidb.html][UniDB]]                                                             :JohnB:
-** [[orgdocs:/project_planning/appDb.html][Performance and App Specific Databases]]                            :JohnB:MarkH:JohnI:
+** Genomics Website
+*** [[orgdocs:/project_planning/unidb.html][UniDB]]                                                           :JohnB:
+*** [[orgdocs:/project_planning/appDb.html][Performance and App Specific Databases]]              :JohnB:MarkH:JohnI:
+*** [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]]                                :Ann:
+**** Gene Lists as User Datasets                                    :Omar:
+
+*** [[orgdocs:/project_planning/apollo.html][Apollo]] :Paul:
 ** WDK Model
 *** [[file:dataset.org][Dataset Record]]                                                    :Ann:
 *** Organism Preferences                                      :JohnB:MarkH:
 - [X] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
 - [ ] Internal pages for ChipChip and Y2H
 *** Results Page SVG Graphs                                      :Danielle:
-** [[orgdocs:/project_planning/eda.html][EDA DataLoad]]
-** [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]]                                  :Ann:
-*** Gene Lists as User Datasets                                      :Omar:
+** EDA
+*** [[orgdocs:/project_planning/eda.html][EDA DataLoad]]  :Jay:JohnB:
+*** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu]]                                                           :BobM:
+
 ** [[orgdocs:/project_planning/selenium.html][Selenium Tests]]
 - [ ] test links on dataset page
 - [ ] rnaseq default organism rnaseq (make sure all keys are unique)
 - [ ] strand specific rnaseq
 - [ ] compound
 ** SOPs
-*** Schema Changes
+*** Schema Changes  :JohnB:
 - [ ] Alter Table
 - [ ] New Table
-*** Known Datatypes
+*** Known Datatypes :JohnB:
 - [ ] RNASeq
 - [ ] Microarray
 - [ ] Phenotype
 - [ ] Chip Chip
 - [ ] Chip Seq
-** [[orgdocs:/project_planning/apollo.html][Apollo]]
-** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                               :Danielle:
-** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu Redmine]]                                                     :BobM:
+
+** Dataviz
+*** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                             :Danielle:
 
 ** OrthoMCL
-*** Subtraction Analysis                                            :MarkH:
+*** Phylogenetic Pattern WS                                         :MarkH:
 
 
