@@ -185,29 +185,6 @@ The Goal is to Shorten the Loading time
 
 
 * Interpro Example
-#+name: sqlplus_input 
-#+BEGIN_SRC lisp :var blk="QUERY_NEW_GeneTable" :var sep="\n" :results file :file sql/org_sqlplus.sql :exports none
-    (concat "SET AUTOTRACE TRACEONLY;\n"
-            "SET TIMING ON;\n"
-            "WHENEVER SQLERROR EXIT SQL.SQLCODE;\n"
-            "prompt " blk ";\n"
-    (save-excursion
-      (replace-regexp-in-string "\"" ""
-       (mapconcat
-        (lambda (x)
-          (org-babel-goto-named-src-block x)
-          (format "%S" (cadr  (org-babel-get-src-block-info  t))))
-        (split-string blk "," t)
-        sep)
-       t t))
-     ";\n"
-      "exit\n"
-    )
-#+END_SRC
-#+name: sqlplus
-#+BEGIN_SRC sh :noweb yes :results table :var input=sqlplus_input()  :exports none
-sqlplus jbrestel/$DBI_PASS@uni054n @$input |grep 'QUERY\|Elapsed\|consistent' |perl -e 'while(<>){chomp; if(/consistent gets/) {print $_ . "\n"; }else {print $_ . "\t"} }'
-  #+END_SRC
 
 New Tuning Table "InterproResults" in  [[https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml][apiTuningnManager.xml]]
 
@@ -248,7 +225,6 @@ transcript_ids
 ) o
 
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GeneTable")) :exports none
 
 #+RESULTS: 
 | QUERY_NEW_GeneTable | Elapsed: 00:00:00.02 | 60  consistent gets |
@@ -277,9 +253,8 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
              and ir.interpro_start_min < 100000
              and ir.protein_source_id = pa.source_id
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_PBrowse")) :exports none
 
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_PBrowse"))
+#+RESULTS: 
 | QUERY_NEW_PBrowse | Elapsed: 00:00:00.01 | 15  consistent gets |
 
 
@@ -338,8 +313,8 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
             ) o
     ) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain")) :exports none
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_GenesByInterproDomain"))
+
+#+RESULTS: 
 | QUERY_GenesByInterproDomain | Elapsed: 00:00:21.16 | 1015065  consistent gets |
 
 *** New Gene ID Search
@@ -386,8 +361,8 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
                 GROUP BY ir.transcript_source_id,ir.gene_source_id,ir.project_id
   ) o) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain")) :exports none
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_GenesByInterproDomain"))
+
+#+RESULTS: 
 | QUERY_NEW_GenesByInterproDomain | Elapsed: 00:00:00.57 | 10056  consistent gets |
 
 
@@ -438,8 +413,8 @@ SELECT ir.interpro_primary_id || '_' || ir.interpro_start_min || '_' || ir.inter
             ) o
     ) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainDatabase")) :exports none
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainDatabase"))
+
+#+RESULTS: 
 | QUERY_DomainDatabase | Elapsed: 00:01:06.40 | 28027001  consistent gets |
 
 *** New Domain Database
@@ -452,8 +427,8 @@ SELECT 4 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
               order by term
 ) o) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase")) :exports none
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainDatabase"))
+
+#+RESULTS: 
 | QUERY_NEW_DomainDatabase | Elapsed: 00:00:00.01 |   | 19  consistent gets |
 
 
@@ -496,8 +471,8 @@ SELECT 4 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
             ) o
     ) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_DomainAccession")) :exports none
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_DomainAccession"))
+
+#+RESULTS: 
 | QUERY_DomainAccession | Elapsed: 00:00:30.42 | 4599061  consistent gets |
 
 *** New Domain Accession
@@ -513,9 +488,9 @@ SELECT 8 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
               group by interpro_primary_id, interpro_secondary_id, interpro_desc
 ) o) f
 #+end_src
-#+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession")) :exports none
 
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_DomainAccession"))
+
+#+RESULTS:
 | QUERY_NEW_DomainAccession | Elapsed: 00:00:00.26 | 1189  consistent gets |
 
 

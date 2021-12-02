@@ -11,7 +11,7 @@
 - microarray and RNASeq are ok
 - filter by expression or variance (do not filter by differential expression)
 *** Find candidate datasets in GUS
-  #+begin_src sql :exports both
+  #+begin_src sql
     select distinct  dataset_name from (
           select dataset_name
            , study_name
@@ -119,7 +119,7 @@
   - [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/plugin/perl/InsertStudyResults.pm][InsertStudyResults.pm]]
 - Result Table
   - ApiDB.NAfeatureWGCNAResults
-  #+begin_src sql  :exports results
+  #+begin_src sql
   desc ApiDB.NAfeatureWGCNAResults;
   #+end_src
   #+results:
@@ -128,7 +128,7 @@
   | CORRELATION_COEFFICIENT |                                           |
   | PROTOCOL_APP_NODE_ID    | foreign key to "sample" / protocolappnode |
   - ApiDB.EigengeneWGCNAResults
-  #+begin_src sql :exports results
+  #+begin_src sql
     desc ApiDB.EigengeneWGCNAResults
   #+end_src
   #+results:
