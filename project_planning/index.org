@@ -59,7 +59,7 @@
 ** MapVEu [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]]                                                                                                :BobM:
 ** JBrowse / Apollo
 *** Apollo [[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]]                                                                                          :PaulW:
-** Galaxy                                                                                                       :MarkH:
+** Galaxy [[https://onedrive.live.com/edit.aspx?resid=A33886B8E9920EF7!8142&ithint=file%2cxlsx&authkey=!AEhTv4bcB6N8NZs][onedrive]]                                                                                              :MarkH:
 ** Documentation
 *** SOPs for Existing Datatypes
 - [X ] RNASeq  [[readtheorgs:/SOPs/rnaseq.html][html]] | [[orgdocs:/SOPs/rnaseq.org][org]]
