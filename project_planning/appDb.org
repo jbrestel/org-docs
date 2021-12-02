@@ -186,7 +186,7 @@ The Goal is to Shorten the Loading time
 
 * Interpro Example
 #+name: sqlplus_input 
-#+BEGIN_SRC emacs-lisp :var blk="QUERY_NEW_GeneTable" :var sep="\n" :results file :file org_sqlplus.sql :exports none
+#+BEGIN_SRC emacs-lisp :var blk="QUERY_NEW_GeneTable" :var sep="\n" :results file :file sql/org_sqlplus.sql :exports none
     (concat "SET AUTOTRACE TRACEONLY;\n"
             "SET TIMING ON;\n"
             "WHENEVER SQLERROR EXIT SQL.SQLCODE;\n"
@@ -250,7 +250,7 @@ transcript_ids
 #+end_src
 #+CALL: sqlplus(input=sqlplus_input("QUERY_NEW_GeneTable")) :exports none
 
-#+RESULTS: sqlplus(input=sqlplus_input("QUERY_NEW_GeneTable"))
+#+RESULTS: 
 | QUERY_NEW_GeneTable | Elapsed: 00:00:00.02 | 60  consistent gets |
 
 
