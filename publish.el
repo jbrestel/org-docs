@@ -279,6 +279,7 @@
      (perl . t)
      (dot . t)
      (R . t)
+     (sql . nil)
      ))
   (let ((make-backup-files nil)
         (org-publish-project-alist       jbrestel--publish-project-alist)
@@ -308,7 +309,7 @@
         (org-confirm-babel-evaluate
          (lambda (lang body)
            (message (format "in lambda %s" lang))
-           (not (member lang '("dot" "plantuml" "emacs-lisp"))))))
+           (not (member lang '("dot" "plantuml" "emacs-lisp" "sql"))))))
     (org-publish-all)))
 
 (provide 'publish)
