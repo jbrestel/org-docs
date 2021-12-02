@@ -224,7 +224,7 @@
    (list "planning"
          :base-directory "./"
          :include '("project_planning/unidb.org"
-		    "project_planning/appDb.org"
+;;		    "project_planning/appDb.org"
 		    "project_planning/dataLoad.org"
    		    "project_planning/dataset.org"
 		    "project_planning/dnaseq.org"
@@ -275,7 +275,11 @@
   (interactive)
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((dot . t) (plantuml . t) (emacs-lisp . t) (perl . t) (R . t)))
+   '((emacs-lisp . t)
+     (perl . t)
+     (dot . t)
+     (R . t)
+     ))
   (let ((make-backup-files nil)
         (org-publish-project-alist       jbrestel--publish-project-alist)
         ;; deactivate cache as it does not take the publish.el file into account
