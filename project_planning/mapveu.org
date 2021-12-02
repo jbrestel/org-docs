@@ -2,7 +2,7 @@
    + vb popbio migration channel has some ISA tab (mixed units)
    + lat/long -> lookup veugeo country name?
    + add new characteristic for single "species" reconsiliation characteristic
-   + (BobM) point me to the existing plugin
+
 
 ** Map Application
    + maps in eda as filter?

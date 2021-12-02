@@ -2,52 +2,76 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-bigblow.setup
 #+TITLE:     Projects
 #+AUTHOR:    John Brestelli
-#+DESCRIPTION: Projects
-#+OPTIONS:   H:0 num:nil p:t tags:not-in-toc
-* Projects
-** [[orgdocs:/project_planning/dataLoad.html][Genomics Workflow]]
-*** ESTs :Jay:
-*** GPIAnchor and MitoProt :JohnB:
-*** Intron Junctions  :Brian:JohnI:
-*** [[orgdocs:/project_planning/dnaseq.html][DNASeq Workflow (nextflow)]]                         :Mark:Kathryn:JohnB:
-*** [[orgdocs:/SOPs/jbrowseFlatFileMigration.html][JBrowse Migration]]                                         :JohnI:JohnB:
-** Genomics Website
-*** [[orgdocs:/project_planning/unidb.html][UniDB]]                                                           :JohnB:
-*** [[orgdocs:/project_planning/appDb.html][Performance and App Specific Databases]]              :JohnB:MarkH:JohnI:
-*** [[orgdocs:/project_planning/networkAnalysis.html][Network Analysis and Host Pathogen]]                                :Ann:
-**** Gene Lists as User Datasets                                    :Omar:
+#+DESCRIPTION: DataDev Projects
+#+OPTIONS:   H:5 num:nil p:t tags:not-in-toc
+#+HTML_HEAD: <style>h5,h4,h3{color:#333333} </style>
+* Data Loading, preprocessing and workflows
+** Genomics Workflow
+*** UniDB  [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]]                                                                                          :JohnB:
+*** JBrowse Migration [[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]]                                                                               :JohnI:
+*** DNASeq Workflow (nextflow) [[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]]                                                       :MarkH:KathrynC:JohnB:
+- [ ] YMAP (mark/kathryn/david)  
+*** Other Data Loading  [[readtheorgs:/project_planning/dataLoad.html][html]] | [[orgdocs:/project_planning/dataLoad.org][org]]
+**** ESTs                                                                                                      :JayH:
+**** GPIAnchor and MitoProt                                                                                   :JohnB:
+**** Intron Junctions                                                                                  :BrianB:JohnI:
+- inferr sense/antisense profiles
+- showJunctions? organism level preference
 
-*** [[orgdocs:/project_planning/apollo.html][Apollo]] :Paul:
-** WDK Model
-*** [[file:dataset.org][Dataset Record]]                                                    :Ann:
-*** Organism Preferences                                      :JohnB:MarkH:
-- [X] [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][OrgPreference Google Doc]]
-- [ ] Internal pages for ChipChip and Y2H
-*** Results Page SVG Graphs                                      :Danielle:
 ** EDA
-*** [[orgdocs:/project_planning/eda.html][EDA DataLoad]]  :Jay:JohnB:
-*** [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][MapVEu]]                                                           :BobM:
+*** EDA DataLoad [[readtheorgs:/project_planning/eda.html][html]] | [[orgdocs:/project_planning/eda.org][org]]                                                                       :JayH:JohnB:WojtekB:
+**** MapVEu and Mbio (Mega Study)                                                                             :JohnB:
+- [ ] ISA Loader
+  - [ ] Protocol as Characteristic??
+  - [ ] Study name as characteristic
+  - [ ] help with Wojtek's issues
+  - [ ] Species reconcile
 
-** [[orgdocs:/project_planning/selenium.html][Selenium Tests]]
+**** DIY :JayH:WojtekB:
+** Microbiome
+*** Eukaryotic Detection                                                                                                   :WojtekB:
+* Front End Applications
+** WDK
+*** Genomics 
+**** UniDB Performance and App Specific Databases [[readtheorgs:/project_planning/appDb.html][html]] | [[orgdocs:/project_planning/appDb.org][org]]                                      :JohnB:MarkH:JohnI:
+**** Network Analysis and Host Pathogen [[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]]                                                             :AnnB:
+**** Gene Lists as User Datasets                                                                              :OmarH:CristinaA:AnnB:
+**** Dataset Record [[readtheorgs:/project_planning/dataset.html][html]] | [[orgdocs:/project_planning/dataset.org][org]]                                                                                 :AnnB:
+**** Organism Preferences                                                                               :JohnB:MarkH:
+- [-] Organism Preferences [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][google doc]]
+  - [ ] Internal pages for ChipChip and Y2H
+  - [X] Rename or add org param as needed
+**** Selenium Tests [[readtheorgs:/project_planning/selenium.html][html]] | [[orgdocs:/project_planning/selenium.org][org]]
 - [ ] test links on dataset page
 - [ ] rnaseq default organism rnaseq (make sure all keys are unique)
 - [ ] strand specific rnaseq
 - [ ] compound
-** SOPs
-*** Schema Changes  :JohnB:
-- [ ] Alter Table
-- [ ] New Table
-*** Known Datatypes :JohnB:
-- [ ] RNASeq
+- [ ] check for broken dataset links
+
+*** OrthoMCL
+**** Phylogenetic Pattern WS                                                                                  :MarkH:
+- [ ] limit to reference organisms on OrthoMCL Site
+  - [ ] component sites show all strains
+  - [ ] some mechanism to hide organisms from orthomcl?
+- [ ] tree in ortho to use ncbi taxonomy
+** EDA
+*** Dataviz Foothills [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][notion]]                                                                               :DanielleC:
+** MapVEu [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]]                                                                                                :BobM:
+** JBrowse / Apollo
+*** Apollo [[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]]                                                                                          :PaulW:
+** Galaxy                                                                                                       :MarkH:
+** Documentation
+*** SOPs for Existing Datatypes
+- [X ] RNASeq  [[readtheorgs:/SOPs/rnaseq.html][html]] | [[orgdocs:/SOPs/rnaseq.org][org]]
 - [ ] Microarray
 - [ ] Phenotype
 - [ ] Chip Chip
 - [ ] Chip Seq
+*** How to change Database Schema
+- [ ] Alter Table
+- [ ] New Table
 
-** Dataviz
-*** [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][Dataviz Foothils]]                                             :Danielle:
 
-** OrthoMCL
-*** Phylogenetic Pattern WS                                         :MarkH:
+
 
 

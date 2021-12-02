@@ -109,7 +109,7 @@ if( $apolloOrganismName =~ /$organismFullName \[$version]/) {
 - When we generate the configurations for build 49...
   - Toxo,Amoeba,Piro,and VectorBase + extras for David
 
-* QA
+* How to do QA?
 - The Curation team must have a way to check any locus that has missing transcipts (either from themselves or via community users)
 - The genomic sites query apollo nightly to get a list of changes.  We should be able to provide a report back to users to indicate if there are now missing transcripts in that region or missing functional annotation.  This same report may be what is needed for curator review.
 

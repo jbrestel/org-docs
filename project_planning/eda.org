@@ -1,5 +1,5 @@
 #+STARTUP: indent
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+###+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     EDA Backend
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA Backend
@@ -24,10 +24,10 @@
 
 [[https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz][EDA Workspace Working Group]]
 
-* Schema / Tables                                               :JohnI:JohnB:
+* Schema / Tables                                                                                          :JohnI:JohnB:
 [[file:images/eda_uml.png]]
 - [X] update schema installer to create EDA and EDA_UD schemas (replace ApiDB)
-* Plugins                                                  :JohnB:Wojtek:Jay:
+* Plugins                                                                                           :JohnB:WojtekB:JayH:
 *** InsertEntityGraph
 - [-] read the ISA(Tab or Simple) files and populate normalized tables representing the EntityGraph
   - [X] EDA::Study
@@ -39,8 +39,8 @@
   - [ ] EDA::AttributeScale :: log,ln, linear
   - [X] EDA::ProcessTypeComponent :: used to encode a series of protocols
 - [X] Add GeoHash attributes if we have Lat/Long
-- [ ] argument for schema (eda vs eda_ud)
-*** SubclassInsertEntityGraph                         :Wojtek:MicrobiomeDB:
+- [X] argument for schema (eda vs eda_ud)
+*** SubclassInsertEntityGraph                                                                                :WojtekB:
 - [X] Append Assay and Data Nodes
 - [ ] argument for schema (edv vs eda_ud)
 *** LoadAttributesFromEntityGraph
@@ -51,12 +51,12 @@
 - [X] Handle Units from Annotation Properties
 - [ ] Handle Scale from Annotation Properties
 - [ ] Check that binary inference has priority over ordinal
-- [ ] argument for schema (edv vs eda_ud)
+- [X] argument for schema (edv vs eda_ud)
 *** LoadEntityTypeAndAttributeGraphs
 - [X] Populate tables for parent-child relationships (EntityTypes and Attributes); AttributeGraph also stores annotation properties from the owl file
   - [X] EDA::AttributeGraph :: Connect Attribute (Leaf) to parent/child relationships defined by ontology.  also stores annotation properties from the owl file
   - [X] EDA::EntityTypeGraph :: Infer entity type relationships from the Inputs/Outputs
-- [ ] argument for schema (edv vs eda_ud)
+- [X] argument for schema (edv vs eda_ud)
 *** LoadDatasetSpecificEntityGraph
 - [X] Populate Dataset Specific Tables
   - [X] EDA::AttributeValue_${studyId}_${EntityTypeId} :: Subset of the main AttributeValue Table (per dataset)
@@ -74,36 +74,36 @@
           from apidb.entityattributes 
           where entity_attributes_id = 10632037;
     #+end_src
-- [ ] argument for schema (eda vs eda_ud)
-*** LoadMegaStudy                              :MapVEu:MicrobiomeDB:Wojtek:
+- [X] argument for schema (eda vs eda_ud)
+*** LoadMegaStudy                                                                                            :WojtekB:
 - [ ] Union of all Studies for Project (Cross Study Comparisons)
 - [ ] Units need to convert to base unit
 - [ ] How to add Study (display name) as entitytype or variable?
-- [ ] argument for schema (edv vs eda_ud)
-* Ontologies and Annotation Properties                                  :Jay:
-*** Annotation Properties                                   :ClinEpiDB:Jay:
+- [X] argument for schema (edv vs eda_ud)
+* Ontologies and Annotation Properties                                                                            :JayH:
+*** Annotation Properties                                                                                       :JayH:
 - [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study is loaded
-- [ ] Which fields from annotation properties are required by EDA?  implcations for Genomics/Mbio/MapVEu
-*** OWL File Organization                       :Microbiome:Genomcs:MapVEu:
+- [X] Which fields from annotation properties are required by EDA?  implcations for Genomics/Mbio/MapVEu
+*** OWL File Organization
 - [ ] consider dataset specific webdisplay ontologies
 - [ ] can we use the owl file in place of the ontologymapping.xml?
-* Reflow Workflow                                                       :Jay:
+* Reflow Workflow                                                                                                 :JayH:
 *** Phase1 / ClinEpi
-- [ ] finalize ReFlow Workflow
-  - [ ] create download files;  use "is_merge_key"
+- [-] finalize ReFlow Workflow
+  - [X] create download files;  use "is_merge_key"
   - [ ] validation of annotation properties (ad hoc or via owl file)
   - [ ] add TBD qa/validation steps
   - [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study
   - EDA.StudyCharacteristics
-    - [ ] add create table sql file "ApiCommonData/Load/lib/sql/apidbSchema/" and in the installApiDB script (ApiCommonData/Load/bin)
-    - [ ] study_id field in new table should point to eda.study
-    - [ ] update inc instances to create the EDA.StudyCharacteristic table (JohnI can help with this)
-    - [ ] update plugin InsertStudyCharacteristics to use "EDA.StudyCharacteristics"
+    - [X] add create table sql file "ApiCommonData/Load/lib/sql/apidbSchema/" and in the installApiDB script (ApiCommonData/Load/bin)
+    - [X] study_id field in new table should point to eda.study
+    - [X] update inc instances to create the EDA.StudyCharacteristic table (JohnI can help with this)
+    - [X] update plugin InsertStudyCharacteristics to use "EDA.StudyCharacteristics"
   - Add "schema" arg for InsertStudyCharacteristics so we can load into EDA schema
     - Needed for EDA_UD vs EDA schema
-    - [ ] ensure we are loading into eda and not apidb.
-    - [ ] the workflow step which calls the plugin needs to set the "schema" to "EDA"
-    - [ ] undoTables needs to lookup the value of "schema" from when the plugin was run forward and undo those tables.      
+    - [X] ensure we are loading into eda and not apidb.
+    - [X] the workflow step which calls the plugin needs to set the "schema" to "EDA"
+    - [X] undoTables needs to lookup the value of "schema" from when the plugin was run forward and undo those tables.      
 *** ClinEpi Graphviz
 **** Input Tables
 #+name: node-table
@@ -182,20 +182,21 @@ digraph {
   - Current use cases are all studies for Mbio and all studies for MapVEu
 
 * Loading
-** Phase1 Production Loading                                 :ClinEpiDB:Jay:
-- [ ] work with outreach to preprocess studies targeted for beta release
-- [ ] reload data as requested into rm41910 until passes manual qa
-- [ ] Load into "EDA" schema instead of ApiDB
-- [ ] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
+** Phase1 Production Loading                                                                                     :JayH:
+- [X] work with outreach to preprocess studies targeted for beta release
+- [X] reload data as requested into rm41910 until passes manual qa
+- [X] Load into "EDA" schema instead of ApiDB
+- [X] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
 
-** MapVEu                                                       :BobM:JohnB:
-- [ ] Load studies from ISA dumps
+** MapVEu                                                                                                  :BobM:JohnB:
+- [X] Load studies from ISA dumps
 - [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
   - [ ] need to have variables for protocols
 
-- [ ] Mixed units within studies?
-- [ ] Genotype / Phenotype Assays
-** MicrobiomeDB                                                     :Wojtek:
+- [X] Mixed units within studies.. NO!
+- [X] Genotype / Phenotype Assays
+- [ ] Species reconcile
+** MicrobiomeDB                                                                                               :WojtekB:
 - [ ] performance issues with EC levels for functional shotgun data
 - [ ] metabolite data
 - [ ] Dan identified a small number of studies to load into rm41910
@@ -206,7 +207,32 @@ digraph {
 - [ ] PopSet Isolate Sequences
 - [ ] Single cell RNASeq ??
 - [ ] Systems Biology  
-** DIY                                   :ClinEpiDB:MicrobiomeDB:Jay:Wojtek:
+** Cross Study Comparison
+*** New EntityType for each Study/Dataset
+- [ ] load this at start (InsertEntityGraph).  All studies will have this
+- [ ] exclude/is_hidden this from the entity Type graph table
+- [ ] workflow must load study characteristics at the same time.  input file for study characteristics
+- [ ] load study designs
+  
+*** Variables
+- [ ] Variable for Study Name (add display name to study characterisitics file OR ISATab file)
+- [ ] Add Variable for Each Protocols
+  - [ ] This can be done in "InsertEntityGraph" as a command line boolean option
+*** Units
+- [ ] Convert to Base Unit
+  - [ ] ensure units are loaded as global dependency
+  - [ ] each variable needs to set a base unit else we choose one??
+*** MegaStudy
+- [ ] Insert Study and EntityType rows for Mega Study
+  - [ ] EntityTypes would be union based on ontology terms
+- [ ] AttributeGraph and EntityType Graph would be for Mega Study
+  - [ ] would need to union leaves
+  - [ ] study_id would be for the "mega" study.  would lookup children by project
+  - [ ] entity_type_ids would need to be converted to entity_type for mega study
+*** OPEN ISATab vs ISASimple                                                                                 :WojtekB:
+- [ ] ISALoader Assay and other Mbio things
+    
+** DIY                                                                                                   :JayH:WojtekB:
 *** Web Form
 - [ ] minimal changes to web for for MBio
   - [ ] input for mbio is a biom file (table of otu and table of sample details)
@@ -233,7 +259,7 @@ digraph {
 *** What to do about legacy user datasets?
 - versioning in user datasets is for what is stored in irods
 
-* Data Validation                                 :JohnB:Steph:Jay:ClinEpiDB:
+* Data Validation                                                                                    :JohnB:StephW:JayH:
 *** Reader Interface
 #+BEGIN_EXAMPLE
  $entityType = $dataset->getEntityType($sourceId);
@@ -257,6 +283,11 @@ digraph {
 - [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
   + example:  "ok($participantEntityType->getEntityCount() == 5000)";
     + This example get the counts of participants and ensures that the number it gets is 5000;
+
+
+
+
+
 
 
 

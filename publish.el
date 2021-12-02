@@ -312,5 +312,6 @@
 
 (setq org-link-abbrev-alist
       '(("redmine"        . "https://redmine.apidb.org/issues/")
-	("orgdocs"        . "https://jbrestel.github.io/org-docs")
+	("readtheorgs"    . "https://jbrestel.github.io/org-docs")
+        ("orgdocs"        . "https://github.com/jbrestel/org-docs/tree/main")
 	))

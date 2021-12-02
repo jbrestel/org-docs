@@ -138,13 +138,13 @@
 
 
 
-* ESTs                                                                 :TODO:
+* TODO ESTs                                                                                                       :JayH:
 - [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
 - [ ] "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
 - [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"
-* GPI anchor and MitoProt and other analysis   :TODO:Mark:Kathryn:Brian:BobM:
+* TODO GPI anchor and MitoProt and other analysis                                     :MarkH:KathrynC:BrianB:BobM:JohnB:
 - https://github.com/BolognaBiocomp/predgpi
 - https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions
 
-* Intron Junctions                                        :JohnI:Brian::TODO:
+* Intron Junctions                                                                                         :JohnI:Brian:
 - [ ] Move Intron Junctions out of tuning manager into workflow

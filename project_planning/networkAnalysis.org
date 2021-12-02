@@ -83,6 +83,9 @@
     | treeQM6a_Benocci_Plant_Biomass_ebi_rnaSeq_RSRC                         |
 
 ** Workflow
+*** OPEN How to choose power threshold?                                                                         :AnnB:
+- this is a manual step that needs to be done for each dataset
+- [ ] check wgcna paper and/or documentation for instructions on how to set
 *** Manual Delivery
 - power calculation.  need to manually set in analysisConfig.xml
   - @MANUAL_DELIVERY@/PlasmoDB/pfal3D7/rnaSeq/Lee_Gambian/2018_07_04/final/analysisConfig.xml
@@ -100,7 +103,7 @@
   </step>
   #+end_src
 
-*** TODO Analysis
+*** OPEN Analysis                                                                                               :AnnB:
 - command line
   #+begin_example
   doTranscriptExpression.pl --xml_file <XML> --main_directory <DIR>
@@ -149,7 +152,7 @@ from Kathryn "quite good for model-based clustering - and I also like this metho
 *** ApiDB.GeneInteraction (why not ProteinInteraction? or Y2HProteinInteraction?)
 * Host Pathogen
 ** Profile Similarity
-*** Extend Protein Similarity Search To Return Host and Pathogen genes :Bindu:
+*** Extend Protein Similarity Search To Return Host and Pathogen genes                                        :BinduG:
 ** wgcna
 *** Find related modules
 ** Gene Set Enrichment
@@ -159,4 +162,4 @@ from Kathryn "quite good for model-based clustering - and I also like this metho
 - curated gene lists
 - user defined gene lists
 *** Study / Dataset Records
- - [[orgdocs:/project_planning/dataset.html][Dataset Record Phase 3]]
+ - [[readtheorgs:/project_planning/dataset.html][Dataset Record Phase 3]]

@@ -4,9 +4,9 @@
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: UniDB
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* B53 :JohnB:
+* B53                                                                                                            :JohnB:
 ** DONE Site Configuration
-- [X] (Cristina) confiugre beta and qa sites to use "uni-build-53" and uni053n
+- [X] (CristinaA) confiugre beta and qa sites to use "uni-build-53" and uni053n
 ** DONE Workflow Changes
 - [X] Remove step copy to webservices and download files
 ** DONE Schema Changes
@@ -54,13 +54,13 @@
     Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
     Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
     #+END_EXAMPLE
-** DONE Tuning Manager                                               :JohnB:
+** DONE Tuning Manager                                                                                          :JohnB:
 - [X] SNPAttributes (ok for b53 but will be missing some fields)
 - [X] SNPStrains (update sql so it doesn't use SequenceVariation)
   #+begin_src sql
 	select * from study.protocolappnode where name like '% (Sequence Variation)'
   #+end_src
-** DONE Model                                                        :MarkH:
+** DONE Model                                                                                                   :MarkH:
 - [X] Using include/exclude projects make the snpattributes which are missing internal for b53
 ** DONE FeatureLocation Patch 
 - [X] Truncate apidb.featurelocation
@@ -146,7 +146,7 @@
    - jbrowse track (turn off)
 3. User Datasets (installed into one app db only)
 4. Llinas Mass Spec Profiles
-* B54 :JohnB:Wei:
+* B54                                                                                                       :JohnB:WeiL:
 ** DONE Genomics Workflow Changes
 - [X] Add other 2 SNP Attributes which are being added by tuning manager
 - [X] Required rebuild for all snp datasets 
@@ -288,32 +288,32 @@
      CREATE INDEX apidb.injun_rev2_ix0 ON apidb.IntronJunction (protocol_app_node_id, intron_junction_id) TABLESPACE indx; 
           #+end_src
 
-* Beta Release                                       :Mark:JohnI:JohnB:Bindu:
+* Beta Release                                                                                :MarkH:JohnI:JohnB:BinduG:
 ** Automated QA Process
-*** compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects :JohnB:
+*** compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects           :JohnB:
 #+begin_src example
 perl includedWdkElements.pl --check_params --unidb_website beta.veupathdb.org
 #+end_src
 - this test can also run param queries and compare values (use --check_params flag)
 - [[https://github.com/VEuPathDB/FunctionalTests/blob/main/bin/includedWdkElements.pl]]
 - [X] Record expected and Actual Results
-*** Selenium Tests for Search Pages :Bindu:
-*** Compare attribute tables :JohnI:
+*** Selenium Tests for Search Pages                                                                           :BinduG:
+*** Compare attribute tables                                                                                   :JohnI:
 - [X] using sql minus operation, compare production attribute tables in eupa database to production uni database (example eupa054n to uni054n)
 - [X] Record expected and Actual Results
-*** Test Record page tables against component databases :JohnB:
+*** Test Record page tables against component databases                                                        :JohnB:
 #+begin_src example
 perl regresssionTestForRecordQueries.pl --dir /home/jbrestel/unidb/record_queries_output --instance_suffix 054n >rq.err 2>&1
 #+end_src
 - [X] foreach record table, run the sql and compare counts (union for all components)
 - [ ] address faiures
 - [X] Record expected and Actual Results
-** Performance Tests :Mark:Steve:Cristina:
-*** Webserive queries for Performance Tests :MarkH:
+** Performance Tests                                                                           :MarkH:SteveF:CristinaA:
+*** Webserive queries for Performance Tests                                                                    :MarkH:
 - [X] compare plasmodb.org (b52) to feature.veupathdb.org
 - [X] Record expected and Actual Results
 
-* Future Releases :JohnI:JohnB:MarkH:Bindu:
+* Future Releases                                                                             :JohnI:JohnB:MarkH:BinduG:
 ** TODO Schema Changes
 - [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer
 - [X] add 3 new fields to SRes.OntologySynonym
