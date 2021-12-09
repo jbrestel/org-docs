@@ -231,6 +231,7 @@
       		    "project_planning/selenium.org"
 		    "project_planning/index.org"
    		    "project_planning/eda.org"
+      		    "project_planning/eda_diy.org"
 		    "project_planning/apollo.org"
    		    "project_planning/networkAnalysis.org"
 

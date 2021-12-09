@@ -1,0 +1,64 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     EDA DIY
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: EDA DIY
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+* Ontology / Attribute Graph
+  Each Entity is represented by a tab file or table representation in biom file.  The Header defines the variables/attributes for that entity type.
+
+  + Example files
+    + household.txt
+      + h_attr1
+      + h_attr2
+      + h_attr3
+      + ...
+    + participant.txt
+      + p_attr1
+      + p_attr2  
+      + p_attr3
+      + ...
+    + assay.txt
+      + a_attr1
+      + a_attr2  
+      + a_attr3
+      + ...
+
+** Option1:  Use existing plugins / workflow
+  
+  + [ ] Make a tab file for loading ontology and Load with a plugin called "GUS::Supported::Plugin::InsertOntologyFromTabDelim"
+    + [ ] one row in Sres.ontologyterm for each file (entity type)
+    + [ ] one row in Sres.ontologyterm for each variable column in each file
+    + [ ] rows into SRes.ontologyterm as needed for protocols
+    + [ ] source_ids should be unique;  they don't need to be meaningful otherwise.
+    
+  + [ ] confirm that undo mechanism can handle tables which do not have a user_dataset_id.
+    #+begin_src sql
+      delete blah from sres.ontologyterm where ontology_term_id in (
+	 select distinct ontology_term_id from eda_ud.attribute where user_dataset_id = ?
+	 union
+	 select distinct ontology_term_id from eda_ud.entitytype where user_dataset_id = ?
+	 union
+	 ...
+      )
+    #+end_src
+  
+  + create ancilary files (use ontology term source_ids from above)
+    + [ ] create an "investigation.xml" file for the study which
+    + [ ] create ontologyMapping.xml
+    
+
+** Option2:  New Lightweight solution
+   + create eda dataset specific tables directly
+   + How do we handle attributes like "min/max" range and other columns in attribute graph?
+   + would still need to strongly type columns (date,number,varchar)
+   
+   
+* Sample Details
+  Each entity is represented as a tab file (same file as above).  This file will be read by the InvestigationSimple parser
+
+* Results (OTUs, ...)
+  How are OTU results ?
+  
+* UX
+  Existing UX for Microbiome biom files should remain in place.  ClinEpi DIY will need to consume 1 or more tab files and the user should be able to specifiy the "parent" entity type for each file
