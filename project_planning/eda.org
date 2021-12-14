@@ -1,5 +1,5 @@
 #+STARTUP: indent
-###+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     EDA Backend
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA Backend
@@ -209,6 +209,7 @@ digraph {
 - [ ] Systems Biology  
 ** Cross Study Comparison
 *** New EntityType for each Study/Dataset
+
 - [ ] load this at start (InsertEntityGraph).  All studies will have this
 - [ ] exclude/is_hidden this from the entity Type graph table
 - [ ] workflow must load study characteristics at the same time.  input file for study characteristics
@@ -225,6 +226,11 @@ digraph {
 *** MegaStudy
 - [ ] Insert Study and EntityType rows for Mega Study
   - [ ] EntityTypes would be union based on ontology terms
+
+    #+begin_src perl
+      my $studyCharacteristicsParser = CBIL::Util::Ini->new();
+      my $studyCharacteristics = $studyCharacteristicsParser->parseFile($studyCharacteristicsFile);
+    #+end_src
 - [ ] AttributeGraph and EntityType Graph would be for Mega Study
   - [ ] would need to union leaves
   - [ ] study_id would be for the "mega" study.  would lookup children by project
