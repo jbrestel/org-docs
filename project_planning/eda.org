@@ -107,22 +107,22 @@
 *** ClinEpi Graphviz
 **** Input Tables
 #+name: node-table
-| *node*                               | *label*                         | *shape* | *fillcolor* |
-|--------------------------------------+---------------------------------+---------+-------------|
-| start                                | start                           | ellipse |             |
-| end                                  | end                             | ellipse |             |
-| webdisplay_ontology                  | Webdisplay Ontology             |         | yellow      |
-| study_classifications                | Study Classifications           |         | yellow      |
-| annotation_properties                | Annotation Properties           |         | yellow      |
-| entity_types                         | Entity Types                    |         | yellow      |
-| insert_entity_graph                  | Main Entity Graph               |         | purple      |
-| load_attributes                      | Attributes and Values           |         | purple      |
-| load_graphs                          | EntityType And Attribute Graphs |         | purple      |
-| load_dataset_specific                | Dataset Specific Tables         |         | purple      |
-| download                             | Download Files                  |         |             |
-| validate_download                    | Validate Download               |         |             |
-| validate_tables                      | Validate Tables                 |         |             |
-| validate_annotation_properties       | Validate Annotation Properties  |         |             |
+| *node*                         | *label*                         | *shape* | *fillcolor* |
+|--------------------------------+---------------------------------+---------+-------------|
+| start                          | start                           | ellipse |             |
+| end                            | end                             | ellipse |             |
+| webdisplay_ontology            | Webdisplay Ontology             |         | yellow      |
+| study_classifications          | Study Characteristics           |         | yellow      |
+| annotation_properties          | Annotation Properties           |         | yellow      |
+| entity_types                   | Entity Types                    |         | yellow      |
+| insert_entity_graph            | Main Entity Graph               |         | purple      |
+| load_attributes                | Attributes and Values           |         | purple      |
+| load_graphs                    | EntityType And Attribute Graphs |         | purple      |
+| load_dataset_specific          | Dataset Specific Tables         |         | purple      |
+| download                       | Download Files                  |         |             |
+| validate_download              | Validate Download               |         |             |
+| validate_tables                | Validate Tables                 |         |             |
+| validate_annotation_properties | Validate Annotation Properties  |         |             |
 
 #+name: graph-table
 | from                           | to                             | label |
@@ -130,6 +130,7 @@
 | start                          | webdisplay_ontology            |       |
 | webdisplay_ontology            | study_classifications          |       |
 | webdisplay_ontology            | validate_annotation_properties |       |
+| study_classifications          | insert_entity_graph            |       |
 | webdisplay_ontology            | entity_types                   |       |
 | insert_entity_graph            | load_attributes                |       |
 | load_attributes                | load_graphs                    |       |
