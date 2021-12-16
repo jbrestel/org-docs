@@ -25,7 +25,163 @@
 [[https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz][EDA Workspace Working Group]]
 
 * Schema / Tables                                                                                          :JohnI:JohnB:
+#+begin_src plantuml :file images/eda_uml.png :exports results
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) p <U+0020>* <u>x</u>
+!define foreign_key(x) fk * x
+!define foreign_key_nullable(x) fk <U+0020><U+0020> x
+!define unique(x) u <U+0020>* x
+!define unique_nullable(x) u <U+0020><U+0020> x
+!define field_nullable(x) <U+0020> <U+0020> <U+0020> x
+!define field(x) <U+0020> <U+0020> * x
+hide methods
+hide stereotypes
+
+table(STUDY) {
+  primary_key(STUDY_ID)
+  unique(STABLE_ID)
+  foreign_key(EXTERNAL_DATABASE_RELEASE_ID)
+  field_nullable(INTERNAL_ABBREV)
+  field_nullable(MAX_ATTR_LENGTH)
+}
+
+table(ATTRIBUTEGRAPH) {
+  primary_key(ATTRIBUTE_GRAPH_ID)
+  foreign_key(STUDY_ID)
+  foreign_key(ONTOLOGY_TERM_ID)
+  field(STABLE_ID)
+  field(PARENT_STABLE_ID)
+  foreign_key(PARENT_ONTOLOGY_TERM_ID)
+  field_nullable(PROVIDER_LABEL)
+  field(DISPLAY_NAME)
+  field_nullable(DISPLAY_ORDER)
+  field_nullable(DEFINITION)
+  field_nullable(DISPLAY_TYPE)
+  field_nullable(DISPLAY_RANGE_MIN)
+  field_nullable(DISPLAY_RANGE_MAX)
+  field_nullable(IS_MERGE_KEY)
+  field_nullable(IS_REPEATED)
+  field_nullable(BIN_WIDTH_OVERRIDE)
+  field_nullable(IS_TEMPORAL)
+  field_nullable(IS_FEATURED)
+  field_nullable(ORDINAL_VALUES)
+}
+
+table(ENTITYTYPEGRAPH) {
+  primary_key(ENTITY_TYPE_GRAPH_ID)
+  foreign_key(STUDY_ID)
+  field_nullable(STUDY_STABLE_ID)
+  field_nullable(PARENT_STABLE_ID)
+  foreign_key_NULLABLE(PARENT_ID)
+  field_nullable(STABLE_ID)
+  foreign_key(ENTITY_TYPE_ID)
+  field(DISPLAY_NAME)
+  field_nullable(DISPLAY_NAME_PLURAL)
+  field_nullable(DESCRIPTION)
+  field(INTERNAL_ABBREV)
+}
+
+table(ENTITYTYPE) {
+  primary_key(ENTITY_TYPE_ID)
+  field(NAME)
+  field_nullable(TYPE_ID)
+  field_nullable(ISA_TYPE)
+  foreign_key(STUDY_ID)
+  field(INTERNAL_ABBREV)
+}
+
+
+
+table(ATTRIBUTEVALUE) {
+  primary_key(ATTRIBUTE_VALUE_ID)
+  foreign_key(ENTITY_ATTRIBUTES_ID)
+  foreign_key(ENTITY_TYPE_ID)
+  foreign_key_nullable(INCOMING_PROCESS_TYPE_ID)
+  field(ATTRIBUTE_STABLE_ID)
+  field_nullable(STRING_VALUE)
+  field_nullable(NUMBER_VALUE)
+  field_nullable(DATE_VALUE)
+}
+
+table(ENTITYATTRIBUTES) {
+  primary_key(ENTITY_ATTRIBUTES_ID)
+  field(STABLE_ID)
+  foreign_key(ENTITY_TYPE_ID)
+  field_nullable(ATTS)
+}
+
+table(ATTRIBUTEUNIT) {
+  primary_key(ATTRIBUTE_UNIT_ID)
+  foreign_key(ENTITY_TYPE_ID)
+  foreign_key(ATTR_ONTOLOGY_TERM_ID)
+  foreign_key(UNIT_ONTOLOGY_TERM_ID)
+}
+
+table(PROCESSTYPE) {
+  primary_key(PROCESS_TYPE_ID)
+  field(NAME)
+  field_nullable(DESCRIPTION)
+  foreign_key(TYPE_ID)
+}
+
+table(PROCESSATTRIBUTES) {
+  primary_key(PROCESS_ATTRIBUTES_ID)
+  foreign_key(PROCESS_TYPE_ID)
+  foreign_key(IN_ENTITY_ID)
+  foreign_key(OUT_ENTITY_ID)
+  field_nullable(ATTS)
+}
+
+table(ATTRIBUTE) {
+  primary_key(ATTRIBUTE_ID)
+  foreign_key(ENTITY_TYPE_ID)
+  foreign_key(PROCESS_TYPE_ID)
+  field_nullable(ENTITY_TYPE_STABLE_ID)
+  foreign_key_NULLABLE(ONTOLOGY_TERM_ID)
+  foreign_key(PARENT_ONTOLOGY_TERM_ID)
+  field(STABLE_ID)
+  field(DISPLAY_NAME)
+  field(DATA_TYPE)
+  field_nullable(DISTINCT_VALUES_COUNT)
+  field_nullable(IS_MULTI_VALUED)
+  field_nullable(DATA_SHAPE)
+  field_nullable(UNIT)
+  foreign_key_nullable(UNIT_ONTOLOGY_TERM_ID)
+  field_nullable(PRECISION)
+  field_nullable(ORDERED_VALUES)
+  field_nullable(RANGE_MIN)
+  field_nullable(RANGE_MAX)
+  field_nullable(BIN_WIDTH)
+}
+
+table(PROCESSTYPECOMPONENT) {
+  primary_key(PROCESS_TYPE_COMPONENT_ID)
+  foreign_key(PROCESS_TYPE_ID)
+  foreign_key(COMPONENT_ID)
+  field(ORDER_NUM)
+}
+
+
+STUDY <..|{ ATTRIBUTEGRAPH
+STUDY <..|{ ENTITYTYPEGRAPH
+STUDY <..|{ ENTITYTYPE
+ENTITYTYPE <..|{ ENTITYTYPEGRAPH
+ENTITYATTRIBUTES <..|{ ATTRIBUTEVALUE
+ENTITYTYPE <..|{ ATTRIBUTEVALUE
+ENTITYTYPE <..|{ ENTITYATTRIBUTES
+ENTITYTYPE <..|{ ATTRIBUTEUNIT
+ENTITYTYPE <..|{ ATTRIBUTE
+PROCESSTYPE <..|{ ATTRIBUTEVALUE
+PROCESSTYPE <..|{ ATTRIBUTE
+PROCESSTYPE <..|{ PROCESSTYPECOMPONENT
+PROCESSTYPE <..|{ PROCESSTYPECOMPONENT
+ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
+ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
+#+end_src
+
+#+RESULTS:
 [[file:images/eda_uml.png]]
+
 - [X] update schema installer to create EDA and EDA_UD schemas (replace ApiDB)
 * Plugins                                                                                           :JohnB:WojtekB:JayH:
 *** InsertEntityGraph
@@ -173,6 +329,9 @@ digraph {
  $input
 }
 #+END_SRC
+
+#+RESULTS:
+[[file:images/reflowMadness.png]]
 
 
 
