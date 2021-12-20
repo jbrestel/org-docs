@@ -236,8 +236,9 @@
 - [X] argument for schema (eda vs eda_ud)
 *** LoadMegaStudy                                                                                            :WojtekB:
 - [ ] Union of all Studies for Project (Cross Study Comparisons)
-- [ ] Units need to convert to base unit
+- [ ] Units need to convert to base unit (only where applicable)
 - [ ] How to add Study (display name) as entitytype or variable?
+- [ ] How to add protocol names as variables??
 - [X] argument for schema (edv vs eda_ud)
 * Ontologies and Annotation Properties                                                                            :JayH:
 *** Annotation Properties                                                                                       :JayH:
@@ -268,8 +269,11 @@
 #+name: node-table
 | *node*                         | *label*                         | *shape* | *fillcolor* |
 |--------------------------------+---------------------------------+---------+-------------|
-| start                          | start                           | ellipse |             |
-| end                            | end                             | ellipse |             |
+| global_start                   | start                           |         |             |
+| global_end                     | end                             |         |             |
+| start                          | dataset start                   | ellipse |             |
+| end                            | dataset end                     | ellipse |             |
+| collections                    | collections                     |         | yellow      |
 | webdisplay_ontology            | Webdisplay Ontology             |         | yellow      |
 | study_classifications          | Study Characteristics           |         | yellow      |
 | annotation_properties          | Annotation Properties           |         | yellow      |
@@ -282,11 +286,14 @@
 | validate_download              | Validate Download               |         |             |
 | validate_tables                | Validate Tables                 |         |             |
 | validate_annotation_properties | Validate Annotation Properties  |         |             |
+| collection_attributes          | Collection Attributes           |         | yellow      |
 
 #+name: graph-table
 | from                           | to                             | label |
 |--------------------------------+--------------------------------+-------|
+| global_start                   | start                          |       |
 | start                          | webdisplay_ontology            |       |
+| global_start                   | collections                    |       |
 | webdisplay_ontology            | study_classifications          |       |
 | webdisplay_ontology            | validate_annotation_properties |       |
 | study_classifications          | insert_entity_graph            |       |
@@ -302,6 +309,9 @@
 | entity_types                   | insert_entity_graph            |       |
 | validate_annotation_properties | annotation_properties          |       |
 | annotation_properties          | load_graphs                    |       |
+| collections                    | collection_attributes          |       |
+| end                            | collection_attributes          |       |
+| collection_attributes          | global_end                     |       |
 
 **** graph-from-tables
 
@@ -398,6 +408,24 @@ digraph {
   - [ ] would need to union leaves
   - [ ] study_id would be for the "mega" study.  would lookup children by project
   - [ ] entity_type_ids would need to be converted to entity_type for mega study
+
+#+begin_example
+ # load entity graph (no changes)
+ ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000123 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --commit
+ ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000619 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --commit
+ ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000642 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --commit
+ ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000206 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --commit
+
+
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
+
+
+ 
+#+end_example
+
 *** OPEN ISATab vs ISASimple                                                                                 :WojtekB:
 - [ ] ISALoader Assay and other Mbio things
     
@@ -427,6 +455,117 @@ digraph {
   - [ ] create script which manages undo
 *** What to do about legacy user datasets?
 - versioning in user datasets is for what is stored in irods
+** Collections :JayH:
+- use the same file format for study classifications and collections.
+- use a real file type which has a perl parser.
+- allow multiple rows for the same key.
+- allow parent/child relationships to be defined?  Could do this by duplicating the key
+- variable/attributes are EITHER defined in ini file OR ALL leaf children are collected up
+
+  See above [[graph-from-tables]] for how this fits into reflow workflow
+
+*** How to handle Parent/Child?
+#+begin_src
+ [collectionExample1]
+  key1: value
+  variables: someChild,somechild2,...
+
+ [collectionExample2]
+  key1: value
+  variable: someChild
+  variable : anotherChild
+
+  #This is probably not allowed
+ [collectionExample3]
+  key1: value
+  variables: [someChild,
+             anotherChild] 
+  #+end_src
+
+*** File Formats and Parsers
+**** Option1: Config::General
+this is Apache Config format. Handles multiple lines with same key (makes array).
+#+begin_example
+<study ISASimple_Gates_ELICIT_rct_RSRC>
+
+Additional data:
+Country: Tanzania
+Disease:
+Investigation type: Experimental
+Population included: Neonate
+Project name:
+Sample type: Blood
+Sample type: Stool
+Sex: Female
+Sex: Male
+Study design: Randomized controlled/clinical trial
+WHO indicator subdomain: Reproductive, maternal, newborn, child and adolescent health
+WHO indicator subdomain: Nutrition
+Years: 2017
+Years: 2018
+</study>
+#+end_example
+#+begin_src perl
+  use Config::General;
+  my $file = "some.config";
+  my $ini = Config::General->new(-ConfigFile => $file,
+                                 -SplitPolicy => "custom",
+                                 -SplitDelimiter => '\s*:\s*'
+      );
+  my %iniHash = $ini->getall();
+#+end_src
+
+**** Option2: Config::Tiny
+This is a very simple parser for ini files.  It does not allow multiple values.  User must put them on the same line and code would need to convert to array
+
+#+begin_example
+[ISASimple_Gates_ELICIT_rct_RSRC]
+Additional data=
+Country= Tanzania
+Disease=
+Investigation type= Experimental
+Population included= Neonate
+Project name=
+Sample type= ["Blood","Stool"]
+Sex= ["Female","Male"]
+Study design= Randomized controlled/clinical trial
+WHO indicator subdomain= ["Reproductive, maternal, newborn, child and adolescent health","Nutrition"]
+Years= [2017,2018]
+#+end_example
+
+**** Option3: *CBIL::Util::Ini*
+In house parser.  Can modify as needed. Same format as Option1 except will handle multiple values;  NOTE:  This uses "Parse::RecDescent" which requires the entire file to be read into memory (seems ok as these files will be small).
+
+#+begin_src perl
+  use CBIL::Util::Ini;
+  my $iniFileParser = CBIL::Util::Ini->new();
+  my $iniHash = $iniFileParser->parseFile($file);
+#+end_src
+
+
+*** Loader
+**** TODO Tables
+#+begin_src sql
+  CREATE TABLE &1.Collection (
+   collection_id NUMBER(10) NOT NULL,
+   stable_id varchar2(50),
+   description varchar2(4000),
+   range_min number(10),
+   range_max number(10),
+  PRIMARY KEY (collection_id),
+  CONSTRAINT unique_stable_id UNIQUE (stable_id));
+
+  CREATE TABLE &1.CollectionAttribute (
+   collection_attribute_id NUMBER(10) NOT NULL,
+   collection_id number(10),
+   attribute_stable_id varchar2(50),
+  PRIMARY KEY (collection_attribute_id));
+  #+end_src
+**** Plugins :JayH:
+1. Load Collections from Ini File "InsertCollection"
+   - Global step to load into Collections table and all "CollectionAttributes" which are defined in the ini file
+2. Load Parent/Child Relationships (where these were not defined in ini) "InsertCollectionAttribute"
+   - Get all leaf terms descended from collection stable_id and load them into CollectionAttribute Table
 
 * Data Validation                                                                                    :JohnB:StephW:JayH:
 *** Reader Interface
