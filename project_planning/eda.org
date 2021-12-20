@@ -461,6 +461,7 @@ ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VB
 - allow multiple rows for the same key.
 - allow parent/child relationships to be defined?  Could do this by duplicating the key
 - variable/attributes are EITHER defined in ini file OR ALL leaf children are collected up
+- YAML Seems to be a good way to go.  the whitespace issues are not too bad if the documents are made like the examples below
 
   See above [[graph-from-tables]] for how this fits into reflow workflow
 
@@ -483,6 +484,84 @@ ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VB
   #+end_src
 
 *** File Formats and Parsers
+**** Option0: YAML::Tiny
+My understaning is with YAML we would need to be very careful with whitespace.  the parser will not work if the indentation is incorrect.
+
+I modified Steve's example for collections
+#+begin_example
+---
+name: Z Scores
+id: EUPATH_000933
+description: a great collection
+rangeMin: 1
+rangeMax: 20
+variables:
+  - EUPATH_0000871
+  - EUPATH_009988
+---
+name: TAC Scores
+id: EUPATH_000767
+description: another collection
+variables:
+  - EUPATH_0003938
+  - EUPATH_0076667  
+#+end_example
+
+#+begin_src perl
+  use YAML::Tiny;
+  my $yaml = YAML::Tiny->read( 'test.yaml' );
+  foreach my $collection (@$yaml) }
+    print Dumper $collection;
+  }
+#+end_src
+
+Could do something similar with study classifications
+#+begin_example
+---
+dataset: ISASimple_Gates_ELICIT_rct_RSRC
+Additional data:
+Country: Tanzania
+Disease:
+Investigation type: Experimental
+Population included: Neonate
+Project name:
+Sample type:
+  - Blood
+  - Stool
+Sex:
+  - Female
+  - Male
+Study design: Randomized controlled/clinical trial
+WHO indicator subdomain:
+  - Reproductive, maternal, newborn, child and adolescent health
+  - Nutrition
+Years:
+  - 2017
+  - 2018
+---
+dataset: ISASimple_Gates_GAMIN_rct_RSRC
+Additional data:
+Country: Burkina Faso
+Disease:
+Investigation type: Experimental
+Population included:
+  - Neonate
+  - Infant
+  - Child
+Project name:
+Sample type:
+  - Blood
+  - Stool
+Sex:
+  - Female
+  - Male
+Study design: Randomized controlled/clinical trial
+WHO indicator subdomain: Reproductive, maternal, newborn, child and adolescent health
+Years:
+  - 2019
+  - 2020
+#+end_example
+
 **** Option1: Config::General
 this is Apache Config format. Handles multiple lines with same key (makes array).
 #+begin_example
