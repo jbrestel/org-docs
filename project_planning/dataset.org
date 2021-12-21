@@ -339,3 +339,11 @@
      | DS_9c91e450ac | pfal3D7_Josling_Schizont_Transcriptomes_ebi_rnaSeq_RSRC | DS_044c11419a | pfal3D7_Josling_Schizont_Transcriptomes_rnaSeq_RSRC |
      | DS_b9eaf20251 | pyoeyoelii17X_Kappe_ebi_rnaSeq_RSRC                     | DS_998f7032ed | pyoeyoelii17X_Kappe_rnaSeq_RSRC                     |
      | DS_a239464cb4 | pfal3D7_Stunnenberg_ebi_rnaSeq_RSRC                     | DS_d57671ced8 | pfal3D7_Stunnenberg_rnaSeq_RSRC                     |
+
+* Dataset Identifiers
+Internal Dataset names (workflow) can be changed by data load team.  For example when the data is aligned to a new reference genome.  Also if there is a new workflow graph for the same dataset, this may modify the existing name.   Website dataset ids (DS_XXXX) are derived from the internal name
+** Use alias query in dataset record to automatically forward if someone has saved links with previous ids
+- [X] alias lookup so the user's previous bookmarks/links will still work for ebi.
+- [ ] [[redmine:46776]] generalize this using some new attribute in the dataset presenter xml for "previous datasets"
+** Regression test to ensure all previous dataset ids map to a current record page
+- [ ] [[redmine:46775]]

@@ -7,10 +7,15 @@
 #+HTML_HEAD: <style>h5,h4,h3{color:#333333} </style>
 * Data Loading, preprocessing and workflows
 ** Genomics Workflow
-*** UniDB  [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]]                                                                                          :JohnB:
+*** UniDB  [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]] | [[https://redmine.apidb.org/projects/jbdqh][redmine]]                                                                                :JohnB:
 *** JBrowse Migration [[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]]                                                                               :JohnI:
-*** DNASeq Workflow (nextflow) [[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]]                                                       :MarkH:KathrynC:JohnB:
+*** DNASeq Workflow (nextflow) [[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]] | [[https://redmine.apidb.org/projects/p30029][redmine]]                                             :MarkH:KathrynC:JohnB:
 - [ ] YMAP (mark/kathryn/david)  
+- [ ] [[redmine:42258]] workflow / database
+- [ ] [[redmine:32649]] and [[redmine:42259]] variation front end
+- [ ] [[redmine:32307]] user workspace / exporters
+*** Long Read RNASeq                                                                                        :KathrynC:
+- [ ] [[redmine:32125]]
 *** Other Data Loading  [[readtheorgs:/project_planning/dataLoad.html][html]] | [[orgdocs:/project_planning/dataLoad.org][org]]
 **** ESTs                                                                                                      :JayH:
 **** GPIAnchor and MitoProt                                                                                   :JohnB:
@@ -27,15 +32,15 @@
   - [ ] help with Wojtek's issues
   - [ ] Species reconcile
 
-**** DIY :JayH:WojtekB:
+**** DIY                                                                                               :JayH:WojtekB:
 ** Microbiome
-*** Eukaryotic Detection                                                                                                   :WojtekB:
+*** Eukaryotic Detection                                                                                     :WojtekB:
 * Front End Applications
 ** WDK
 *** Genomics 
 **** UniDB Performance and App Specific Databases [[readtheorgs:/project_planning/appDb.html][html]] | [[orgdocs:/project_planning/appDb.org][org]]                                      :JohnB:MarkH:JohnI:
 **** Network Analysis and Host Pathogen [[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]]                                                             :AnnB:
-**** Gene Lists as User Datasets                                                                              :OmarH:CristinaA:AnnB:
+**** Gene Lists as User Datasets                                                               :OmarH:CristinaA:AnnB:
 **** Dataset Record [[readtheorgs:/project_planning/dataset.html][html]] | [[orgdocs:/project_planning/dataset.org][org]]                                                                                 :AnnB:
 **** Organism Preferences                                                                               :JohnB:MarkH:
 - [-] Organism Preferences [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][google doc]]
@@ -48,18 +53,24 @@
 - [ ] compound
 - [ ] check for broken dataset links
 
+**** Download File Record
 *** OrthoMCL
-**** Phylogenetic Pattern WS                                                                                  :MarkH:
+**** Phylogenetic Pattern WS improve performance                                                              :MarkH:
 - [ ] limit to reference organisms on OrthoMCL Site
   - [ ] component sites show all strains
   - [ ] some mechanism to hide organisms from orthomcl?
 - [ ] tree in ortho to use ncbi taxonomy
+**** Additional content (keywords) on genomics gene pages
+- [ ] [[redmine:24852]]
+
 ** EDA
 *** Dataviz Foothills [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][notion]]                                                                               :DanielleC:
 ** MapVEu [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]]                                                                                                :BobM:
-** JBrowse / Apollo
+** Genome Browser [[https://redmine.apidb.org/projects/p110][redmine]]
 *** Apollo [[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]]                                                                                          :PaulW:
 ** Galaxy / Globus [[https://onedrive.live.com/edit.aspx?resid=A33886B8E9920EF7!8142&ithint=file%2cxlsx&authkey=!AEhTv4bcB6N8NZs][onedrive]]                                                                                     :MarkH:
+** Site Search
+*** EDA Site Search for ClinEpi                                                                  :JohnI:YikunD:SteveF:
 ** Documentation
 *** SOPs for Existing Datatypes
 - [X ] RNASeq  [[readtheorgs:/SOPs/rnaseq.html][html]] | [[orgdocs:/SOPs/rnaseq.org][org]]
@@ -70,6 +81,8 @@
 *** How to change Database Schema
 - [ ] Alter Table
 - [ ] New Table
+
+
 
 
 
