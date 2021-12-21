@@ -466,7 +466,9 @@ ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VB
   See above [[graph-from-tables]] for how this fits into reflow workflow
 
 *** How to handle Parent/Child?
-#+begin_src
+
+Config file format
+#+begin_example
  [collectionExample1]
   key1: value
   variables: someChild,somechild2,...
@@ -481,8 +483,25 @@ ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VB
   key1: value
   variables: [someChild,
              anotherChild] 
-  #+end_src
+  #+end_example
 
+  Better in YAML
+#+begin_example
+---
+name: document1
+stable_id: value
+variables:
+  - someChild
+  - anotherChild
+---
+name: document2
+stable_id: otherValue
+variables:
+  - someChild
+  - anotherChild
+#+end_example
+
+  
 *** File Formats and Parsers
 **** Option0: YAML::Tiny
 My understaning is with YAML we would need to be very careful with whitespace.  the parser will not work if the indentation is incorrect.
