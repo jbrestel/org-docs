@@ -486,7 +486,7 @@ Config file format
   #+end_example
 
   Better in YAML
-#+begin_example
+#+begin_src yaml
 ---
 name: document1
 stable_id: value
@@ -499,7 +499,7 @@ stable_id: otherValue
 variables:
   - someChild
   - anotherChild
-#+end_example
+#+end_src
 
   
 *** File Formats and Parsers
@@ -507,7 +507,7 @@ variables:
 My understaning is with YAML we would need to be very careful with whitespace.  the parser will not work if the indentation is incorrect.
 
 I modified Steve's example for collections
-#+begin_example
+#+begin_src yaml
 ---
 name: Z Scores
 id: EUPATH_000933
@@ -524,7 +524,7 @@ description: another collection
 variables:
   - EUPATH_0003938
   - EUPATH_0076667  
-#+end_example
+#+end_src
 
 #+begin_src perl
   use YAML::Tiny;
@@ -535,7 +535,7 @@ variables:
 #+end_src
 
 Could do something similar with study classifications
-#+begin_example
+#+begin_src yaml
 ---
 dataset: ISASimple_Gates_ELICIT_rct_RSRC
 Additional data:
@@ -579,7 +579,7 @@ WHO indicator subdomain: Reproductive, maternal, newborn, child and adolescent h
 Years:
   - 2019
   - 2020
-#+end_example
+#+end_src
 
 **** Option1: Config::General
 this is Apache Config format. Handles multiple lines with same key (makes array).
