@@ -26,6 +26,7 @@
 
 * Schema / Tables                                                                                          :JohnI:JohnB:
 #+begin_src plantuml :file images/eda_uml.png :exports results
+  !define plugin4table(x) class x << (T,#FFAAAA) >> #orange;line:blue;
   !define plugin3table(x) class x << (T,#FFAAAA) >> #palegreen;line:blue;
   !define plugin2table(x) class x << (T,#FFAAAA) >> #lightblue;line:blue;
   !define plugin1table(x) class x << (T,#FFAAAA) >> #line:blue;
@@ -92,13 +93,12 @@
     field(INTERNAL_ABBREV)
   }
 
-
-
   plugin2table(ATTRIBUTEVALUE) {
     primary_key(ATTRIBUTE_VALUE_ID)
     foreign_key(ENTITY_ATTRIBUTES_ID)
-    foreign_key(ENTITY_TYPE_ID)
-    foreign_key_nullable(INCOMING_PROCESS_TYPE_ID)
+    foreign_key(ENTITY_TYPE_ONTOLOGY_TERM_ID)
+    foreign_key_nullable(PROCESS_TYPE_ONTOLOGY_TERM_ID)
+    foreign_key(UNIT_ONTOLOGY_TERM_ID)
     field(ATTRIBUTE_STABLE_ID)
     field_nullable(STRING_VALUE)
     field_nullable(NUMBER_VALUE)
@@ -163,23 +163,37 @@
     foreign_key(TYPE_ID)
   }
 
+  plugin4table(ONTOLOGYTERM) {
+    primary_key(ONTOLOGY_TERM_ID)
+    field(source_id)
+  }
 
   STUDY <..|{ ATTRIBUTEGRAPH
-  STUDY <..|{ ENTITYTYPEGRAPH
-  STUDY <.L.|{ ENTITYTYPE
-  ENTITYTYPE <..|{ ENTITYTYPEGRAPH
+  STUDY <.D.|{ ENTITYTYPEGRAPH
+  ENTITYTYPE <.L.|{ ENTITYTYPEGRAPH
+  STUDY <..|{ ENTITYTYPE
   ENTITYATTRIBUTES <..|{ ATTRIBUTEVALUE
-  ENTITYTYPE <..|{ ATTRIBUTEVALUE
+  ONTOLOGYTERM <..|{ ATTRIBUTEVALUE
   ENTITYTYPE <..|{ ENTITYATTRIBUTES
   ENTITYTYPE <.L.|{ ATTRIBUTEUNIT
   ENTITYTYPE <..|{ ATTRIBUTE
   ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
   ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
-  PROCESSTYPE <.D.|{ ATTRIBUTEVALUE
+  ONTOLOGYTERM <.D.|{ ATTRIBUTEVALUE
   PROCESSTYPE <.L.|{ ATTRIBUTE
   PROCESSTYPE <.D.|{ PROCESSATTRIBUTES
   PROCESSTYPE <.D.|{ PROCESSTYPECOMPONENT
   PROCESSTYPE <.D.|{ PROCESSTYPECOMPONENT
+  ONTOLOGYTERM <..|{ ENTITYTYPE
+  ONTOLOGYTERM <..|{ PROCESSTYPE
+  ONTOLOGYTERM <..|{ ATTRIBUTE
+  ONTOLOGYTERM <..|{ ATTRIBUTE
+  ONTOLOGYTERM <..|{ ATTRIBUTE
+  ONTOLOGYTERM <..|{ ATTRIBUTEUNIT
+  ONTOLOGYTERM <..|{ ATTRIBUTEUNIT
+  ONTOLOGYTERM <..|{ ATTRIBUTEVALUE
+  ONTOLOGYTERM <.L.|{ ATTRIBUTEGRAPH
+  ONTOLOGYTERM <.L.|{ ATTRIBUTEGRAPH
   #+end_src
 
 #+RESULTS:
@@ -201,7 +215,7 @@
 - [X] argument for schema (eda vs eda_ud)
 *** SubclassInsertEntityGraph                                                                                :WojtekB:
 - [X] Append Assay and Data Nodes
-- [ ] argument for schema (edv vs eda_ud)
+- [X] argument for schema (edv vs eda_ud)
 *** LoadAttributesFromEntityGraph
 - [X] Read the Values from the EntityGraph Tables and makes a big tall table (key/values).
   - [X] EDA::Attribute :: Calculate stats at this point for each variable/dataset/entityType;  THe Attribute table is for the LEAF nodes in our "AttributeGraph";
@@ -267,26 +281,33 @@
 *** ClinEpi Graphviz
 **** Input Tables
 #+name: node-table
-| *node*                         | *label*                         | *shape* | *fillcolor* |
-|--------------------------------+---------------------------------+---------+-------------|
-| global_start                   | start                           |         |             |
-| global_end                     | end                             |         |             |
-| start                          | dataset start                   | ellipse |             |
-| end                            | dataset end                     | ellipse |             |
-| collections                    | collections                     |         | yellow      |
-| webdisplay_ontology            | Webdisplay Ontology             |         | yellow      |
-| study_classifications          | Study Characteristics           |         | yellow      |
-| annotation_properties          | Annotation Properties           |         | yellow      |
-| entity_types                   | Entity Types                    |         | yellow      |
-| insert_entity_graph            | Main Entity Graph               |         | purple      |
-| load_attributes                | Attributes and Values           |         | purple      |
-| load_graphs                    | EntityType And Attribute Graphs |         | purple      |
-| load_dataset_specific          | Dataset Specific Tables         |         | purple      |
-| download                       | Download Files                  |         |             |
-| validate_download              | Validate Download               |         |             |
-| validate_tables                | Validate Tables                 |         |             |
-| validate_annotation_properties | Validate Annotation Properties  |         |             |
-| collection_attributes          | Collection Attributes           |         | yellow      |
+| *node*                         | *label*                                      | *shape* | *fillcolor* |
+|--------------------------------+----------------------------------------------+---------+-------------|
+| global_start                   | start                                        | ellipse |             |
+| global_end                     | end                                          | ellipse |             |
+| start                          | dataset start                                | octagon | plum        |
+| end                            | dataset end                                  | octagon | plum        |
+| collections                    | Collections (yaml config)                    |         | lightgreen  |
+| webdisplay_ontology            | Webdisplay Ontology                          |         | lightgreen  |
+| study_classifications          | Study Characteristics                        |         | lightgreen  |
+| annotation_properties          | Annotation Properties                        |         | lightgreen  |
+| entity_types                   | Entity Types                                 |         | lightgreen  |
+| insert_entity_graph            | Entity Graph                                 |         | plum        |
+| mega_insert_entity_graph       | MEGA Entity Graph                            |         | orange      |
+| load_attributes                | Attributes and Values                        |         |             |
+| load_graphs                    | EntityType And Attribute Graphs              |         |             |
+| load_dataset_specific          | Dataset Specific Tables                      |         | plum        |
+| mega_load_dataset_specific     | MEGA Dataset Specific Tables                 |         | orange      |
+| download                       | Download Files                               |         |      plum   |
+| validate_download              | Validate Download                            |         |           plum |
+| validate_tables                | Validate Tables                              |         |          plum |
+| validate_annotation_properties | Validate Annotation Properties               |         |    lightgreen |
+| collection_attributes          | Collection (Inferred Parent/Child Relations) |         | lightgreen  |
+| is_mega_dataset                | Is MEGA Study                                | diamond | yellow      |
+| is_mega_dataset_2              | Is MEGA Study                                | diamond | yellow      |
+| mega_dataset                   | MEGA dataset                                 | octagon | orange      |
+
+
 
 #+name: graph-table
 | from                           | to                             | label |
@@ -296,21 +317,27 @@
 | global_start                   | collections                    |       |
 | webdisplay_ontology            | study_classifications          |       |
 | webdisplay_ontology            | validate_annotation_properties |       |
-| study_classifications          | insert_entity_graph            |       |
+| study_classifications          | is_mega_dataset                |       |
+| entity_types                   | is_mega_dataset                |       |
+| is_mega_dataset                | insert_entity_graph            | N     |
+| is_mega_dataset                | mega_insert_entity_graph       | Y     |
 | webdisplay_ontology            | entity_types                   |       |
 | insert_entity_graph            | load_attributes                |       |
+| mega_insert_entity_graph       | load_attributes                |       |
 | load_attributes                | load_graphs                    |       |
-| load_graphs                    | load_dataset_specific          |       |
+| load_graphs                    | is_mega_dataset_2              |       |
+| is_mega_dataset_2              | load_dataset_specific          | N     |
+| is_mega_dataset_2              | mega_load_dataset_specific     | Y     |
 | load_dataset_specific          | download                       |       |
 | load_dataset_specific          | validate_tables                |       |
 | validate_download              | end                            |       |
 | download                       | validate_download              |       |
 | validate_tables                | end                            |       |
-| entity_types                   | insert_entity_graph            |       |
 | validate_annotation_properties | annotation_properties          |       |
 | annotation_properties          | load_graphs                    |       |
 | collections                    | collection_attributes          |       |
-| end                            | collection_attributes          |       |
+| end                            | mega_dataset                   |       |
+| mega_dataset                   | collection_attributes          |       |
 | collection_attributes          | global_end                     |       |
 
 **** graph-from-tables
@@ -355,20 +382,20 @@ digraph {
   - Current use cases are all studies for Mbio and all studies for MapVEu
 
 * Loading
-** Phase1 Production Loading                                                                                     :JayH:
+** DONE Phase1 Production Loading                                                                                :JayH:
 - [X] work with outreach to preprocess studies targeted for beta release
 - [X] reload data as requested into rm41910 until passes manual qa
 - [X] Load into "EDA" schema instead of ApiDB
 - [X] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
 
-** MapVEu                                                                                                  :BobM:JohnB:
+** TODO MapVEu                                                                                             :BobM:JohnB:
 - [X] Load studies from ISA dumps
 - [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
   - [ ] need to have variables for protocols
-
+  - [ ] Species reconcile
 - [X] Mixed units within studies.. NO!
 - [X] Genotype / Phenotype Assays
-- [ ] Species reconcile
+
 ** MicrobiomeDB                                                                                               :WojtekB:
 - [ ] performance issues with EC levels for functional shotgun data
 - [ ] metabolite data
@@ -380,34 +407,21 @@ digraph {
 - [ ] PopSet Isolate Sequences
 - [ ] Single cell RNASeq ??
 - [ ] Systems Biology  
-** Cross Study Comparison
-*** New EntityType for each Study/Dataset
-
-- [ ] load this at start (InsertEntityGraph).  All studies will have this
-- [ ] exclude/is_hidden this from the entity Type graph table
-- [ ] workflow must load study characteristics at the same time.  input file for study characteristics
-- [ ] load study designs
-  
-*** Variables
+** IN PROGRESS Cross Study Comparison
+*** New Plugin to load Study Entity Type and connect to existing EntityAttributes
+- [ ] load study characteristics.  input file for study characteristics (yaml)
+- [ ] load study designs from isatab??
 - [ ] Variable for Study Name (add display name to study characterisitics file OR ISATab file)
-- [ ] Add Variable for Each Protocols
-  - [ ] This can be done in "InsertEntityGraph" as a command line boolean option
-*** Units
-- [ ] Convert to Base Unit
-  - [ ] ensure units are loaded as global dependency
-  - [ ] each variable needs to set a base unit else we choose one??
-*** MegaStudy
-- [ ] Insert Study and EntityType rows for Mega Study
-  - [ ] EntityTypes would be union based on ontology terms
 
-    #+begin_src perl
-      my $studyCharacteristicsParser = CBIL::Util::Ini->new();
-      my $studyCharacteristics = $studyCharacteristicsParser->parseFile($studyCharacteristicsFile);
-    #+end_src
-- [ ] AttributeGraph and EntityType Graph would be for Mega Study
-  - [ ] would need to union leaves
-  - [ ] study_id would be for the "mega" study.  would lookup children by project
-  - [ ] entity_type_ids would need to be converted to entity_type for mega study
+*** Units
+- [ ] Convert to Base Unit when needed
+  - [ ] each variable needs to set a base unit else we choose one??
+
+*** MegaStudy
+- [X] Insert Study and EntityType rows for Mega Study
+
+- [X] AttributeGraph and EntityType Graph would be for Mega Study
+  - [X] study_id would be for the "mega" study.  
 
 #+begin_example
  # load entity graph (no changes)
@@ -420,16 +434,23 @@ digraph {
 ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
 ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
 ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
-ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit
 
+ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
+ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
+ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
+ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
 
- 
+ ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --commit
+ ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --commit
+ ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --commit
+ ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --commit
 #+end_example
 
 *** OPEN ISATab vs ISASimple                                                                                 :WojtekB:
 - [ ] ISALoader Assay and other Mbio things
     
-** DIY                                                                                                   :JayH:WojtekB:
+** TODO DIY                                                                                              :JayH:WojtekB:
 *** Web Form
 - [ ] minimal changes to web for for MBio
   - [ ] input for mbio is a biom file (table of otu and table of sample details)
@@ -455,7 +476,7 @@ ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VB
   - [ ] create script which manages undo
 *** What to do about legacy user datasets?
 - versioning in user datasets is for what is stored in irods
-** Collections :JayH:
+** TODO Collections                                                                                              :JayH:
 - use the same file format for study classifications and collections.
 - use a real file type which has a perl parser.
 - allow multiple rows for the same key.
@@ -642,7 +663,7 @@ In house parser.  Can modify as needed. Same format as Option1 except will handl
 
 
 *** Loader
-**** TODO Tables
+**** Collection Tables
 #+begin_src sql
   CREATE TABLE &1.Collection (
    collection_id NUMBER(10) NOT NULL,
@@ -689,6 +710,8 @@ In house parser.  Can modify as needed. Same format as Option1 except will handl
 - [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
   + example:  "ok($participantEntityType->getEntityCount() == 5000)";
     + This example get the counts of participants and ensures that the number it gets is 5000;
+
+
 
 
 
