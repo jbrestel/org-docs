@@ -321,3 +321,6 @@
 	("readtheorgs"    . "https://jbrestel.github.io/org-docs")
         ("orgdocs"        . "https://github.com/jbrestel/org-docs/tree/main")
 	))
+
+(setq org-todo-keywords
+      '((sequence "TODO" "IN PROGRESS" "QA" "BLOCKED" "|" "DONE")))
