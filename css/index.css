@@ -6,6 +6,8 @@ img {
     max-width: 100%;
 }
 
-span.todo {
-  background-color: "antiquewhite";
+.BLOCKED {
+    background-color: #DFFFDF;
+    border: 1px solid #55BA80;
+    color: #55BA80;
 }
