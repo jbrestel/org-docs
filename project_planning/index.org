@@ -4,7 +4,7 @@
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: DataDev Projects
 #+OPTIONS:   H:5 num:nil p:t tags:not-in-toc
-#+HTML_HEAD: <style>h5,h4,h3{color:#333333} </style>
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="https://jbrestel.github.io/org-docs/css/index.css" />
 * Data Loading, preprocessing and workflows
 ** Genomics Workflow
 *** BLOCKED UniDB  [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]] | [[https://redmine.apidb.org/projects/jbdqh][redmine]]                                                                        :JohnB:
