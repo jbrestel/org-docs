@@ -6,8 +6,27 @@ img {
     max-width: 100%;
 }
 
+
+h5,h4,h3 {
+    color:#333333
+}
+
 .BLOCKED {
     background-color: #DFFFDF;
     border: 1px solid #55BA80;
     color: #55BA80;
 }
+
+.IN_PROGRESS {
+    background-color: #FEF2D4;
+    border: 1px solid #FDBF3D;
+    color: #FDBF3D;
+}
+
+
+.QA {
+    background-color: #D3EEFF;
+    border: 1px solid #42B5FF;
+    color: #42B5FF;
+}
+
