@@ -1,0 +1,151 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     Gene Lists
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Gene Lists
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+
+* Gene List Workflow Dataset
+** FungiDB Clusters Example from Eve( Omeara_2020_CalCEN_UMAP)                                                   :AnnB:
+[[redmine:46157]]
+
+1. Make "final" directory input files
+  yew:/eupath/data/EuPathDB/manualDelivery/FungiDB/calbSC5314/genericProfile/Omeara_2020_CalCEN_UMAP/2020-12-06/final
+   - 1 file per cluster.  each file will have one column for the gene ids
+2. Make analysisConfig.xml file
+   - there are 2 types of names we'll need to define.  "profileSetName" = displayName for the experiment.  "listName" which will be for the cluster
+     
+    #+begin_src xml
+      <xml>
+        <step class="ApiCommonData::Load::GeneList">
+          <property name="listName" value="Cellular localisation, protein modification" />
+          <property name="profileSetName" value="Omeara 2020 ..." />
+          <property name="inputFile" value="cluster1.txt" />
+        </step>
+        ...
+      </xml>
+    #+end_src
+
+3. Make the Step Class
+
+   #+begin_src perl
+     package ApiCommonData::Load::GeneList;
+     use base qw(ApiCommonData::Load::Loadable); 
+     sub new { 
+         my ($class, $args) = @_;
+         my $self = $class->SUPER::new($args);
+         $self->setSourceIdType("gene");
+         $self->setProtocolName("gene_list");
+         $self->setNames([$self->{listName}]);
+         $self->setFileNames([$self->getInputFile()]);
+         return $self;
+     }
+     1;
+   #+end_src
+
+4. test by calling "doTranscriptExpression" and Confirm that the config file is correct
+   usage:  perl doTranscriptExpression.pl --xml_file <XML> --main_directory <DIR> [--input_file <FILE>] [--seq_id_prefix <SEQ ID PREFIX>] [--patch <use this flag for a patch update>] --technology_type "functional_data"
+   - the output should be a file called "insert_study_config"
+
+5. Tell ApiCommonData::Load::Plugin::InsertStudyResults plugin where to load this data
+   - Possible having only 1 column would be issue?
+   - add elsif to the "addResults" subroutine
+   #+begin_src perl
+     elsif ($protocolName =~ /gene_list/) {
+         $tableString = "ApiDB::NAFeatureList";
+     }          
+      #+end_src
+
+6. create the database table ApiCommonData/Load/lib/sql/api
+
+   #+begin_src sql
+CREATE TABLE ApiDB.NAFeatureList (
+  na_feature_list_id   NUMBER(10) NOT NULL,
+  na_feature_id         NUMBER(10) NOT NULL,
+  protocol_app_node_id         NUMBER(10) NOT NULL,
+  MODIFICATION_DATE     DATE,
+  USER_READ             NUMBER(1),
+  USER_WRITE            NUMBER(1),
+  GROUP_READ            NUMBER(1),
+  GROUP_WRITE           NUMBER(1),
+  OTHER_READ            NUMBER(1),
+  OTHER_WRITE           NUMBER(1),
+  ROW_USER_ID           NUMBER(12),
+  ROW_GROUP_ID          NUMBER(3),
+  ROW_PROJECT_ID        NUMBER(4),
+  ROW_ALG_INVOCATION_ID NUMBER(12),
+  FOREIGN KEY (na_feature_id) REFERENCES DoTS.NaFeatureImp (na_feature_id),
+  FOREIGN KEY (protocol_app_node_id) REFERENCES Study.ProtocolAppNode (protocol_app_node_id),
+  PRIMARY KEY (na_feature_list_id)
+);
+
+create index apidb.nfl_ix
+  on apidb.NaFeatureList (protocol_app_node_id, na_feature_id) tablespace indx;
+
+CREATE SEQUENCE ApiDB.NAFeatureList_sq;
+
+GRANT insert, select, update, delete ON ApiDB.NAFeatureList TO gus_w;
+GRANT select ON ApiDB.NAFeatureList TO gus_r;
+GRANT select ON ApiDB.NAFeatureList_sq TO gus_w;
+
+INSERT INTO core.TableInfo
+  (table_id, name, table_type, primary_key_column, database_id, 
+    is_versioned, is_view, view_on_table_id, superclass_table_id, is_updatable, 
+    modification_date, user_read, user_write, group_read, group_write, 
+    other_read, other_write, row_user_id, row_group_id, row_project_id,
+    row_alg_invocation_id)
+  SELECT core.tableinfo_sq.nextval, 'NAFeatureList', 'Standard', 'na_feature_list_id',
+    d.database_id, 0, 0, '', '', 1,sysdate, 1, 1, 1, 1, 1, 1, 1, 1, p.project_id, 0
+  FROM dual,
+       (SELECT MAX(project_id) AS project_id FROM core.ProjectInfo) p,
+       (SELECT database_id FROM core.DatabaseInfo WHERE name = 'ApiDB') d
+  WHERE 'NAFeatureList' NOT IN (SELECT name FROM core.TableInfo
+  WHERE database_id = d.database_id); 
+    
+
+
+exit;
+
+#+end_src
+
+   #+begin_src sql
+drop table ApiDB.NAFeatureList;
+drop sequence ApiDB.NAFeatureList_sq;
+
+DELETE FROM core.TableInfo
+WHERE lower(name) = lower('NAFeatureList')
+  AND database_id = (SELECT database_id
+                     FROM core.DatabaseInfo 
+                     WHERE lower(name) = 'apidb');
+
+exit;
+
+#+end_src
+
+7. have JohnI run above sql to add table to all "inc" instances
+
+8. Let Haiming know this is ready to load;
+   - he should load as "generic profile" with category/technology = "function prediction"
+
+9. WDK Search
+   - [ ] probably need to add organism param because of organism preferences
+   - [ ] param query to get the protocolappnode names and ids
+   - [ ] param query to get the dataset name
+   - [ ] search form with 2 params (dataset name and list name)
+   - [ ] categorize the search
+   - [ ] add model ref so that the search is linked to the dataset
+
+10. Let Outreach/DataLoading fill in the dataset presetner xml      
+
+* WGCNA
+* User Contributed (UserDataset)
+* VEupath Gene Sets (UserDataset made by superuser and shared publically)
+    
+* Pathways and GO Functions
+* Automated Gene Lists
+  - Dataset1
+    - Comparison A vs B
+    - Comparison A vs C
+    - Comparison B vs C
+  - Dataset2
+    - ...

@@ -234,7 +234,7 @@
       		    "project_planning/eda_diy.org"
 		    "project_planning/apollo.org"
    		    "project_planning/networkAnalysis.org"
-
+      		    "project_planning/geneLists.org"
 		    )
          :base-extension "org"
          :publishing-directory (expand-file-name "public" (projectile-project-root))
