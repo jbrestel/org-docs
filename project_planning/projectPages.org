@@ -1,0 +1,258 @@
+#+STARTUP: indent
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+TITLE:     Project Pages / Study Record
+#+AUTHOR:    John Brestelli
+#+DESCRIPTION: Project Pages / Study Record
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+* Use Cases
+** RNASeq
+Common case where we have Study->Assay->Data->Analysis
+
+#+begin_src plantuml :file images/rnaseq_uml.png :exports both
+  object Study {
+          name = "Happy Birthday Study"
+          pubmed_id = 12345
+              contact = "Joe"
+  }
+  object Assay {
+          name = "RNASeq"
+  }
+  object RawData {
+          name = "Raw Data"
+          file = "rnaseq.fastq"
+	      metadata_file = "sample_descriptons.txt"
+  }
+  object ProcessedData {
+          name = "Processed Data"
+          file1 = "rnaseq.tpm"
+          file2 = "rnaseq.bw"
+  }
+
+  Study --|> Assay
+  Assay --|> RawData
+  RawData --|> ProcessedData
+#+end_src
+
+#+RESULTS:
+[[file:images/rnaseq_uml.png]]
+
+** Multiple Assays per Study
+
+One publication typically has muliple types of assays.  
+
+#+begin_src plantuml :file images/multiple_assays_uml.png :exports both
+  object Study {
+          name = "Happy Birthday Study"
+          pubmed_id = 12345
+          contact = "Joe"
+  }
+  object RNASeqAssay {
+          name = "RNASeq"
+  }
+  object ProteomicsAssay {
+          name = "Proteomics"
+  }
+  object RNASeqRawData {
+          name = "RNASeq Raw Data"
+          file = "rnaseq.fastq"
+          metadata_file = "sample_descriptons.txt"
+  }
+  object RNASeqProcessedData {
+          name = "RNASeq Processed Data"
+          file1 = "rnaseq.tpm"
+          file2 = "rnaseq.bw"
+  }
+  object ProteomicsRawData {
+          name = "Proteomics Raw Data"
+          file = "peptides.txt"
+  }
+  object ProteomicsProcessedData {
+          name = "Proteomics Processed Data"
+          file1 = "gene_spectrum.txt"
+          file2 = "proteomics.bw"
+  }
+
+  Study --|> RNASeqAssay
+  Study --|> ProteomicsAssay
+  RNASeqAssay --|> RNASeqRawData
+  ProteomicsAssay --|> ProteomicsRawData
+  RNASeqRawData --|> RNASeqProcessedData
+  ProteomicsRawData --|> ProteomicsProcessedData
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/multiple_assays_uml.png]]
+  
+** Host Pathogen
+
+For the Same raw data, we align to multiple organisms for host pathogen 
+
+#+begin_src plantuml :file images/host_pathogen_assays_uml.png :exports both
+  object Study {
+          name = "Happy Birthday Study"
+          pubmed_id = 12345
+              contact = "Joe"
+  }
+  object RNASeqAssay {
+          name = "RNASeq"
+  }
+
+  object RNASeqRawData {
+          name = "RNASeq Raw Data"
+          file = "rnaseq.fastq"
+	      metadata_file = "sample_descriptons.txt"
+  }
+  object RNASeqHProcessedData {
+          name = "RNASeq Processed Data Host"
+          organism = "host organism"
+          file1 = "rnaseq.tpm"
+          file2 = "rnaseq.bw"
+  }
+  object RNASeqPProcessedData {
+          name = "RNASeq Processed Data Pathogen"
+          organism = "pathogen organism"
+          file1 = "rnaseq.tpm"
+          file2 = "rnaseq.bw"
+  }
+
+  Study --|> RNASeqAssay
+  RNASeqAssay --|> RNASeqRawData
+  RNASeqRawData --|> RNASeqPProcessedData
+  RNASeqRawData --|> RNASeqHProcessedData
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/host_pathogen_assays_uml.png]]
+
+** ClinEpi Study
+
+ClinEpi Studies have "Tests" but are not represented as assays.  Workflows consume sampleDetails/metadata
+
+#+begin_src plantuml :file images/clinepi_study_uml.png :exports both
+  object Study {
+          name = "Happy Birthday Study"
+          pubmed_id = 12345
+              contact = "Joe"
+  }
+
+  object RawData {
+          name = "Raw Data"
+          metadata_file1 = "participants.txt"
+          metadata_file2 = "households.txt"
+  }
+  object ProcessedData {
+          name = "Processed Data"
+          file1 = "merged_download"
+  }
+
+  Study --|> RawData
+  RawData --|> ProcessedData
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/clinepi_study_uml.png]]
+** ClinEpi Investigation
+
+Multiple Studies can be associatated 
+
+#+begin_src plantuml :file images/clinepi_investigation_uml.png :exports both
+  object Investigation {
+          name = "Happy Birthday Investigation"
+          pubmed_id = 12345
+              contact = "Tim"
+  }
+
+  object Study1 {
+          name = "Joe's Birthday Study"
+          pubmed_id = 123
+              contact = "Joe"
+  }
+  object Study2 {
+          name = "Jane's Birthday Study"
+          pubmed_id = 456
+              contact = "Jane"
+  }
+
+  object RawData1 {
+          name = "Raw Data Joe"
+          metadata_file1 = "participants.txt"
+          metadata_file2 = "households.txt"
+  }
+  object ProcessedData1 {
+          name = "Processed Data Joe"
+          file1 = "merged_download"
+  }
+
+  object RawData2 {
+          name = "Raw Data Jane"
+          metadata_file1 = "participants.txt"
+          metadata_file2 = "households.txt"
+  }
+  object ProcessedData2 {
+          name = "Processed Data Jane"
+          file1 = "merged_download"
+  }
+
+  Investigation --|> Study1
+  Investigation --|> Study2
+  Study1 --|> RawData1
+  RawData1 --|> ProcessedData1
+  Study2 --|> RawData2
+  RawData2 --|> ProcessedData2
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/clinepi_investigation_uml.png]]
+
+
+** Compound Mass Spec
+
+Compound Mass Spec can be treated similar to above
+
+#+begin_src plantuml :file images/ms_compound_uml.png :exports both
+  object Study {
+          name = "Happy Birthday Study"
+          pubmed_id = 12345
+	      contact = "Joe"
+  }
+  object MSAssay {
+          name = "MassSpec"
+  }
+
+  object MSRawData {
+          name = "MS Raw Data"
+          file = "peaks"
+  }
+  object MSProcessedData {
+          name = "MS Processed Data"
+          file2 = "abundance.txt"
+  }
+
+  Study --|> MSAssay
+  MSAssay --|> MSRawData
+  MSRawData --|> MSProcessedData
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/ms_compound_uml.png]]
+
+** Global
+
+Compound,Pathway,Ontologies only have raw data which is loaded.  Often no publication
+
+#+begin_src plantuml :file images/global_uml.png :exports both
+  object Study {
+          name = "Happy Birthday Study"
+	      contact = "Joe"
+  }
+
+  object GlobalRawData {
+          name = "Global Raw Data"
+          file = "owl"
+  }
+
+  Study --|> GlobalRawData
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/global_uml.png]]
