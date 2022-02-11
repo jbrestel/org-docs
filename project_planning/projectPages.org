@@ -205,6 +205,57 @@ Multiple Studies can be associatated
   [[file:images/clinepi_investigation_uml.png]]
 
 
+** ClinEpi / Plasmo Cross Component
+
+Antibody Microarray Data in PlasmoDB and ClinEpi "MetaData" comes from PRISM Study
+
+#+begin_src plantuml :file images/clinepi_plasmo_study_uml.png :exports both
+  object Study {
+          name = "PRISM"
+          pubmed_id = 12345
+          contact = "Joe"
+  }
+
+  component ClinEpi {
+          object RawData {
+                  name = "Raw Data"
+                  metadata_file1 = "participants.txt"
+                  metadata_file2 = "households.txt"
+          }
+          object ProcessedData {
+                  name = "Processed Data"
+                  file1 = "merged_download"
+          }
+  }
+
+  component PlasmoDB {
+          object AssayAb {
+                  name = "Antibody Microarray Hybridization"
+          }
+
+
+          object RawDataAb {
+                  name = "Microarray Raw Data"
+                  metadata_file = "samples.txt"
+                  file = "intensities.txt"
+          }
+          object ProcessedDataAb {
+                  name = "Microarray Processed Data"
+                  file = "normalized.txt"
+          }
+
+  }
+
+  Study --|> RawData
+  Study --|> AssayAb
+  AssayAb --|> RawDataAb
+  RawData --|> ProcessedData
+  RawDataAb --|> ProcessedDataAb
+
+  #+end_src
+
+  #+RESULTS:
+  [[file:images/clinepi_plasmo_study_uml.png]]
 ** Compound Mass Spec
 
 Compound Mass Spec can be treated similar to above
