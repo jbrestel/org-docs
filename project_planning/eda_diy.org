@@ -4,61 +4,142 @@
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA DIY
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* Ontology / Attribute Graph
+
+* Overview
+
+#+name: Process Flow
+#+begin_src plantuml :file images/eda_diy.png :exports
+start
+if(isMbio) then (yes)
+  :Validate biom;
+ else(no)
+  :Validate tab delim;
+endif
+if (isValid) then (yes)
+  :IRODs;
+  rectangle Installer {
+     if(isMbio) then (yes)
+        :preprocess biom;
+     else(no)
+         :preprocess tab delim;
+  endif
+     :load ontologyterms;
+     :load entity graph;
+     :load attribution;
+        }
+else (no)
+  :Exit and Report Errors;
+endif
+stop
+
+
+#+end_src
+
+#+RESULTS: Process Flow
+[[file:images/eda_diy.png]]
+
+* Validator
+
+- [ ] Confirm We will need separate validators for Mbio and ClinEpi
+
+** Microbiome  :WojtekB:
+- Use existing biom validator?
+- Are there additional requirements for metadata table?
+
+** ClinEpi :JayH:
+- For the first deliverable, there will be a single file (one entity type)
+- What can we validate?
+  - every row must have a primary key
+  - pk must be unique
+  - col headers must be unique
+
+* Installer
   Each Entity is represented by a tab file or table representation in biom file.  The Header defines the variables/attributes for that entity type.
 
-  + Example files
-    + household.txt
-      + h_attr1
-      + h_attr2
-      + h_attr3
-      + ...
-    + participant.txt
-      + p_attr1
-      + p_attr2  
-      + p_attr3
-      + ...
-    + assay.txt
-      + a_attr1
-      + a_attr2  
-      + a_attr3
-      + ...
+** Example files
 
-** Option1:  Use existing plugins / workflow
-  
-  + [ ] Make a tab file for loading ontology and Load with a plugin called "GUS::Supported::Plugin::InsertOntologyFromTabDelim"
-    + [ ] one row in Sres.ontologyterm for each file (entity type)
-    + [ ] one row in Sres.ontologyterm for each variable column in each file
-    + [ ] rows into SRes.ontologyterm as needed for protocols
-    + [ ] source_ids should be unique;  they don't need to be meaningful otherwise.
-    
-  + [ ] confirm that undo mechanism can handle tables which do not have a user_dataset_id.
-    #+begin_src sql
-      delete blah from sres.ontologyterm where ontology_term_id in (
-	 select distinct ontology_term_id from eda_ud.attribute where user_dataset_id = ?
-	 union
-	 select distinct ontology_term_id from eda_ud.entitytype where user_dataset_id = ?
-	 union
-	 ...
-      )
-    #+end_src
-  
-  + create ancilary files (use ontology term source_ids from above)
-    + [ ] create an "investigation.xml" file for the study which
-    + [ ] create ontologyMapping.xml
-    
+Mbio has biom table which is similar??
 
-** Option2:  New Lightweight solution
-   + create eda dataset specific tables directly
-   + How do we handle attributes like "min/max" range and other columns in attribute graph?
-   + would still need to strongly type columns (date,number,varchar)
-   
-   
-* Sample Details
-  Each entity is represented as a tab file (same file as above).  This file will be read by the InvestigationSimple parser
+*** ClinEpi
 
-* Results (OTUs, ...)
-  How are OTU results ?
-  
-* UX
+#+name: Household.txt
+| Household ID | Parent | h_attr1    | h_attr2      | h_attr3    |
+|--------------+--------+------------+--------------+------------+
+| hh_id1       |        | attr1_val1 | attr2_value1 | attr3_val1 |
+| hh_id2       |        | attr1_val2 | attr2_value2 | attr3_val2 |
+| hh_id3       |        | attr1_val2 | attr2_value3 | attr3_val3 |
+
+#+name: Participant.txt
+| Household ID | Parent | h_attr1    | h_attr2      | h_attr3    |
+|--------------+--------+------------+--------------+------------|
+| p_id1        | hh_id1 | attr1_val1 | attr2_value1 | attr3_val1 |
+| p_id2        | hh_id2 | attr1_val2 | attr2_value2 | attr3_val2 |
+| p_id3        | hh_id3 | attr1_val2 | attr2_value3 | attr3_val3 |
+
+
+** Use existing plugins / workflow
+
+*** Preprocess Script will Split input file(s)
+- [ ] Create ontology files
+  - [ ] create ontology tab delim attributes
+    - [ ] one row in Sres.ontologyterm for each variable column in each
+  - [ ] create ontology tab delim Entity Types
+    - [ ] one row in Sres.ontologyterm for each file (entity type)
+- [ ] rows into SRes.ontologyterm as needed for protocols??
+- [ ] create ISA Simple data file
+- [ ] create ancilary files (use ontology term source_ids from above)
+  - [ ] create an "investigation.xml" file for the study which
+  - [ ] create ontologyMapping.xml?
+
+
+
+*** Insert "Ontology" / Variables
+
+- [ ] Load with a plugin called "GUS::Supported::Plugin::InsertOntologyFromTabDelim"
+- [ ] confirm that undo mechanism can handle tables which do not have a user_dataset_id.
+#+begin_src sql
+     delete blah from sres.ontologyterm where ontology_term_id in (
+	select distinct ontology_term_id from eda_ud.attribute where user_dataset_id = ?
+	union
+	select distinct ontology_term_id from eda_ud.entitytype where user_dataset_id = ?
+	union
+	...
+     )
+#+end_src
+
+
+
+*** Insert Entity Graph
+- WDK Calls a process / script
+  - [X] need access to GUS_HOME on jenkins.
+    - [X] $GUS_HOME/config/gus.config specifies the database
+  - Example:  irods.builder on [[https://ws.apidb.org]]
+  - [ ] confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
+  - [ ] add user_dataset_id to each eda_ud table
+    - [ ] additional sql run by the schema installer after "createEntityGraph" tables
+  - [ ] create a bash script which calls 4 plugins
+
+
+*** Insert Dataset tables
+The EDA requires a dataset record.  Steve's proposal is to create a UserDatasetPresenter table which can be installed along with other data.
+NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not simply the user dataset page.
+
+- [ ] Need more than just the presenter table.
+
+#+begin_example
+eda_ud.datasetpresenter
+  name
+  dataset_presenter_id
+#_end_example
+
+- [ ] Create View which unions apidbtuning.datasetpresener with eda_ud.datasetpresenter
+- [ ] Update model to use the new view
+
+
+*** Undo!!!
+  - [ ] create script which manages undo
+
+    * UX
   Existing UX for Microbiome biom files should remain in place.  ClinEpi DIY will need to consume 1 or more tab files and the user should be able to specifiy the "parent" entity type for each file
+* What to do about legacy user datasets?
+versioning in user datasets is for what is stored in irods

@@ -1,24 +1,24 @@
-#+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     EDA Backend
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA Backend
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* Vocabulary
-- Study :: An investigation and analysis of a subjects
-- Entity :: A thing with distinct and independent existence
-- Entity Type Graph :: A graph connecting types of entities for a study
+* Basics
+** Vocabulary
+- Study :: An investigation and analysis of subjects
+- Entity :: Something with distinct and independent existence
+- Entity Type Graph :: Entity Type descriptions includding parent/child (study specific)
 - Attribute :: Variable/Property/Characteristics
-- Attribute Graph :: A graph showing web display ontology for a study
+- Attribute Graph :: Web display ontology descriptions including parent/child relationships (study specific)
 - Process :: Application of a Protocol
-  
-* Out of scope
-*** Dependencies
-**** Preprocessing
-**** ISA Reader (CBIL::ISA)
-*** Query Performance
-*** Data Vis and UX
-* Useful Links
+- MegaStudy :: Union (or Intersection?) of Entities from 2 or more sub studies and the union (or intersection?) of their attribute values
+** Out of scope
+- Dependencies
+  - Preprocessing
+  - ISA Reader (CBIL::ISA)
+- Query Performance
+- Data Vis and UX
+** Useful Links
 
 [[https://feature.clinepidb.org/ce.feature/app/eda][ClinEpi Feature Site]]
 
@@ -40,6 +40,7 @@
   hide methods
   hide stereotypes
 
+rectangle InsertEntityGraph.pm {
   plugin1table(STUDY) {
     primary_key(STUDY_ID)
     unique(STABLE_ID)
@@ -48,7 +49,62 @@
     field_nullable(MAX_ATTR_LENGTH)
   }
 
-  plugin3table(ATTRIBUTEGRAPH) {
+        plugin1table(ENTITYTYPE) {
+    primary_key(ENTITY_TYPE_ID)
+    field(NAME)
+    field_nullable(TYPE_ID)
+    field_nullable(ISA_TYPE)
+    foreign_key(STUDY_ID)
+    field(INTERNAL_ABBREV)
+  }
+
+  plugin1table(ENTITYCLASSIFICATION) {
+    primary_key(ENTITY_CLASSIFICATION_ID)
+    foreign_key(ENTITY_ATTRIBUTES_ID)
+    foreign_key(ENTITY_TYPE_ID)
+  }
+
+  plugin1table(ENTITYATTRIBUTES) {
+    primary_key(ENTITY_ATTRIBUTES_ID)
+    field(STABLE_ID)
+    foreign_key(ENTITY_TYPE_ID)
+    field_nullable(ATTS)
+  }
+
+  plugin1table(ATTRIBUTEUNIT) {
+    primary_key(ATTRIBUTE_UNIT_ID)
+    foreign_key(ENTITY_TYPE_ID)
+    foreign_key(ATTR_ONTOLOGY_TERM_ID)
+    foreign_key(UNIT_ONTOLOGY_TERM_ID)
+  }
+
+  plugin1table(PROCESSATTRIBUTES) {
+    primary_key(PROCESS_ATTRIBUTES_ID)
+    foreign_key(PROCESS_TYPE_ID)
+    foreign_key(IN_ENTITY_ID)
+    foreign_key(OUT_ENTITY_ID)
+    field_nullable(ATTS)
+  }
+
+  plugin1table(PROCESSTYPECOMPONENT) {
+    primary_key(PROCESS_TYPE_COMPONENT_ID)
+    foreign_key(PROCESS_TYPE_ID)
+    foreign_key(COMPONENT_ID)
+    field(ORDER_NUM)
+  }
+
+  plugin1table(PROCESSTYPE) {
+    primary_key(PROCESS_TYPE_ID)
+    field(NAME)
+    field_nullable(DESCRIPTION)
+    foreign_key(TYPE_ID)
+  }
+
+
+}
+
+rectangle LoadEntityTypeAndAttributeGraph.pm {
+    plugin3table(ATTRIBUTEGRAPH) {
     primary_key(ATTRIBUTE_GRAPH_ID)
     foreign_key(STUDY_ID)
     foreign_key(ONTOLOGY_TERM_ID)
@@ -83,16 +139,10 @@
     field_nullable(DESCRIPTION)
     field(INTERNAL_ABBREV)
   }
+}
 
-  plugin1table(ENTITYTYPE) {
-    primary_key(ENTITY_TYPE_ID)
-    field(NAME)
-    field_nullable(TYPE_ID)
-    field_nullable(ISA_TYPE)
-    foreign_key(STUDY_ID)
-    field(INTERNAL_ABBREV)
-  }
 
+rectangle LoadAttributesFromEntityGraph {
   plugin2table(ATTRIBUTEVALUE) {
     primary_key(ATTRIBUTE_VALUE_ID)
     foreign_key(ENTITY_ATTRIBUTES_ID)
@@ -105,27 +155,6 @@
     field_nullable(DATE_VALUE)
   }
 
-  plugin1table(ENTITYATTRIBUTES) {
-    primary_key(ENTITY_ATTRIBUTES_ID)
-    field(STABLE_ID)
-    foreign_key(ENTITY_TYPE_ID)
-    field_nullable(ATTS)
-  }
-
-  plugin1table(ATTRIBUTEUNIT) {
-    primary_key(ATTRIBUTE_UNIT_ID)
-    foreign_key(ENTITY_TYPE_ID)
-    foreign_key(ATTR_ONTOLOGY_TERM_ID)
-    foreign_key(UNIT_ONTOLOGY_TERM_ID)
-  }
-
-  plugin1table(PROCESSATTRIBUTES) {
-    primary_key(PROCESS_ATTRIBUTES_ID)
-    foreign_key(PROCESS_TYPE_ID)
-    foreign_key(IN_ENTITY_ID)
-    foreign_key(OUT_ENTITY_ID)
-    field_nullable(ATTS)
-  }
 
   plugin2table(ATTRIBUTE) {
     primary_key(ATTRIBUTE_ID)
@@ -149,59 +178,48 @@
     field_nullable(BIN_WIDTH)
   }
 
-  plugin1table(PROCESSTYPECOMPONENT) {
-    primary_key(PROCESS_TYPE_COMPONENT_ID)
-    foreign_key(PROCESS_TYPE_ID)
-    foreign_key(COMPONENT_ID)
-    field(ORDER_NUM)
-  }
-
-  plugin1table(PROCESSTYPE) {
-    primary_key(PROCESS_TYPE_ID)
-    field(NAME)
-    field_nullable(DESCRIPTION)
-    foreign_key(TYPE_ID)
-  }
-
+}
   plugin4table(ONTOLOGYTERM) {
     primary_key(ONTOLOGY_TERM_ID)
     field(source_id)
   }
 
-  STUDY <..|{ ATTRIBUTEGRAPH
-  STUDY <.D.|{ ENTITYTYPEGRAPH
-  ENTITYTYPE <.L.|{ ENTITYTYPEGRAPH
   STUDY <..|{ ENTITYTYPE
+  ENTITYTYPE <..|{ ENTITYCLASSIFICATION
+  ENTITYATTRIBUTES <.d.|{ ENTITYCLASSIFICATION
+  ENTITYTYPE <..|{ ENTITYATTRIBUTES
+  ENTITYTYPE <..|{ ATTRIBUTEUNIT
+  ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
+  ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
+  PROCESSTYPE <.d.|{ PROCESSATTRIBUTES
+  PROCESSTYPE <..|{ PROCESSTYPECOMPONENT
+  PROCESSTYPE <..|{ PROCESSTYPECOMPONENT
+  ONTOLOGYTERM <.d.|{ ENTITYTYPE
+  ONTOLOGYTERM <..|{ PROCESSTYPE
+  ONTOLOGYTERM <..|{ ATTRIBUTEUNIT
+  ONTOLOGYTERM <..|{ ATTRIBUTEUNIT
+  ENTITYTYPE <..|{ ATTRIBUTE
+  PROCESSTYPE <..|{ ATTRIBUTE
+  ONTOLOGYTERM <..|{ ATTRIBUTE
+  ONTOLOGYTERM <..|{ ATTRIBUTE
+  ONTOLOGYTERM <..|{ ATTRIBUTE
   ENTITYATTRIBUTES <..|{ ATTRIBUTEVALUE
   ONTOLOGYTERM <..|{ ATTRIBUTEVALUE
-  ENTITYTYPE <..|{ ENTITYATTRIBUTES
-  ENTITYTYPE <.L.|{ ATTRIBUTEUNIT
-  ENTITYTYPE <..|{ ATTRIBUTE
-  ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
-  ENTITYATTRIBUTES <..|{ PROCESSATTRIBUTES
-  ONTOLOGYTERM <.D.|{ ATTRIBUTEVALUE
-  PROCESSTYPE <.L.|{ ATTRIBUTE
-  PROCESSTYPE <.D.|{ PROCESSATTRIBUTES
-  PROCESSTYPE <.D.|{ PROCESSTYPECOMPONENT
-  PROCESSTYPE <.D.|{ PROCESSTYPECOMPONENT
-  ONTOLOGYTERM <..|{ ENTITYTYPE
-  ONTOLOGYTERM <..|{ PROCESSTYPE
-  ONTOLOGYTERM <..|{ ATTRIBUTE
-  ONTOLOGYTERM <..|{ ATTRIBUTE
-  ONTOLOGYTERM <..|{ ATTRIBUTE
-  ONTOLOGYTERM <..|{ ATTRIBUTEUNIT
-  ONTOLOGYTERM <..|{ ATTRIBUTEUNIT
   ONTOLOGYTERM <..|{ ATTRIBUTEVALUE
-  ONTOLOGYTERM <.L.|{ ATTRIBUTEGRAPH
-  ONTOLOGYTERM <.L.|{ ATTRIBUTEGRAPH
+  ONTOLOGYTERM <..|{ ATTRIBUTEVALUE
+  STUDY <.r.|{ ENTITYTYPEGRAPH
+  ENTITYTYPE <.r.|{ ENTITYTYPEGRAPH
+  STUDY <..|{ ATTRIBUTEGRAPH
+  ONTOLOGYTERM <.d.|{ ATTRIBUTEGRAPH
+  ONTOLOGYTERM <.d.|{ ATTRIBUTEGRAPH
   #+end_src
 
-#+RESULTS:
-[[file:images/eda_uml.png]]
+  #+RESULTS:
+  [[file:images/eda_uml.png]]
 
 - [X] update schema installer to create EDA and EDA_UD schemas (replace ApiDB)
 * Plugins                                                                                           :JohnB:WojtekB:JayH:
-*** InsertEntityGraph
+** InsertEntityGraph
 - [-] read the ISA(Tab or Simple) files and populate normalized tables representing the EntityGraph
   - [X] EDA::Study
   - [X] EDA::EntityType :: Household,Partipant, Sample ...
@@ -213,10 +231,7 @@
   - [X] EDA::ProcessTypeComponent :: used to encode a series of protocols
 - [X] Add GeoHash attributes if we have Lat/Long
 - [X] argument for schema (eda vs eda_ud)
-*** SubclassInsertEntityGraph                                                                                :WojtekB:
-- [X] Append Assay and Data Nodes
-- [X] argument for schema (edv vs eda_ud)
-*** LoadAttributesFromEntityGraph
+** LoadAttributesFromEntityGraph
 - [X] Read the Values from the EntityGraph Tables and makes a big tall table (key/values).
   - [X] EDA::Attribute :: Calculate stats at this point for each variable/dataset/entityType;  THe Attribute table is for the LEAF nodes in our "AttributeGraph";
   - [X] EDA::AttributeValue :: Tall table with a row for each value for each variable/entity
@@ -225,12 +240,12 @@
 - [ ] Handle Scale from Annotation Properties
 - [ ] Check that binary inference has priority over ordinal
 - [X] argument for schema (edv vs eda_ud)
-*** LoadEntityTypeAndAttributeGraphs
+** LoadEntityTypeAndAttributeGraphs
 - [X] Populate tables for parent-child relationships (EntityTypes and Attributes); AttributeGraph also stores annotation properties from the owl file
   - [X] EDA::AttributeGraph :: Connect Attribute (Leaf) to parent/child relationships defined by ontology.  also stores annotation properties from the owl file
   - [X] EDA::EntityTypeGraph :: Infer entity type relationships from the Inputs/Outputs
 - [X] argument for schema (edv vs eda_ud)
-*** LoadDatasetSpecificEntityGraph
+** LoadDatasetSpecificEntityGraph
 - [X] Populate Dataset Specific Tables
   - [X] EDA::AttributeValue_${studyId}_${EntityTypeId} :: Subset of the main AttributeValue Table (per dataset)
   - [X] EDA::Ancestors_${studyId}_${EntityTypeId} :: Fields for stable ids for each ancestor
@@ -248,27 +263,40 @@
           where entity_attributes_id = 10632037;
     #+end_src
 - [X] argument for schema (eda vs eda_ud)
-*** LoadMegaStudy                                                                                            :WojtekB:
-- [ ] Union of all Studies for Project (Cross Study Comparisons)
-- [ ] Units need to convert to base unit (only where applicable)
-- [ ] How to add Study (display name) as entitytype or variable?
-- [ ] How to add protocol names as variables??
-- [X] argument for schema (edv vs eda_ud)
+** Mega Study Plugins                                                                                           :JohnB:
+**** InsertMegaEntityGraph
+
+- [X] add new row in study
+- [X] yaml which defines megastudy
+  - [X] Union of all Studies for Project or by list of studies
+- [X] new entitytype for "study"
+  - [X] one new row in entityattributes for each "substudy"
+- [-] Study Characteristics in the entity graph
+  - [X] query from substudy StudyCharacteristics table and load as EntityAttributes
+  - [ ] display name needs to be added to the yaml for study characteristics 
+- [X] load new entitytypes for "union" of sub study entity types
+- [-] Units
+  - [X] first pass assume units are consistent
+  - [ ] long run choose "base unit"
+- [X] link sub study entityattributes to mega study entity types
+    
+**** LoadMegaDatasetSpecificEntityGraph
+- [X] alternative mechanism to get the list of "entity_type_ids" used to find other tables
+  - [X] changes to the parent class LoadDatasetSpecificEntityGraph to enable this
+
 * Ontologies and Annotation Properties                                                                            :JayH:
-*** Annotation Properties                                                                                       :JayH:
-- [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study is loaded
+** Annotation Properties                                                                                         :JayH:
+- [X] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study is loaded
 - [X] Which fields from annotation properties are required by EDA?  implcations for Genomics/Mbio/MapVEu
-*** OWL File Organization
-- [ ] consider dataset specific webdisplay ontologies
+** OWL File Organization
+- [X] consider dataset specific webdisplay ontologies
 - [ ] can we use the owl file in place of the ontologymapping.xml?
 * Reflow Workflow                                                                                                 :JayH:
-*** Phase1 / ClinEpi
-- [-] finalize ReFlow Workflow
+** Phase1 / ClinEpi
+- [X] finalize ReFlow Workflow
   - [X] create download files;  use "is_merge_key"
-  - [ ] validation of annotation properties (ad hoc or via owl file)
-  - [ ] add TBD qa/validation steps
-  - [ ] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study
-  - EDA.StudyCharacteristics
+  - [X] Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study
+  - [X] EDA.StudyCharacteristics
     - [X] add create table sql file "ApiCommonData/Load/lib/sql/apidbSchema/" and in the installApiDB script (ApiCommonData/Load/bin)
     - [X] study_id field in new table should point to eda.study
     - [X] update inc instances to create the EDA.StudyCharacteristic table (JohnI can help with this)
@@ -278,9 +306,10 @@
     - [X] ensure we are loading into eda and not apidb.
     - [X] the workflow step which calls the plugin needs to set the "schema" to "EDA"
     - [X] undoTables needs to lookup the value of "schema" from when the plugin was run forward and undo those tables.      
-*** ClinEpi Graphviz
-**** Input Tables
+** ClinEpi Graphviz
+*** Input Tables
 #+name: node-table
+#+begin_table
 | *node*                         | *label*                                      | *shape* | *fillcolor* |
 |--------------------------------+----------------------------------------------+---------+-------------|
 | global_start                   | start                                        | ellipse |             |
@@ -298,18 +327,18 @@
 | load_graphs                    | EntityType And Attribute Graphs              |         |             |
 | load_dataset_specific          | Dataset Specific Tables                      |         | plum        |
 | mega_load_dataset_specific     | MEGA Dataset Specific Tables                 |         | orange      |
-| download                       | Download Files                               |         |      plum   |
-| validate_download              | Validate Download                            |         |           plum |
-| validate_tables                | Validate Tables                              |         |          plum |
-| validate_annotation_properties | Validate Annotation Properties               |         |    lightgreen |
+| download                       | Download Files                               |         | plum        |
+| validate_download              | Validate Download                            |         | plum        |
+| validate_tables                | Validate Tables                              |         | plum        |
+| validate_annotation_properties | Validate Annotation Properties               |         | lightgreen  |
 | collection_attributes          | Collection (Inferred Parent/Child Relations) |         | lightgreen  |
 | is_mega_dataset                | Is MEGA Study                                | diamond | yellow      |
 | is_mega_dataset_2              | Is MEGA Study                                | diamond | yellow      |
 | mega_dataset                   | MEGA dataset                                 | octagon | orange      |
-
-
+#+end_table
 
 #+name: graph-table
+#+begin_table
 | from                           | to                             | label |
 |--------------------------------+--------------------------------+-------|
 | global_start                   | start                          |       |
@@ -339,8 +368,9 @@
 | end                            | mega_dataset                   |       |
 | mega_dataset                   | collection_attributes          |       |
 | collection_attributes          | global_end                     |       |
+#+end_table
 
-**** graph-from-tables
+*** TODO graph-from-tables
 
 #+name: graph-from-tables
 #+HEADER: :var nodes=node-table graph=graph-table
@@ -372,57 +402,102 @@ digraph {
 
 #+RESULTS:
 [[file:images/reflowMadness.png]]
-
-
-
-*** Other Components
+** Other Components
 - [ ] MBio and MapVEU Need a dedicated workflow Template
 - [ ] Where are we loading application specific data? (datasets, SNPs, WHO Standards, ...)
 - Which studies would be made into Mega Studies
   - Current use cases are all studies for Mbio and all studies for MapVEu
 
-* Loading
+* Loading Progress
 ** DONE Phase1 Production Loading                                                                                :JayH:
 - [X] work with outreach to preprocess studies targeted for beta release
 - [X] reload data as requested into rm41910 until passes manual qa
 - [X] Load into "EDA" schema instead of ApiDB
 - [X] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
 
-** TODO MapVEu                                                                                             :BobM:JohnB:
-- [X] Load studies from ISA dumps
-- [ ] yew:/home/bmaccallum/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type
-  - [ ] need to have variables for protocols
-  - [ ] Species reconcile
+** IN PROGRESS MapVEu                                                                                      :BobM:JohnB:
+- [X] Upgrade CBIL Reader to Load studies from ISA dumps
 - [X] Mixed units within studies.. NO!
 - [X] Genotype / Phenotype Assays
+- [ ] Add variables for protocols to InsertEntityGraph.pm
+- [ ] Species reconciliation
 
-** MicrobiomeDB                                                                                               :WojtekB:
-- [ ] performance issues with EC levels for functional shotgun data
-- [ ] metabolite data
-- [ ] Dan identified a small number of studies to load into rm41910
-** Genomics
-- [ ] DNASeq (SNPs and CNV)
-- [ ] Host Pathogen
-- [ ] Antibody Microarray (ICEMR)
-- [ ] PopSet Isolate Sequences
-- [ ] Single cell RNASeq ??
-- [ ] Systems Biology  
-** IN PROGRESS Cross Study Comparison
-*** New Plugin to load Study Entity Type and connect to existing EntityAttributes
-- [ ] load study characteristics.  input file for study characteristics (yaml)
-- [ ] load study designs from isatab??
-- [ ] Variable for Study Name (add display name to study characterisitics file OR ISATab file)
+
+** IN PROGRESS Cross Study Comparison / Mega Study
+*** YAML file to define Mega Study
+
+We are using YAML format for StudyClassifications, MegaStudy and Collections
+
+**** TODO Exclude studies list
+
+#+begin_src yaml
+---
+stable_id: MegaStudyTest1
+studies:
+  - 2019-Lehman-abundance
+  - 2020-francis-aegypti
+---
+stable_id: MegaStudyTest2
+project: MapVEu
+
+#+end_src
+
+*** Reuse rows in $schema.entityattributes (node)
+- [X] New Linking Table "EntityClassification"
+  - [X] Linking Table which joins EntityAttributes to EntityType
+  - [X] retain entity_type_id from entityattributes (original study)
+- [X] update all appropriate queries which use "entityattributes to also join to entityclassification
+- can join on entity_type_id for non mega studies if performance problem
+
+*** InsertMegaEntityGraph.pm
+- [X] Insert Study EntityType and  EntityAttribute rows for Mega Study
+- [X] load study characteristics as attributes of new study node
+  - [X] Read from StudyCharacteristics table
+- [X] join new study rows in entityattributes to existing graph (ie. add row in eda.processattributes)
+- [ ] do we need to specify which entity type to attach study?  currently attaching to every root node
+  - could intersect entity type and union attribute graph??
+
+#+begin_src plantuml :file images/mega_entity_types_uml.png
+rectangle MegaStudy {
+        object Study
+        rectangle OriginalStudy {
+                object Household
+                object Participant
+                object RepeatedMeasure
+        }
+}
+Household --|> Participant
+Participant --|> RepeatedMeasure
+Study ..|> Household
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_types_uml.png]]
 
 *** Units
-- [ ] Convert to Base Unit when needed
-  - [ ] each variable needs to set a base unit else we choose one??
 
-*** MegaStudy
-- [X] Insert Study and EntityType rows for Mega Study
+We enforce that all values for attribute/entitytype/study have the same unit!
 
-- [X] AttributeGraph and EntityType Graph would be for Mega Study
-  - [X] study_id would be for the "mega" study.  
+**** TODO MapVeu will have unit issues
 
+**** Reuse LoadAttributesFromEntityGraph.pm
+This plugin does work to summarize the attributes.  I don't want to duplicate this code
+- [X] continue to enforce that units are consistent for each entitytype/attribute
+- [X] for now just fail if substudies are inconsistent for unit
+- [ ] long term, Convert to Base Unit if init unit doesn't match mega unit
+- [ ] add to the "loadAttributes" sql to return json object of sourcid/units
+- [ ] For Mega Study, Print to fifo only when convertunits OR study nodes
+
+**** Reuse $schema.AttributeValue Rows
+- [X] add unit_ontology_term_id to each row
+- [X] replace entity_type_id with ontology_term_id for the entitytype
+- [X] use ontology_term_id of the entity type + ontology_term_id of the unit to join
+
+*** Load Dataset Specific Tables
+- [X] make subclass  / factor some methods because of harder joins for mega study
+- [X] iterate over (sub)studies and do inserts
+
+*** Command Lines
 #+begin_example
  # load entity graph (no changes)
  ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000123 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --commit
@@ -447,36 +522,16 @@ ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/
  ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --commit
 #+end_example
 
-*** OPEN ISATab vs ISASimple                                                                                 :WojtekB:
-- [ ] ISALoader Assay and other Mbio things
-    
-** TODO DIY                                                                                              :JayH:WojtekB:
-*** Web Form
-- [ ] minimal changes to web for for MBio
-  - [ ] input for mbio is a biom file (table of otu and table of sample details)
-- [ ] how to handle ontology dependencies?
-*** Container / Preprocess / Validation
-**** MicrobiomeDB
-- [ ] Transform biom to json and tsv files
-**** ClineEpiDB
-- [ ] Refactor of ClinEpi preprocessing scripts and make container
-- [ ] Any changes needed for mbio preprocess?
-*** Loader
-- [ ] how to do inserts? can we reuse the existing plugins?
-- WDK Calls a process / script
-  - has access to GUS_HOME on jenkins.
-    - $GUS_HOME/config/gus.config specifies the database
-  - [ ] Which projects are built? GUS
-  - irods.builder on [[https://ws.apidb.org]]
-  - [ ] confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
-  - [ ] add user_dataset_id to each eda_ud table
-    - [ ] alter each eda_ud table after entity graph tables have been installed
-  - [ ] Every installer needs to handle common user dataset tables
-  - [ ] create a wrapper which calls 4 plugins
-  - [ ] create script which manages undo
-*** What to do about legacy user datasets?
-- versioning in user datasets is for what is stored in irods
-** TODO Collections                                                                                              :JayH:
+
+** THEM DIY [[orgdocs:/project_planning/eda_diy.org]]                                                    :JayH:WojtekB:
+
+** THEM MicrobiomeDB                                                                                          :WojtekB:
+- [ ] performance issues with EC levels for functional shotgun data
+- [X] Load studies into test instance
+- [ ] Undo/Reload test data as required
+- [X] metabolite ] Dan identified a small number of studies to load into rm41910
+- [X] ISALoader Assay and other Mbio things
+** THEM Collections                                                                                      :JayH:WojtekB:
 - use the same file format for study classifications and collections.
 - use a real file type which has a perl parser.
 - allow multiple rows for the same key.
@@ -680,14 +735,25 @@ In house parser.  Can modify as needed. Same format as Option1 except will handl
    attribute_stable_id varchar2(50),
   PRIMARY KEY (collection_attribute_id));
   #+end_src
-**** Plugins :JayH:
+**** Plugins                                                                                                   :JayH:
 1. Load Collections from Ini File "InsertCollection"
    - Global step to load into Collections table and all "CollectionAttributes" which are defined in the ini file
 2. Load Parent/Child Relationships (where these were not defined in ini) "InsertCollectionAttribute"
    - Get all leaf terms descended from collection stable_id and load them into CollectionAttribute Table
 
+
+** BLOCKED Genomics
+- [ ] DNASeq (SNPs and CNV)
+- [ ] Host Pathogen
+- [ ] Antibody Microarray (ICEMR)
+- [ ] PopSet Isolate Sequences
+- [ ] Single cell RNASeq ??
+- [ ] Systems Biology  
 * Data Validation                                                                                    :JohnB:StephW:JayH:
-*** Reader Interface
+- [ ] validation of annotation properties (ad hoc or via owl file)
+- [ ] add TBD qa/validation steps
+
+** Reader Interface
 #+BEGIN_EXAMPLE
  $entityType = $dataset->getEntityType($sourceId);
  @variables = $entityType->getVariables();
@@ -700,16 +766,18 @@ In house parser.  Can modify as needed. Same format as Option1 except will handl
  $attribute->hasValues(); # lots of other variable info
  $attribute->isContinuous(); # lots of other variable info
  #+END_EXAMPLE
-*** Readers
+** Readers
 - [ ] Raw Data (dataset specific);  Maybe not required?
 - [ ] Download File
 - [ ] Dataset Specific Database Queries
 - [ ] Webservices
-*** Tests
+** Tests
 - [ ] Tests can only use methods defined by the API
 - [ ] The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database ...
   + example:  "ok($participantEntityType->getEntityCount() == 5000)";
     + This example get the counts of participants and ensures that the number it gets is 5000;
+
+
 
 
 
