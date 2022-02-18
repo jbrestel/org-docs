@@ -374,7 +374,7 @@ rectangle LoadAttributesFromEntityGraph {
 
 #+name: graph-from-tables
 #+HEADER: :var nodes=node-table graph=graph-table
-#+BEGIN_SRC emacs-lisp :colnames yes :exports none
+#+BEGIN_EXAMPLE :exports none
      (concat
           "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
           (mapconcat
@@ -391,14 +391,14 @@ rectangle LoadAttributesFromEntityGraph {
              (format "%s -> %s [taillabel=\"%s\"]"
                              (car x) (nth 1 x) (nth 2 x))) graph "\n")
           )
-#+END_SRC
+#+END_EXAMPLE
 
 #+HEADER: :var input=graph-from-tables :file images/reflowMadness.png
-#+BEGIN_SRC dot :exports results
+#+BEGIN_EXAMPLE :exports none
 digraph {
  $input
 }
-#+END_SRC
+#+END_EXAMPLE
 
 #+RESULTS:
 [[file:images/reflowMadness.png]]
