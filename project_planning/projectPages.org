@@ -6,7 +6,7 @@
 ** RNASeq
 Common case where we have Study->Assay->Data->Analysis
 
-#+begin_src plantuml :file images/rnaseq_uml.png :exports both
+#+begin_src plantuml :file images/rnaseq_uml.png :exports results
 object Study {
         name = "Happy Birthday Study"
         pubmed_id = 12345
@@ -18,7 +18,7 @@ rectangle GenomicsDB {
                 ID = "$studyName_$assayName"
                 assayName = "RNASeq" 'Could also call Category??'
                 assayID = "RNASeqXXXX"
-                rawDataArchove = "rnaseq.fastq in SRA"
+                rawDataArchive = "rnaseq.fastq in SRA"
         }
         object ProcessedData {
                 injector = "RNASeq.java"
@@ -40,7 +40,7 @@ RawData --|> ProcessedData
 
 One publication typically has muliple types of assays.  
 
-#+begin_src plantuml :file images/multiple_assays_uml.png :exports both
+#+begin_src plantuml :file images/multiple_assays_uml.png :exports results
   object Study {
           name = "Happy Birthday Study"
           pubmed_id = 12345
@@ -53,7 +53,7 @@ One publication typically has muliple types of assays.
                 ID = "$studyName_$assayName"
                 assayName = "RNASeq" 'Could also call Category??'
                 assayID = "RNASeqXXXX"
-                rawDataArchove = "rnaseq.fastq in SRA"
+                rawDataArchive = "rnaseq.fastq in SRA"
         }
         object RNASeqProcessedData {
                 injector = "RNASeq.java"
@@ -69,7 +69,7 @@ One publication typically has muliple types of assays.
                 ID = "$studyName_$assayName"
                 assayType = "Proteomics Mass Spec"
                 assayName = "MSPeptidesXXXX"
-                rawDataArchove = "rnaseq.fastq in SRA"
+                rawDataArchive = "rnaseq.fastq in SRA"
         }
 
         object ProteomicsProcessedData {
@@ -93,7 +93,7 @@ ProteomicsRawData --|> ProteomicsProcessedData
 
 For the Same raw data, we align to multiple organisms for host pathogen 
 
-#+begin_src plantuml :file images/host_pathogen_assays_uml.png :exports both
+#+begin_src plantuml :file images/host_pathogen_assays_uml.png :exports results
 object Study {
         name = "Happy Birthday Study"
         pubmed_id = 12345
@@ -105,7 +105,7 @@ rectangle GenomicsDB {
                 ID = "$studyName_$assayName"
                 assayName = "RNASeq" 'Could also call Category??'
                 assayID = "RNASeqXXXX"
-                rawDataArchove = "rnaseq.fastq in SRA"
+                rawDataArchive = "rnaseq.fastq in SRA"
         }
         object PathogenProcessedData {
                 injector = "RNASeq.java"
@@ -140,7 +140,7 @@ RawData --|> HostProcessedData
 
 ClinEpi Studies have "Tests" but are not represented as assays.  Workflows consume sampleDetails/metadata
 
-#+begin_src plantuml :file images/clinepi_study_uml.png :exports both
+#+begin_src plantuml :file images/clinepi_study_uml.png :exports results
 object Study {
         name = "Happy Birthday Study"
         pubmed_id = 12345
@@ -173,7 +173,7 @@ RawData --|> ProcessedData
 
 Multiple Studies can be associatated 
 
-#+begin_src plantuml :file images/clinepi_investigation_uml.png :exports both
+#+begin_src plantuml :file images/clinepi_investigation_uml.png :exports results
   object Investigation {
           name = "Happy Birthday Investigation"
           pubmed_id = 12345
@@ -244,7 +244,7 @@ RawData2 --|> ProcessedData2
 
 Antibody Microarray Data in PlasmoDB and ClinEpi "MetaData" comes from PRISM Study
 
-#+begin_src plantuml :file images/clinepi_plasmo_study_uml.png :exports both
+#+begin_src plantuml :file images/clinepi_plasmo_study_uml.png :exports results
   object Study {
           name = "PRISM"
           pubmed_id = 12345
@@ -296,28 +296,31 @@ rectangle PlasmoDB {
 
 Compound Mass Spec can be treated similar to above
 
-#+begin_src plantuml :file images/ms_compound_uml.png :exports both
-  object Study {
-          name = "Happy Birthday Study"
-          pubmed_id = 12345
-	      contact = "Joe"
-  }
-  object MSAssay {
-          name = "MassSpec"
-  }
+#+begin_src plantuml :file images/ms_compound_uml.png :exports results
+object Study {
+        name = "Happy Birthday Study"
+        pubmed_id = 12345
+        contact = "Joe"
+        sampleDetailsFile = "metadata.txt"
+}
+rectangle GenomicsDB {
+        object RawData {
+                ID = "$studyName_$assayName"
+                assayName = "MassSpec" 'Could also call Category??'
+                assayID = "MassSpecXXXX"
+                rawDataArchive = "peaks"
+        }
+        object ProcessedData {
+                injector = "CompoundMassSpec.java"
+                processedDataFile = "abundance.txt"
+                searches = "where is this data used on VEuPathDB Site?"
+                dowloads = "/downloads/$study"
+                analysisDescription = "This is how we processed the raw data"
+        }
+}
+Study --|> RawData
+RawData --|> ProcessedData
 
-  object MSRawData {
-          name = "MS Raw Data"
-          file = "peaks"
-  }
-  object MSProcessedData {
-          name = "MS Processed Data"
-          file2 = "abundance.txt"
-  }
-
-  Study --|> MSAssay
-  MSAssay --|> MSRawData
-  MSRawData --|> MSProcessedData
   #+end_src
 
   #+RESULTS:
@@ -327,18 +330,31 @@ Compound Mass Spec can be treated similar to above
 
 Compound,Pathway,Ontologies only have raw data which is loaded.  Often no publication
 
-#+begin_src plantuml :file images/global_uml.png :exports both
+#+begin_src plantuml :file images/global_uml.png :exports results
   object Study {
           name = "Happy Birthday Study"
 	      contact = "Joe"
   }
 
   object GlobalRawData {
-          name = "Global Raw Data"
-          file = "owl"
+            ID = "$studyName_$assayName"
+                assayName = "MassSpec" 'Could also call Category??'
+                assayID = "MassSpecXXXX"
+                rawDataArchive = "owl"
   }
 
+  object GlobalProcessedData {
+                injector = "CompoundMassSpec.java"
+                processedDataFile = "abundance.txt"
+                searches = "where is this data used on VEuPathDB Site?"
+                dowloads = "/downloads/$study"
+                analysisDescription = "This is how we processed the raw data"
+
+
+}
+
   Study --|> GlobalRawData
+GlobalRawData --|> GlobalProcessedData
   #+end_src
 
   #+RESULTS:
@@ -422,7 +438,7 @@ Compound,Pathway,Ontologies only have raw data which is loaded.  Often no public
 
 * Proposed WDK Records
 
-#+begin_src plantuml :file images/pp_wdk_study.png
+#+begin_src plantuml :file images/pp_wdk_study.png  :exports results
   !define wdkRecord(x) class x << (R,#FFAAAA) >> #line:blue;
 wdkRecord(Study) {
   .. Attributes ..
@@ -447,7 +463,7 @@ wdkRecord(Study) {
   + otherComponentDatasets
 }
 
-wdkRecord(Dataset) {
+wdkRecord(ProcessedDataset) {
   .. Attributes ..
   + datasetId
   + studyId
