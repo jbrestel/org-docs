@@ -44,30 +44,55 @@ stop
 #+RESULTS: Process Flow
 [[file:images/eda_diy.png]]
 
-- [ ] confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
-- [ ] add user_dataset_id to each eda_ud table
+- [ ] (Wojtek) confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
+  - [ ] is there a gus.config in $GUS_HOME/congig?  does that have group/project ?
+  - [ ] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
+  - [ ] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
+    - are we able to consistently pull from docker?
+    - does singularity use the cache?
+    - currently we're using the latest version of the RServe code.  Should change that to a tags
+
+
+- [ ] (JohnB) add user_dataset_id to each eda_ud table
   - [ ] sql to be run after "createEntityGraph" tables in schema installer
+
 - [X] need access to GUS_HOME on jenkins.
   - [X] $GUS_HOME/config/gus.config specifies the database
-- [ ] Create EDA_UD tables to store Attribution/Dataset info
+
+- [ ] (JohnB) Create EDA_UD tables to store Attribution/Dataset info
   - this should mirror what we have in apidbtuning.datasetpresenter
   - begin with minimal info (name, description, ID)
   - [ ] Requires a unique id for the study/dataset.  Can we just store the user dataset id??
 
 * Validator
 
+Write some python code?  The parent is in python.
+
+- [ ] (Wojtek) confirm fresh checkout can run and pass tests
+  - [ ] add some readme text describing how to run these
+
 - [X] Confirm We will need separate validators for Mbio and ClinEpi
+
 - [ ] Where does the validator code live?  is this built in a container?
-- [ ] each entitytype must have at least on variable/attribute
-- [ ] mbio to use Use existing biom validator?
-  - [ ] Are there additional requirements for metadata table?
+
+   [[https://github.com/VEuPathDB/dataset-handler-biom]]
+
+   ValidationException :: User submitted a bad  file
+   BaseException :: Some random error.  User should email us
+
+- [X] mbio to use Use existing biom validator?
+  - [X] Are there additional requirements for metadata table?... NO!
+
 - [ ] Clinepi first deliveralbe, there will be a single file (one entity type)
   - What can we validate?
-    - every row must have a primary key
-    - pk must be unique
-    - col headers must be unique
+    - call the parser.  if it parses it we are good.
 
-* Preprocess/Transform Script
+- [ ] (JohnB) Follow up with Ann/Dave
+  - a) uncategorized variables are ok.
+  - b) an entitytype may not have any variables
+
+
+* Preprocess/Transform Script :JayH:
 
 These scripts can be called in the Validator or Installer (for legacy user datasets in IRODs)
 
@@ -105,7 +130,13 @@ These scripts can be called in the Validator or Installer (for legacy user datas
 | p_id3        | hh_id3 | attr1_val2 | attr2_value3 | attr3_val3 |
 
 
+
 ** Use existing plugins / workflow
+
+bash script with the following plugins configured.  We can test in the rm41910 eda_ud schema
+
+- where does this bash script live in the codebase??
+
 
 *** ExternalDatabase and ExternalDatabaeRelease
 - [ ] GUS::Supported::Plugin::InsertExternalDatabase
@@ -120,9 +151,9 @@ These scripts can be called in the Validator or Installer (for legacy user datas
   - [ ] ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph
   - [ ] ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs
   - [ ] ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph
+  - [X] No need to load StudyCharacteristics
 
-
-*** Insert Dataset tables
+*** Insert Dataset tables :JohnB:
 The EDA requires a dataset record.  Steve's proposal is to create a UserDatasetPresenter table which can be installed along with other data.
 NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not simply the user dataset page.
 
