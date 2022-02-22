@@ -46,11 +46,16 @@ stop
 
 - [ ] (Wojtek) confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
   - [ ] is there a gus.config in $GUS_HOME/congig?  does that have group/project ?
-  - [ ] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
-  - [ ] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
-    - are we able to consistently pull from docker?
-    - does singularity use the cache?
-    - currently we're using the latest version of the RServe code.  Should change that to a tags
+
+- [ ] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
+  - [ ] Use Reflow Workflow Step to add joe user and link to Group and Project to be run on "inc" database instance during build
+
+- [X] Assume Dependent data like Ontology Term Types are loaded by Reflow Worfklow and available to UserDataset Installer
+
+- [ ] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
+  - are we able to consistently pull from docker?
+  - does singularity use the cache?
+  - currently we're using the latest version of the RServe code.  Should change that to a tags
 
 
 - [ ] (JohnB) add user_dataset_id to each eda_ud table
