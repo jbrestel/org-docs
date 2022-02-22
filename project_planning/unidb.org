@@ -312,7 +312,7 @@ perl regresssionTestForRecordQueries.pl --dir /home/jbrestel/unidb/record_querie
 *** Webserive queries for Performance Tests                                                                    :MarkH:
 - [X] compare plasmodb.org (b52) to feature.veupathdb.org
 - [X] Record expected and Actual Results
-
+- ApicommonModel/Model/bin/performanceTestSearchesUniDb script 
 * Future Releases                                                                             :JohnI:JohnB:MarkH:BinduG:
 ** TODO Schema Changes
 - [ ] use perl script to automatically add "database_orig" and "primary_key_orig" in installer

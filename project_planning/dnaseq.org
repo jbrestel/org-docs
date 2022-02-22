@@ -6,7 +6,7 @@
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * B53 and B54
 ** [[readtheorgs:/project_planning/unidb.org][UniDB]]
-* Nextflow workflow
+* IN PROGRESS DNASeq Nextflow workflow
 ** Input Data
 - [X] Can be fastq files or BAM files
 - [X] All data from SRA will be aligned by EBI and given as bam
@@ -22,16 +22,27 @@
  - [X] LOH data for plot
 ** Indels
 - [X] Include Indels in VCF File
+- [ ] Publish indel vcf file
 ** Consensus Sequence
 - [X] use additional characters in consensus seq for ambiguous bases
 
-* Reflow Workflow
+* Test Oracle Database
+- [X] load subset of genome
+- [X] rm43647
+
+* TODO DNASeq Reflow Workflow
+No longer have GFF files per sample;  We have VCF file per Experiment;  Need to merge experiment vcf into a Per Organism VCF
+
 ** Indels
 - [ ] Store indels in database table
+- [ ] New Feature table for Indel
+- [ ] These are stored in Ref Seq coords
+
 ** Process Sequence Variations Step
 - [ ] read indels so we can calculate products better
 - [ ] load indels so we can show consensus sequence better
 - [ ] use IUPAC (R=A or G) characteres in consensus sequence...  but BioPerl does not handle these correctly when translating codon to aa/product
+
 ** Additional Tables and upgrade to ApiDB.SNP
 - [ ] ApiDB.SNPAlleleSummary
 - [ ] ApiDB.SNPProductSummary
@@ -45,9 +56,12 @@
 
 ** VCFs
 - [ ] Merge a VCF file per organism
-- [ ] Run SNPEff (or other)
+- [ ] Run SNPEff (or VEP)
 - [ ] copy VCF file to apiSiteFiles
 
+** HSSS WS Files
+- [ ] Regenerate these from VCF
+  
 ** Sample Details
 - [ ] loader for eda schema (entity graph)
 - [ ] will we use the eda or filter params?
@@ -66,4 +80,7 @@
 - [ ] SNPEff Track
 
 * Consensus Sequence
-- [ ] Alignment tool on frontend needs to incorporate indels;  
+- [ ] Alignment tool on frontend needs to incorporate indels;
+  - [ ] need a count of all insertions and all deletions
+  - [ ] Indels are stored in "Reference Space"
+

@@ -1,4 +1,3 @@
-#+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     UniDB Performance and Application Specific Databases
 #+AUTHOR:    John Brestelli
@@ -494,6 +493,23 @@ SELECT 8 AS wdk_instance_id, rownum AS wdk_row_id,  f.* FROM (SELECT o.*  FROM (
 | QUERY_NEW_DomainAccession | Elapsed: 00:00:00.26 | 1189  consistent gets |
 
 
+* Mass Spec Example
+1. WDK Where is it used (possible that this is already done????)
+   - *Gene Search* "GenesByMassSpec"
+   - Site Search
+   - Gene Record Table (maybe a download specific version?) - these are probably ok.  Check
+     - def check the massspecmod table
+2. Flavors (could we combine this stuff in the big tall table??)
+   - Standard
+   - PostTranslational Modifications
+     - QUestion.   Protein AASequence has Features for peptides.. are the ptms features on the ProteinAASequence or do we have another AASequence for the Peptide?
+   - "Unified" vs Single dataset
+3. JBrowse Flat Files
+   - no tuning tables!!
+   - *are we only using the minimum data in the files*??
+     - chr, start, end, strand, id, dataset
+     - TODO may need sample id if we color the glyph by sample???
+   - sqladvisor?
 * Appendix
 
 ** Table Usage

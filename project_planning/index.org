@@ -7,57 +7,92 @@
 #+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="https://jbrestel.github.io/org-docs/css/index.css" />
 * Data Loading, preprocessing and workflows
 ** Genomics Workflow
-*** BLOCKED UniDB  [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]] | [[https://redmine.apidb.org/projects/jbdqh][redmine]]                                                                        :JohnB:
-*** IN PROGRESS JBrowse Migration [[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]]                                                                   :JohnI:
-*** IN PROGRESS DNASeq Workflow (nextflow) [[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]] | [[https://redmine.apidb.org/projects/p30029][redmine]]                                 :MarkH:KathrynC:JohnB:
+*** BLOCKED UniDB                                                                                              :JohnB:
+[[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]] | [[https://redmine.apidb.org/projects/jbdqh][redmine]]
+*** IN PROGRESS JBrowse Migration                                                                              :JohnI:
+[[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]] 
+- [ ] QA Test new files
+*** QA DNASeq Workflow (nextflow)                                                               :MarkH:KathrynC:JohnB:
+[[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]] | [[https://redmine.apidb.org/projects/p30029][redmine]]
 - [ ] YMAP (mark/kathryn/david)  
-- [ ] [[redmine:42258]] workflow / database
+- [ ] [[redmine:42258]] reflow workflow / database
 - [ ] [[redmine:32649]] and [[redmine:42259]] variation front end
 - [ ] [[redmine:32307]] user workspace / exporters
 *** IN PROGRESS Long Read RNASeq                                                                            :KathrynC:
 - [ ] [[redmine:32125]]
-*** Other Data Loading  [[readtheorgs:/project_planning/dataLoad.html][html]] | [[orgdocs:/project_planning/dataLoad.org][org]]
-**** ESTs                                                                                                      :JayH:
+*** Misc Data Loading
+ [[readtheorgs:/project_planning/dataLoad.html][html]] | [[orgdocs:/project_planning/dataLoad.org][org]]
+**** TODO ESTs                                                                                                 :JayH:
 **** TODO GPIAnchor and MitoProt                                                                              :JohnB:
-**** IN PROGRESS Intron Junctions                                                                      :BrianB:JohnI:
-
+**** DONE Intron Junctions                                                                             :BrianB:JohnI:
 ** EDA
-*** IN PROGRESS EDA DataLoad [[readtheorgs:/project_planning/eda.html][html]] | [[orgdocs:/project_planning/eda.org][org]]                                                           :JayH:JohnB:WojtekB:
-**** MapVEu and Mbio (Mega Study)                                                                             :JohnB:
-**** DIY                                                                                               :JayH:WojtekB:
+*** IN PROGRESS EDA DataLoad                                                                      :JayH:JohnB:WojtekB:
+[[readtheorgs:/project_planning/eda.html][html]] | [[orgdocs:/project_planning/eda.org][org]] 
+**** IN PROGRESS MapVEu and Mbio (Mega Study)                                                                 :JohnB:
+**** IN PROGRESS DIY                                                                             :WojtekB:JayH:JohnB:
+**** THEM MicrobiomeDB Reflow Workflow                                                                       :Wojtek:
+- [X] dataset record and eda study needs to be associated
+- [X] tuning job to make dataset presenter table and "StudyDataset" Table
+**** THEM Collections                                                                                   :Wojtek:JayH:
 ** Microbiome
-*** QA Eukaryotic Detection                                                                                  :WojtekB:
+*** DONE Eukaryotic Detection                                                                                :WojtekB:
 * Front End Applications
 ** WDK
 *** Genomics 
-**** IN PROGRESS UniDB Performance and App Specific Databases [[readtheorgs:/project_planning/appDb.html][html]] | [[orgdocs:/project_planning/appDb.org][org]]                          :JohnB:MarkH:JohnI:
-**** Network Analysis and Host Pathogen [[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]]                                                             :AnnB:
-**** Gene Lists as User Datasets                                                               :OmarH:CristinaA:AnnB:
-**** Dataset and Project Record [[readtheorgs:/project_planning/dataset.html][html]] | [[orgdocs:/project_planning/dataset.org][org]]                                                                     :AnnB:
-**** TODO Organism Preferences                                                                          :JohnB:MarkH:
-- [-] Organism Preferences [[https://docs.google.com/spreadsheets/d/1zug4Lr_IV5gBtZxp-RxbVMkmuune6hwdzo2UUXWeQCs/edit#gid=0][google doc]]
-  - [ ] Internal pages for ChipChip and Y2H
-  - [X] Rename or add org param as needed
-**** TODO Selenium Tests [[readtheorgs:/project_planning/selenium.html][html]] | [[orgdocs:/project_planning/selenium.org][org]]                                                                    :JohnB:BinduG:
-**** IN PROGRESS Download File Record                                                                        :BinduG:
+**** BLOCKED UniDB Performance and App Specific Databases                                         :JohnB:MarkH:JohnI:
+[[readtheorgs:/project_planning/appDb.html][html]] | [[orgdocs:/project_planning/appDb.org][org]] 
+**** Network Analysis and Host Pathogen                                                                        :AnnB:
+[[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]] 
+**** Gene Lists                                                                       :HaimingW:OmarH:CristinaA:AnnB:
+- [ ] Fungi Dataset of gene Clusters should be made into gene list (Omeara_2020_CalCEN_UMAP)
+- [ ] User Contributed (UserDataset)
+- [ ] VEupath Gene Sets (UserDataset made by superuser and shared publically)
+- [ ] Gene List Workflow Dataset (Eve's example is a set of gene lists)
+  - [ ] Could also add Gene list/set to any functional data (RNASeq,Microarray,Phenotype, ....)
+- [ ] WGCNA Modules (there is some score(s) associated)
+- [ ] Pathways and GO Functions
+- [ ] Automated Gene Lists
+  - Dataset1
+    - Comparison A vs B
+    - Comparison A vs C
+    - Comparison B vs C
+  - Dataset2
+    - ...
+**** Dataset and Project Record                                                                                :AnnB:
+[[readtheorgs:/project_planning/dataset.html][html]] | [[orgdocs:/project_planning/dataset.org][org]] 
+**** THEM Organism Preferences                                                                               :BinduG:
+[[redmine:47221]]
+**** TODO Selenium Tests                                                                               :JohnB:BinduG:
+[[readtheorgs:/project_planning/selenium.html][html]] | [[orgdocs:/project_planning/selenium.org][org]] 
+**** THEM Download File Record                                                                               :BinduG:
 *** OrthoMCL
-**** IN PROGRESS Phylogenetic Pattern WS improve performance                                                  :MarkH:
+**** BLOCKED Phylogenetic Pattern WS improve performance                                                      :MarkH:
 - [ ] limit to reference organisms on OrthoMCL Site
   - [ ] component sites show all strains
   - [ ] some mechanism to hide organisms from orthomcl?
 - [ ] tree in ortho to use ncbi taxonomy
-**** Additional content (keywords) on genomics gene pages
+**** BLOCKED Additional content (keywords) on genomics gene pages
 - [ ] [[redmine:24852]]
 
 ** EDA
-*** Dataviz Foothills [[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][notion]] :DanielleC:
-** MapVEu [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]]                           :BobM:
-** Genome Browser [[https://redmine.apidb.org/projects/p110][redmine]]
-*** Apollo [[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]] :PaulW:
-** Galaxy / Globus [[https://onedrive.live.com/edit.aspx?resid=A33886B8E9920EF7!8142&ithint=file%2cxlsx&authkey=!AEhTv4bcB6N8NZs][onedrive]] :MarkH:
+*** THEM Dataviz Foothills                                                                                 :DanielleC:
+[[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][notion]] 
+*** THEM MicrobiomeDB                                                                                   :WojtekB:AnnB:
+- [X] Remove Sample WDK Records (need a new branch of MbioModel?)
+  - [X] comment sample records in MicrobiomeModel/Model/lib/wdk/microbiomeModel.xml
+- [X] first release no compute service
+- 
+** THEM MapVEu                                                                                                   :BobM:
+ [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]] 
+** Genome Browser
+ [[https://redmine.apidb.org/projects/p110][redmine]]
+*** THEM Apollo                                                                                                :PaulW:
+[[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]] 
+** Galaxy / Globus                                                                                              :OmarH:
+ [[https://onedrive.live.com/edit.aspx?resid=A33886B8E9920EF7!8142&ithint=file%2cxlsx&authkey=!AEhTv4bcB6N8NZs][onedrive]] :MarkH:
 - [ ] strand specific UD error
 ** Site Search
-*** IN PROGRESS EDA Site Search for ClinEpi                                                      :JohnI:YikunD:SteveF:
+*** DONE EDA Site Search for ClinEpi                                                             :JohnI:YikunD:SteveF:
 ** Documentation
 *** SOPs for Existing Datatypes
 - [X ] RNASeq  [[readtheorgs:/SOPs/rnaseq.html][html]] | [[orgdocs:/SOPs/rnaseq.org][org]]

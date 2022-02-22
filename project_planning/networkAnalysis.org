@@ -1,10 +1,10 @@
 #+STARTUP: indent
-#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+###+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+TITLE:     Network Analysis
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Network Analysis
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* wgcna
+* IN PROGRESS wgcna
 ** Choose Datasets
 *** [[https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html][wgcna faq]]
 - 15 samples (20 is better)
@@ -155,7 +155,8 @@ from Kathryn "quite good for model-based clustering - and I also like this metho
 *** Extend Protein Similarity Search To Return Host and Pathogen genes                                        :BinduG:
 ** wgcna
 *** Find related modules
-** Gene Set Enrichment
+** TODO Gene Set Enrichment
+*** Upgrade Code to use clusterProfiler
 *** Choose Gene Sets
 - wgcna modules
 - rnaseq pairwise comparisons? DESeq results
@@ -163,3 +164,4 @@ from Kathryn "quite good for model-based clustering - and I also like this metho
 - user defined gene lists
 *** Study / Dataset Records
  - [[readtheorgs:/project_planning/dataset.html][Dataset Record Phase 3]]
+   

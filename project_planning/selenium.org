@@ -1,32 +1,9 @@
 #+STARTUP: indent
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+TITLE:     Selenium
+#+TITLE:     Functional Tests / Selenium
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: Selenium Tests
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
-* Tasks
-** DONE will the  "static content" pages return a 200? or do they use ajax?
-** TODO Bindu will discuss with JohnI and Anna how to do regression test for install GUS/ApiDB/ApiDBTuning from empty instance (daily? weekly?)
-** TODO JBrowse test for unique track names
-** TODO JBrowse test for no weird characters in track names
-** TODO JBrowse test for dataset wdkreference match the model (union or component site?)
-   # urlSegment -> fullName
-   https://qa.plasmodb.org/a/service/record-types?format=expanded
-   # find referenced searches
-   https://qa.plasmodb.org/plasmo.b50/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B%22attributes%22%3A%5B%22primary_key%22%5D%2C%22tables%22%3A%5B%22References%22%5D%7D
-** TODO run selenium in jenkins! need container for browser
-
-
-** TODO Strand specific RNASeq should test the average coverage of sense/antisense
-** TODO RNASeq regression tests?  how to run these each release.
-     + Run after patches and rebuilds
-** TODO Changes to RNASeq regression tests so they can be run on a single db each release
-** TODO integratin into jenkins
-** TODO run headless and incorporate into jenkins
-** TODO 43163 (new test for dataset)
-** TODO JBRowse keys unique in json
-** TODO meeting with other developers who are interested to write one
-** TODO test for site search matches record count.  need wdk search with returns all records
 * Types of Tests
 ** Smoke Tests
 - Basic test like "is the application is running"
@@ -115,5 +92,29 @@
 
 ** End To End 
 *** Each release we will list out new datasets and which manual tests were performed
-
+* Specific Things to Test
+** DONE Test Static Content
+** TODO Regression test for GUS schema install
+** TODO Unique JBrowse track names
+unique keys in json
+** TODO Weird characters in JBrowse track names
+** TODO JBrowse dataset wdkreference match the model
+   # urlSegment -> fullName
+   https://qa.plasmodb.org/a/service/record-types?format=expanded
+   # find referenced searches
+   https://qa.plasmodb.org/plasmo.b50/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B%22attributes%22%3A%5B%22primary_key%22%5D%2C%22tables%22%3A%5B%22References%22%5D%7D
+** TODO Selenium in jenkins! 
+container for browser??
+** TODO Strand specific RNASeq should test the average coverage of sense/antisense
+** TODO RNASeq regression tests :MarkH:
+     + Run after patches and rebuilds
+** TODO Changes to RNASeq regression tests so they can be run on a single db each release :MarkH:
+** TODO wdk model ref / dataset
+[[redmine:43163]] 
+** TODO site search matches record count
+need wdk search with returns all records
+** TODO test links on dataset page
+** TODO rnaseq default organism rnaseq (make sure all keys are unique)
+** TODO strand specific rnaseq
+** TODO check for broken dataset links
 

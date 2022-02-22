@@ -3,6 +3,22 @@
 #+TITLE:     JBrowse Flat File Migration
 #+AUTHOR:    John Brestelli
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc ^:nil
+* Workflow
+- How to add the script to Reflow?
+  - organism specific graph
+  - create new webservice directories
+  - can we test with one example organism (start of 57)?
+  - all tracks (including bw) should be ready before running for real
+  - should we consider splitting up ?
+    - pbrowse vs jbrowse might make sense
+    - update existing script to skip if file exists unless --clearCache flag is set
+  - how to know when the workflow should remake the files?
+    - organism changes (undo will delete all files)
+    - force update if known track change (remake everything)
+    - should we allow caching of files; should we be able to add tracks instead of remaking all?
+* Testing
+- [ ] Use the local file dumps as backend for jbrowse tracks
+  - [ ] either add via front end client OR add configuration to server
 * Configurations
   The file [[https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/xml/jbrowseQueries.xml][jbrowseQueries.xml]] defines quries to dump features.  It also contains lists property values when extra configurations are needed
 
