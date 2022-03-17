@@ -23,17 +23,7 @@ The ontology team puts a great deal of effort into harmonizing variables in stud
 
 1. Enables us to load 0 or more mega studies for a project.
    - [X] configurable per project or by list of studies
-     #+begin_src yaml
-     ---
-     stable_id: SomeSubset
-     studies:
-       - 2019-Lehman-abundance
-       - 2020-francis-aegypti
-     ---
-     stable_id: All_MapVEu
-     project: MapVEu
-     excludeStudies: study_x
-     #+end_src
+   - [X] Allows us to load biom/habitat specific and all studies within project
 
 2. The Display Names for the Entity Type Graph are handled in same way as primary dataset load
 
@@ -54,7 +44,7 @@ The ontology team puts a great deal of effort into harmonizing variables in stud
    We cannot enforce at data load time that variables are stored in consistent units.  It is important that primary datasets can use units appropriate to them.
 
    - [X] Unit conversion enforced at mega study load time
-   - [ ] Rows in EDA.AttributeValue table (a very tall table) are reused when units are consistent
+   - [X] Rows in EDA.AttributeValue table (a very tall table) are reused when units are consistent
    - I had considered always loading primary data in a base unit and tracking the appropriate unit for the primary dataset.  I considered this to be a bad option as it would require us to immediately provide mapping conversions for all study variables.  this is not something i want to take on right now.  My solution was to enforce consistently and map units to base when there was a need.
 
 5. Study nodes and characteristics
@@ -415,7 +405,7 @@ S6 --> D6
 #+RESULTS:
 [[file:images/mega_entity_types_apd.png]]
 
-For the user in this case they would see the following Enntity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
+For the user in this case they would see the following Entity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
 
 #+begin_src plantuml :file images/mega_entity_type_graph2_cet.png  :exports results
 rectangle "EntityTypeGraph Alternate Path" {
