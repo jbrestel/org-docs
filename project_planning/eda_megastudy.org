@@ -1,0 +1,438 @@
+#+TITLE: Eda Megastudy
+
+
+* Use cases / Requirements
+** MapVeu
+- [X] Requires Study Node and Study Variables
+- [ ] Protocols (edges) as Variables.  (Will be handled in primary dataset load)
+- [ ] Species reconciliation  (Will be handled in primary dataset load)
+- Large number of existing datasets with consistent entity type graph.
+- Consistent Ontology (owl) for attribute graph / variables
+
+** MicrobiomeDB
+- Recreate existing functionality from production mbio site which has the cross study comparison.
+- Biom/Habitat/Host specific mega studies (as downstream variables are very different)
+
+** ClinEpiDB
+The ontology team puts a great deal of effort into harmonizing variables in studies.  Our reason for putting so much effort into this is to first have consistent organization of variables but also with the intention of integrating data across multiple studies.  This was brought up several times in early meetings.
+
+** Cross project
+- Handle when the same primary data is loaded for MBio and ClinEpi.  There will be extra data nodes for mio that we would want to graft onto clinepi metadata
+
+* Advantages of Mega Dataset Workflow
+
+1. Enables us to load 0 or more mega studies for a project.
+   - [X] configurable per project or by list of studies
+     #+begin_src yaml
+     ---
+     stable_id: SomeSubset
+     studies:
+       - 2019-Lehman-abundance
+       - 2020-francis-aegypti
+     ---
+     stable_id: All_MapVEu
+     project: MapVEu
+     excludeStudies: study_x
+     #+end_src
+
+2. The Display Names for the Entity Type Graph are handled in same way as primary dataset load
+
+    This is important otherwise how would we choose which names to show?  Entity Type names chosen for primary data will often not be appropriate for mega study.  for example we may have chosen "Child" as the display name as an override for "Participant".  We need to ensure those custom display names do not end up in the mega study entity type graph.
+
+   - [X] use the same ontology workflow step as primary dataset load
+   - [X] load dedicated entity type rows for each mega study so it can be handled the same way as primary data
+
+3. The Display Names and other annotation properties are handled in same way as primary dataset load
+
+   This is important otherwise how would we choose which names to show?  Variable names chosen for primary data will often not be appropriate for mega study (see above).  We certainly cannot choose only one variable as a representative because there are dataset specific annotation properties (like variable names from codebook).  We either need to include all original variable names (union) or ignore for the mega study
+
+   - [X] use the same ontology worklfow step as primary dataset load
+   - [X] the mega dataset will be associated with a dedicated owl file, same as primary data
+
+4. Unit Conversion
+
+   We cannot enforce at data load time that variables are stored in consistent units.  It is important that primary datasets can use units appropriate to them.
+
+   - [X] Unit conversion enforced at mega study load time
+   - [ ] Rows in EDA.AttributeValue table (a very tall table) are reused when units are consistent
+   - I had considered always loading primary data in a base unit and tracking the appropriate unit for the primary dataset.  I considered this to be a bad option as it would require us to immediately provide mapping conversions for all study variables.  this is not something i want to take on right now.  My solution was to enforce consistently and map units to base when there was a need.
+
+5. Study nodes and characteristics
+
+   - [X] add study node to primary dataset root nodes
+   - [X] Study nodes are only available for mega study.  will not impact primary data
+
+6. Reuse Database rows
+
+   - [X] Priary EDA.Entity (node) and EDA.Process (Edge) rows are reused
+   - [X] Primary "dataset specific" tables are optional. MapVeu does will not need these so why make them?
+   - [X] EDA.AttributeValue rows are reused when units are consistent
+
+7. Enable Union of Entity Graphs AND Reuse / Mapping of Entities (Nodes) which are shared
+
+   - For a participant which is the same in mbio study as clinepi, they would be mapped and handled appropriately
+
+* Object Diagrams
+** Example 1:  Fully Consistent Entity Types
+
+#+begin_src plantuml :file images/mega_entity_types_cet.png :exports results
+rectangle Dataset1 {
+        object H2
+        object H1
+
+        object HR2
+        object HR2a
+        object HR1
+        object HR1a
+
+        object P3
+        object P2
+        object P1
+
+        object RM3
+        object RM3a
+        object RM2
+        object RM2a
+        object RM1
+        object RM1a
+
+        object S3
+        object S3a
+        object S2
+        object S2a
+        object S1
+        object S1a
+
+        object D3
+        object D3a
+        object D2
+        object D2a
+        object D1
+        object D1a
+}
+
+rectangle Dataset2 {
+                object P6
+                object RM6
+                object S6
+                object D6
+
+                object P5
+                object RM5
+                object S5
+                object D5
+
+                object H4
+                object HR4
+                object P4
+                object RM4
+                object S4
+                object D4
+}
+
+
+H1 --> P1
+H1 --> HR1
+H1 --> HR1a
+P1 --> RM1
+P1 --> RM1a
+RM1 --> S1
+RM1a --> S1a
+S1 --> D1
+S1a --> D1a
+
+H1 --> P2
+P2 --> RM2
+P2 --> RM2a
+RM2 --> S2
+RM2a --> S2a
+S2 --> D2
+S2a --> D2a
+
+H2 --> P3
+H2 --> HR2
+H2 --> HR2a
+P3 --> RM3
+P3 --> RM3a
+RM3 --> S3
+RM3a --> S3a
+S3 --> D3
+S3a --> D3a
+
+H4 --> P4
+H4 --> HR4
+P4 --> RM4
+RM4 --> S4
+S4 --> D4
+
+H4 --> P5
+P5 --> RM5
+RM5 --> S5
+S5 --> D5
+
+H4 --> P6
+P6 --> RM6
+RM6 --> S6
+S6 --> D6
+
+
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_types_cet.png]]
+
+
+From above we derive the Simplified Entity Type Graph we show to users.  In this case it looks identical to any individual entity graph.
+
+#+begin_src plantuml :file images/mega_entity_type_graph_cet.png  :exports results
+rectangle "EntityTypeGraph Fully Consistent" {
+object H
+object HR
+object P
+object RM
+object S
+object D
+}
+H --> HR
+H -> P
+P -> RM
+RM -> S
+S -> D
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_type_graph_cet.png]]
+
+
+** Example 2:  "Missing" Entity Types (Same Entity Type Graph)
+
+Within a study OR cross study... sometimes nodes are missing.  For example, we may not have data for all participants
+
+#+begin_src plantuml :file images/mega_entity_types_met.png  :exports results
+rectangle Dataset1 {
+        object H2
+        object H1
+
+        object HR1
+        object HR1a
+
+        object P3
+        object P2
+        object P1
+
+        object RM3
+        object RM3a
+        object RM2
+        object RM2a
+        object RM1
+        object RM1a
+
+        object S3
+        object S3a
+        object S2
+        object S1
+
+        object D3
+        object D3a
+        object D2
+        object D1
+}
+
+rectangle Dataset2 {
+        object P6
+        object RM6
+        object S6
+
+        object P5
+        object RM5
+        object S5
+
+
+        object H4
+        object HR4
+        object P4
+        object RM4
+        object S4
+
+}
+
+
+H1 --> P1
+H1 --> HR1
+H1 --> HR1a
+P1 --> RM1
+P1 --> RM1a
+RM1 --> S1
+S1 --> D1
+
+H1 --> P2
+P2 --> RM2
+P2 --> RM2a
+RM2 --> S2
+S2 --> D2
+
+
+H2 --> P3
+P3 --> RM3
+P3 --> RM3a
+RM3 --> S3
+RM3a --> S3a
+S3 --> D3
+S3a --> D3a
+
+H4 --> P4
+H4 --> HR4
+P4 --> RM4
+RM4 --> S4
+
+H4 --> P5
+P5 --> RM5
+RM5 --> S5
+
+H4 --> P6
+P6 --> RM6
+RM6 --> S6
+
+
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_types_met.png]]
+
+Because we infer the EntityTypeGraph From distinct set of Connections of nodes ..  In this case it looks *identical* to the one above.  We may already have cases like this
+
+#+begin_src plantuml :file images/mega_entity_type_graph3_cet.png  :exports results
+rectangle "EntityTypeGraph Some Missing" {
+object H
+object HR
+object P
+object RM
+object S
+object D
+}
+H --> HR
+H -> P
+P -> RM
+RM -> S
+S -> D
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_type_graph3_cet.png]]
+
+
+
+** Example 3:  Union of Datasets with Alternate "Paths"
+
+Here is an example where Dataset 2 does not include repeated measures but they are included for Dataset1.  Notice that we still never have multiple parents for the same Entity.  Also if we map Entityies from MBio and ClinEpi ... we would enforce that upstream Nodes were the same.  ie. Mbio couldn't skip the repeated measure for the same participant if ClinEpi included it.
+
+#+begin_src plantuml :file images/mega_entity_types_apd.png  :exports results
+rectangle Dataset1 {
+        object H2
+        object H1
+
+        object HR1
+        object HR1a
+
+        object P3
+        object P2
+        object P1
+
+        object RM3
+        object RM3a
+        object RM2
+        object RM2a
+        object RM1
+        object RM1a
+
+        object S3
+        object S3a
+        object S2
+        object S1
+
+        object D3
+        object D3a
+        object D2
+        object D1
+}
+
+rectangle Dataset2 {
+        object P6
+        object S6
+        object D6
+
+        object P5
+        object S5
+        object D5
+
+        object H4
+        object HR4
+        object P4
+        object S4
+        object D4
+}
+
+
+H1 --> P1
+H1 --> HR1
+H1 --> HR1a
+P1 --> RM1
+P1 --> RM1a
+RM1 --> S1
+S1 --> D1
+
+H1 --> P2
+P2 --> RM2
+P2 --> RM2a
+RM2 --> S2
+S2 --> D2
+
+
+H2 --> P3
+P3 --> RM3
+P3 --> RM3a
+RM3 --> S3
+RM3a --> S3a
+S3 --> D3
+S3a --> D3a
+
+H4 --> P4
+H4 --> HR4
+P4 --> S4
+S4 --> D4
+
+H4 --> P5
+P5 --> S5
+S5 --> D5
+
+H4 --> P6
+P6 --> S6
+S6 --> D6
+
+
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_types_apd.png]]
+
+For the user in this case they would see the following Enntity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
+
+#+begin_src plantuml :file images/mega_entity_type_graph2_cet.png  :exports results
+rectangle "EntityTypeGraph Alternate Path" {
+object H
+object HR
+object P
+object RM
+object S
+object D
+}
+H --> HR
+H --> P
+P --> RM
+P --> S
+RM --> S
+S --> D
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_type_graph2_cet.png]]

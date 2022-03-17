@@ -231,6 +231,7 @@
       		    "project_planning/selenium.org"
 		    "project_planning/index.org"
    		    "project_planning/eda.org"
+                     "project_planning/eda_megastudy.org"
        		    "project_planning/projectPages.org"
       		    "project_planning/eda_diy.org"
 		    "project_planning/apollo.org"
@@ -324,4 +325,4 @@
 	))
 
 (setq org-todo-keywords
-      '((sequence "TODO" "IN PROGRESS" "QA" "BLOCKED" "|" "DONE")))
+      '((sequence "TODO" "IN_PROGRESS" "QA" "BLOCKED" "|" "DONE")))
