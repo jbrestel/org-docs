@@ -47,21 +47,31 @@ The ontology team puts a great deal of effort into harmonizing variables in stud
    - [X] Rows in EDA.AttributeValue table (a very tall table) are reused when units are consistent
    - I had considered always loading primary data in a base unit and tracking the appropriate unit for the primary dataset.  I considered this to be a bad option as it would require us to immediately provide mapping conversions for all study variables.  this is not something i want to take on right now.  My solution was to enforce consistently and map units to base when there was a need.
 
-5. Study nodes and characteristics
+5. Default ranges and bin widths are recomputed
+
+   - [X] use the same plugin to calculate variable stats after unit conversion
+   - [X] other default annotation properties are applied (see above)
+
+6. Study nodes and characteristics
 
    - [X] add study node to primary dataset root nodes
    - [X] add study variables from existing studycharacteristics table
    - [X] Study nodes are only available for mega study.  will not impact primary data
 
-6. Reuse Database rows
+7. Reuse Database rows
 
    - [X] Priary EDA.Entity (node) and EDA.Process (Edge) rows are reused
    - [X] Primary "dataset specific" tables are optional. MapVeu does will not need these so why make them?
    - [X] EDA.AttributeValue rows are reused when units are consistent
 
-7. Enable Union of Entity Graphs AND Reuse / Mapping of Entities (Nodes) which are shared
+8. Enable Union of Entity Graphs AND Reuse / Mapping of Entities (Nodes) which are shared
 
-   - For a participant which is the same in mbio study as clinepi, they would be mapped and handled appropriately
+   - [ ] For a participant which is the same in mbio study as clinepi, we can do the apporopate mapping
+
+9. Allow Union or Intersection of variables
+
+   - [ ] only show variables which are common.  Would need at least one variable for each entity type
+
 
 * Object Diagrams
 ** Example 1:  Fully Consistent Entity Types
