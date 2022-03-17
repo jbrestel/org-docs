@@ -3,9 +3,9 @@
 
 * Use cases / Requirements
 ** MapVeu
-- [X] Requires Study Node and Study Variables
-- [ ] Protocols (edges) as Variables.  (Will be handled in primary dataset load)
-- [ ] Species reconciliation  (Will be handled in primary dataset load)
+- Requires Study Node and Study Variables
+- Protocols (edges) as Variables.  (Will be handled in primary dataset load)
+- Species reconciliation  (Will be handled in primary dataset load)
 - Large number of existing datasets with consistent entity type graph.
 - Consistent Ontology (owl) for attribute graph / variables
 
@@ -50,6 +50,7 @@ The ontology team puts a great deal of effort into harmonizing variables in stud
 5. Study nodes and characteristics
 
    - [X] add study node to primary dataset root nodes
+   - [X] add study variables from existing studycharacteristics table
    - [X] Study nodes are only available for mega study.  will not impact primary data
 
 6. Reuse Database rows
