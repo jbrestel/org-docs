@@ -74,6 +74,7 @@ The ontology team puts a great deal of effort into harmonizing variables in stud
 
 
 * Object Diagrams
+
 ** Example 1:  Fully Consistent Entity Types
 
 #+begin_src plantuml :file images/mega_entity_types_cet.png :exports results
@@ -325,7 +326,12 @@ S -> D
 
 ** Example 3:  Union of Datasets with Alternate "Paths"
 
+
+
 Here is an example where Dataset 2 does not include repeated measures but they are included for Dataset1.  Notice that we still never have multiple parents for the same Entity.  Also if we map Entityies from MBio and ClinEpi ... we would enforce that upstream Nodes were the same.  ie. Mbio couldn't skip the repeated measure for the same participant if ClinEpi included it.
+
+
+*** Repeated Measures
 
 #+begin_src plantuml :file images/mega_entity_types_apd.png  :exports results
 rectangle Dataset1 {
@@ -437,3 +443,31 @@ S --> D
 
 #+RESULTS:
 [[file:images/mega_entity_type_graph2_cet.png]]
+
+
+*** Source
+
+For the user in this case they would see the following Entity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
+
+#+begin_src plantuml :file images/mega_entity_type_graph3_cet.png  :exports results
+rectangle "EntityTypeGraph Alternate Path" {
+object STUDY
+rectangle Sources {
+  object Participant
+  object PondWater
+}
+object Sample
+object 16SData
+object ShotgunData
+}
+STUDY --> PondWater
+STUDY --> Participant
+Participant --> Sample
+PondWater --> Sample
+Sample --> 16SData
+Sample --> ShotgunData
+#+end_src
+
+#+RESULTS:
+[[file:images/mega_entity_type_graph3_cet.png]]
+***
