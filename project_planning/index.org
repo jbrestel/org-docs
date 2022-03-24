@@ -9,16 +9,16 @@
 ** Genomics Workflow
 *** BLOCKED UniDB                                                                                              :JohnB:
 [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]] | [[https://redmine.apidb.org/projects/jbdqh][redmine]]
-*** IN PROGRESS JBrowse Migration                                                                              :JohnI:
+*** THEM JBrowse Migration                                                                                     :JohnI:
 [[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]] 
 - [ ] QA Test new files
-*** QA DNASeq Workflow (nextflow)                                                               :MarkH:KathrynC:JohnB:
+*** QA DNASeq Workflow (nextflow)                                                               :KathrynC:JohnB:
 [[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]] | [[https://redmine.apidb.org/projects/p30029][redmine]]
 - [ ] YMAP (mark/kathryn/david)  
 - [ ] [[redmine:42258]] reflow workflow / database
 - [ ] [[redmine:32649]] and [[redmine:42259]] variation front end
 - [ ] [[redmine:32307]] user workspace / exporters
-*** IN PROGRESS Long Read RNASeq                                                                            :KathrynC:
+*** THEM Long Read RNASeq                                                                                   :KathrynC:
 - [ ] [[redmine:32125]]
 *** Misc Data Loading
  [[readtheorgs:/project_planning/dataLoad.html][html]] | [[orgdocs:/project_planning/dataLoad.org][org]]
@@ -26,10 +26,11 @@
 **** TODO GPIAnchor and MitoProt                                                                              :JohnB:
 **** DONE Intron Junctions                                                                             :BrianB:JohnI:
 ** EDA
-*** IN PROGRESS EDA DataLoad                                                                      :JayH:JohnB:WojtekB:
+*** IN_PROGRESS EDA DataLoad                                                                      :JayH:JohnB:WojtekB:
 [[readtheorgs:/project_planning/eda.html][html]] | [[orgdocs:/project_planning/eda.org][org]] 
-**** IN PROGRESS MapVEu and Mbio (Mega Study)                                                                 :JohnB:
-**** IN PROGRESS DIY                                                                             :WojtekB:JayH:JohnB:
+**** IN_PROGRESS MapVEu and Mbio (Mega Study)                                                                 :JohnB:
+**** IN_PROGRESS DIY                                                                             :WojtekB:JayH:JohnB:
+ [[readtheorgs:/project_planning/eda_diy.html][html]] | [[orgdocs:/project_planning/eda_diy.org][org]]
 **** THEM MicrobiomeDB Reflow Workflow                                                                       :Wojtek:
 - [X] dataset record and eda study needs to be associated
 - [X] tuning job to make dataset presenter table and "StudyDataset" Table
@@ -44,25 +45,12 @@
 **** Network Analysis and Host Pathogen                                                                        :AnnB:
 [[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]] 
 **** Gene Lists                                                                       :HaimingW:OmarH:CristinaA:AnnB:
-- [ ] Fungi Dataset of gene Clusters should be made into gene list (Omeara_2020_CalCEN_UMAP)
-- [ ] User Contributed (UserDataset)
-- [ ] VEupath Gene Sets (UserDataset made by superuser and shared publically)
-- [ ] Gene List Workflow Dataset (Eve's example is a set of gene lists)
-  - [ ] Could also add Gene list/set to any functional data (RNASeq,Microarray,Phenotype, ....)
-- [ ] WGCNA Modules (there is some score(s) associated)
-- [ ] Pathways and GO Functions
-- [ ] Automated Gene Lists
-  - Dataset1
-    - Comparison A vs B
-    - Comparison A vs C
-    - Comparison B vs C
-  - Dataset2
-    - ...
+[[readtheorgs:/project_planning/geneLists.html][html]] | [[orgdocs:/project_planning/geneLists.org][org]]
 **** Dataset and Project Record                                                                                :AnnB:
-[[readtheorgs:/project_planning/dataset.html][html]] | [[orgdocs:/project_planning/dataset.org][org]] 
+[[readtheorgs:/project_planning/dataset.html][html]] | [[orgdocs:/project_planning/dataset.org][org]]
 **** THEM Organism Preferences                                                                               :BinduG:
 [[redmine:47221]]
-**** TODO Selenium Tests                                                                               :JohnB:BinduG:
+**** THEM Selenium Tests                                                                                      :RichD:
 [[readtheorgs:/project_planning/selenium.html][html]] | [[orgdocs:/project_planning/selenium.org][org]] 
 **** THEM Download File Record                                                                               :BinduG:
 *** OrthoMCL
@@ -95,7 +83,7 @@
 *** DONE EDA Site Search for ClinEpi                                                             :JohnI:YikunD:SteveF:
 ** Documentation
 *** SOPs for Existing Datatypes
-- [X ] RNASeq  [[readtheorgs:/SOPs/rnaseq.html][html]] | [[orgdocs:/SOPs/rnaseq.org][org]]
+- [ ] RNASeq  [[readtheorgs:/SOPs/rnaseq.html][html]] | [[orgdocs:/SOPs/rnaseq.org][org]]
 - [ ] Microarray
 - [ ] Phenotype
 - [ ] Chip Chip

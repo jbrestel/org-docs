@@ -449,7 +449,7 @@ S --> D
 
 For the user in this case they would see the following Entity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
 
-#+begin_src plantuml :file images/mega_entity_type_graph3_cet.png  :exports results
+#+begin_src plantuml :file images/mega_entity_type_graph4_cet.png  :exports results
 rectangle "EntityTypeGraph Alternate Path" {
 object STUDY
 rectangle Sources {
@@ -469,5 +469,5 @@ Sample --> ShotgunData
 #+end_src
 
 #+RESULTS:
-[[file:images/mega_entity_type_graph3_cet.png]]
+[[file:images/mega_entity_type_graph4_cet.png]]
 ***

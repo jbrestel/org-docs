@@ -47,8 +47,8 @@ stop
 - [ ] (Wojtek) confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
   - [ ] is there a gus.config in $GUS_HOME/congig?  does that have group/project ?
 
-- [ ] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
-  - [ ] Use Reflow Workflow Step to add joe user and link to Group and Project to be run on "inc" database instance during build
+- [X] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
+  - [X] Use Reflow Workflow Step to add joe user and link to Group and Project to be run on "inc" database instance during build
 
 - [X] Assume Dependent data like Ontology Term Types are loaded by Reflow Worfklow and available to UserDataset Installer
 
@@ -73,12 +73,12 @@ stop
 
 Write some python code?  The parent is in python.
 
-- [ ] (Wojtek) confirm fresh checkout can run and pass tests
-  - [ ] add some readme text describing how to run these
+- [X] (Wojtek) confirm fresh checkout can run and pass tests
+  - [X] add some readme text describing how to run these
 
 - [X] Confirm We will need separate validators for Mbio and ClinEpi
 
-- [ ] Where does the validator code live?  is this built in a container?
+- [X] Where does the validator code live?  is this built in a container?
 
    [[https://github.com/VEuPathDB/dataset-handler-biom]]
 
@@ -88,13 +88,12 @@ Write some python code?  The parent is in python.
 - [X] mbio to use Use existing biom validator?
   - [X] Are there additional requirements for metadata table?... NO!
 
-- [ ] Clinepi first deliveralbe, there will be a single file (one entity type)
+- [X] Clinepi first deliveralbe, there will be a single file (one entity type)
   - What can we validate?
     - call the parser.  if it parses it we are good.
 
-- [ ] (JohnB) Follow up with Ann/Dave
+- [X] (JohnB) Follow up with Ann/Dave
   - a) uncategorized variables are ok.
-  - b) an entitytype may not have any variables
 
 
 * Preprocess/Transform Script :JayH:
@@ -107,7 +106,6 @@ These scripts can be called in the Validator or Installer (for legacy user datas
   - [ ] Protocols?  Check if these are required
 
 - [ ] ISASimple data file
-
 - [ ] ISASimple ancilary files (use ontology term source_ids from above)
   - [ ] "investigation.xml" file for the study
   - [ ] ontologyMapping.xml? is this needed?

@@ -324,5 +324,22 @@
         ("orgdocs"        . "https://github.com/jbrestel/org-docs/tree/main")
 	))
 
+
 (setq org-todo-keywords
-      '((sequence "TODO" "IN_PROGRESS" "QA" "BLOCKED" "|" "DONE")))
+        '((sequence "TODO" "THEM" "ASSIGN" "IN PROGRESS" "IN_PROGRESS" "QA" "BLOCKED" "|" "DONE"))
+
+
+  (setq org-todo-keyword-faces
+        `(("TODO" . "#dc752f")
+     ("NEXT" . "#dc752f")
+     ("THEM" . "#2d9574")
+     ("DONT" . "#f2241f")
+     ("BLOCKED" . "#f2241f")
+     ("ASSIGN" . "#FF00FF")
+;;     ("DONE" . "#86dc2f")
+     ("IN PROGRESS" . "#b1951d")
+     ("IN_PROGRESS" . "#b1951d")
+          ("QA" . "#ADD8E6")
+     ("\\?\\?\\?+" . "#dc752f")))
+
+)

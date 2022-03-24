@@ -415,7 +415,7 @@ digraph {
 - [X] Load into "EDA" schema instead of ApiDB
 - [X] use finalized workflow to load datasets into clean/rbld instance as they pass manual qa
 
-** IN PROGRESS MapVEu                                                                                      :BobM:JohnB:
+** IN_PROGRESS MapVEu                                                                                      :BobM:JohnB:
 - [X] Upgrade CBIL Reader to Load studies from ISA dumps
 - [X] Mixed units within studies.. NO!
 - [X] Genotype / Phenotype Assays
@@ -423,12 +423,12 @@ digraph {
 - [ ] Species reconciliation
 
 
-** IN PROGRESS Cross Study Comparison / Mega Study
+** IN_PROGRESS Cross Study Comparison / Mega Study
 *** YAML file to define Mega Study
 
 We are using YAML format for StudyClassifications, MegaStudy and Collections
 
-**** TODO Exclude studies list
+- [ ] Need a mechanism to Exclude studies (or list of studies)
 
 #+begin_src yaml
 ---
@@ -447,7 +447,6 @@ project: MapVEu
   - [X] Linking Table which joins EntityAttributes to EntityType
   - [X] retain entity_type_id from entityattributes (original study)
 - [X] update all appropriate queries which use "entityattributes to also join to entityclassification
-- can join on entity_type_id for non mega studies if performance problem
 
 *** InsertMegaEntityGraph.pm
 - [X] Insert Study EntityType and  EntityAttribute rows for Mega Study
@@ -478,15 +477,16 @@ Study ..|> Household
 
 We enforce that all values for attribute/entitytype/study have the same unit!
 
-**** TODO MapVeu will have unit issues
+**** MapVeu
+- [X] handle in the preprocessing for now
 
 **** Reuse LoadAttributesFromEntityGraph.pm
 This plugin does work to summarize the attributes.  I don't want to duplicate this code
 - [X] continue to enforce that units are consistent for each entitytype/attribute
 - [X] for now just fail if substudies are inconsistent for unit
 - [ ] long term, Convert to Base Unit if init unit doesn't match mega unit
-- [ ] add to the "loadAttributes" sql to return json object of sourcid/units
-- [ ] For Mega Study, Print to fifo only when convertunits OR study nodes
+- [X] add to the "loadAttributes" method to get the original units
+- [X] For Mega Study, Print to fifo only when convertunits OR study nodes
 
 **** Reuse $schema.AttributeValue Rows
 - [X] add unit_ontology_term_id to each row
@@ -498,28 +498,43 @@ This plugin does work to summarize the attributes.  I don't want to duplicate th
 - [X] iterate over (sub)studies and do inserts
 
 *** Command Lines
+
+#+name: Ontology
 #+begin_example
+ga GUS::Supported::Plugin::InsertExternalDatabase --name test_ontology --commit
+ga GUS::Supported::Plugin::InsertExternalDatabaseRls --databaseName test_ontology --databaseVersion dontcare --commit
+
+ga GUS::Supported::Plugin::InsertOntologyFromTabDelim --termFile uniqueOntologyTerms.txt --relFile relationships.txt --extDbRlsSpec 'test_ontology|dontcare' --commit
+#+end_example
+
+#+name: create schema
+#+begin_example
+sqlplus eda@rm43647 @createEntityGraphTables.sql eda
+#+end_example
+
+#+name: remake GUS Perl Objects
+#+begin_example
+touch $PROJECT_HOME/GusSchema/Definition/config/gus_schema.xml
+bld GUS
+#+end_example
+
+#+name: VBP0000123
+#+begin_example
+# load external database stuff
+ga GUS::Supported::Plugin::InsertExternalDatabase --name VBP0000123 --commit
+ga GUS::Supported::Plugin::InsertExternalDatabaseRls --databaseName VBP0000123 --databaseVersion dontcare --commit
+
  # load entity graph (no changes)
- ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000123 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --commit
- ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000619 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --commit
- ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000642 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --commit
- ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000206 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --commit
+ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000123 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --commit
 
+# load attribute and attribute value
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit
 
-ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
-ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
-ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit 
-ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit
+# load attributegraph and entitytypegraph
+ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
 
-ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
-ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
-ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
-ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
-
- ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000123|dontcare' --schema jbrestel --commit
- ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000206|dontcare' --schema jbrestel --commit
- ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000619|dontcare' --schema jbrestel --commit
- ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000642|dontcare' --schema jbrestel --commit
+# load dataset specific tables
+ ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --commit
 #+end_example
 
 

@@ -38,7 +38,7 @@
 - Test response code
 - json or xml pages
 ** Selenium / TestNG
-*** Headless builit into Jenkins
+*** TODO Headless built into Jenkins
 *** Standalone with eclipse with browser of your choice (Chrome,Firefix,...)
 - Start by running tests for reporting from eclipse
 - we don't want the integration/qa sites breaking all the time.
@@ -93,28 +93,46 @@
 ** End To End 
 *** Each release we will list out new datasets and which manual tests were performed
 * Specific Things to Test
-** DONE Test Static Content
-** TODO Regression test for GUS schema install
-** TODO Unique JBrowse track names
-unique keys in json
-** TODO Weird characters in JBrowse track names
-** TODO JBrowse dataset wdkreference match the model
-   # urlSegment -> fullName
+
+** Front End
+*** DONE Test Static Content
+
+*** TODO dataset wdkreference match the model
+replace existing dataset tests which are slow
+
+# urlSegment -> fullName
    https://qa.plasmodb.org/a/service/record-types?format=expanded
+
+
+   "fullName": "GeneQuestions.GenesByRNASeqcparIowaII_Widmer_ExtraCellular_Stages_ebi_rnaSeq_RSRCSenseAntisense",
+   HashMap allSearches = new HashMap<String, boolean??>();
+
    # find referenced searches
    https://qa.plasmodb.org/plasmo.b50/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B%22attributes%22%3A%5B%22primary_key%22%5D%2C%22tables%22%3A%5B%22References%22%5D%7D
-** TODO Selenium in jenkins! 
-container for browser??
-** TODO Strand specific RNASeq should test the average coverage of sense/antisense
-** TODO RNASeq regression tests :MarkH:
-     + Run after patches and rebuilds
-** TODO Changes to RNASeq regression tests so they can be run on a single db each release :MarkH:
-** TODO wdk model ref / dataset
-[[redmine:43163]] 
-** TODO site search matches record count
-need wdk search with returns all records
-** TODO test links on dataset page
-** TODO rnaseq default organism rnaseq (make sure all keys are unique)
-** TODO strand specific rnaseq
-** TODO check for broken dataset links
 
+   We only care about the "References" which have "target_type" == 'question'
+   "target_name": "GeneQuestions.GenesByRNASeqcparIowaII_Widmer_ExtraCellular_Stages_ebi_rnaSeq_RSRCSenseAntisense",
+
+
+*** TODO rnaseq default organism rnaseq (make sure all keys are unique)
+
+
+
+*** TODO site search matches record count
+need wdk search with returns all records
+
+*** TODO test links on dataset page
+
+
+** Back End
+*** TODO Strand specific RNASeq should test the average coverage of sense/antisense
+
+
+*** TODO Datset IDs from previous releases are handled
+
+*** TODO Regression test for GUS schema install
+*** TODO Changes to RNASeq regression tests so they can be run on a single db each release                     :MarkH:
+
+** Automation
+*** TODO Selenium in jenkins!
+container for browser??

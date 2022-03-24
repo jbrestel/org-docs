@@ -6,7 +6,7 @@
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
 * B53 and B54
 ** [[readtheorgs:/project_planning/unidb.org][UniDB]]
-* IN PROGRESS DNASeq Nextflow workflow
+* IN_PROGRESS DNASeq Nextflow workflow
 ** Input Data
 - [X] Can be fastq files or BAM files
 - [X] All data from SRA will be aligned by EBI and given as bam
