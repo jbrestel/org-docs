@@ -326,7 +326,7 @@
 
 
 (setq org-todo-keywords
-        '((sequence "TODO" "THEM" "ASSIGN" "IN PROGRESS" "IN_PROGRESS" "QA" "BLOCKED" "|" "DONE"))
+        '((sequence "TODO" "THEM" "ASSIGN" "IN PROGRESS" "IN_PROGRESS" "QA" "BLOCKED" "|" "DONE")))
 
 
   (setq org-todo-keyword-faces
