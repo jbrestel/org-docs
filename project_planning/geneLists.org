@@ -5,7 +5,7 @@
 #+DESCRIPTION: Gene Lists
 #+OPTIONS:   H:5 num:nil toc:3 p:t tags:not-in-toc
 
-* Gene List Workflow Dataset
+* IN PROGRESS Gene List Workflow Dataset (either from provider or manually added)
 ** FungiDB Clusters Example from Eve( Omeara_2020_CalCEN_UMAP)                                                   :AnnB:
 [[redmine:46157]]
 
@@ -333,17 +333,16 @@ prop=organismAbbrevDisplay
 
    Add templateInjector xml element to FungiDB.xml (Presenter).
 
-
-
 * WGCNA
-* User Contributed (UserDataset)
-* VEupath Gene Sets (UserDataset made by superuser and shared publically)
-    
+wgcna analysis is described here:  [[readtheorgs:/project_planning/networkAnalysis.html][Network Analysis]]
 * Pathways and GO Functions
-* Automated Gene Lists
-  - Dataset1
-    - Comparison A vs B
-    - Comparison A vs C
-    - Comparison B vs C
-  - Dataset2
-    - ...
+We already have enrichment tools which search these lists.  Could generalize
+* TODO User Contributed (UserDataset)
+* TODO VEupathDB Curated Gene Sets (UserDataset made by superuser and shared publically)
+* TODO RNASeq Automated Pairwise Comparisons.  DESeq Results
+- Dataset1
+  - Comparison A vs B
+  - Comparison A vs C
+  - Comparison B vs C
+- Dataset2
+  - ...
