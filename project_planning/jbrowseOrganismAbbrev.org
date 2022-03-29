@@ -34,13 +34,13 @@
   - [ ] "refSeqs" /a/service/jbrowse/seq
   - [ ] "names" /a/service/jbrowse/names/pfal3D7
   - [ ] Service calls that return tracks
-    - [ ]/a/jbrowse/tracks/pfal3D7/tracks.conf
-    - [ ]/a/service/jbrowse/dnaseq/pfal3D7
-    - [ ]/a/service/jbrowse/rnaseq/pfal3D7
-    - [ ]/a/service/jbrowse/rnaseqJunctions/pfal3D7
-    - [ ]/a/service/jbrowse/chipseq/pfal3D7
-    - [ ]/a/service/jbrowse/organismSpecific/pfal3D7
-    - [ ]/a/service/users/current/user-datasets-jbrowse/Pfalciparum3D7
+    - [ ] /a/jbrowse/tracks/pfal3D7/tracks.conf
+    - [ ] /a/service/jbrowse/dnaseq/pfal3D7
+    - [ ] /a/service/jbrowse/rnaseq/pfal3D7
+    - [ ] /a/service/jbrowse/rnaseqJunctions/pfal3D7
+    - [ ] /a/service/jbrowse/chipseq/pfal3D7
+    - [ ] /a/service/jbrowse/organismSpecific/pfal3D7
+    - [ ] /a/service/users/current/user-datasets-jbrowse/Pfalciparum3D7
 - [X] User Datasets already uses the publicNamesForFilenames
 
 - [ ] Anytime we show the organismAbbrev... we need to convert to the public facing Oneal
