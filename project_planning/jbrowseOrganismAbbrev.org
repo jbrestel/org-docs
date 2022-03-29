@@ -1,0 +1,50 @@
+#+TITLE: Jbrowse Organism Abbrev
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+
+* Public Facing (There are 2 places we show the organism abbreviation to user)
+- [X] Need to decide what makes most sense.  Should webservices expect "abbrev" or "publicAbbrev"?
+  - [X] URL should provide public_abbrev.  Script Maps to "abbrev" (internal)
+
+** URL
+- URL has a  "data" argument.  we use a service call which specifies organism.
+- [-] Make sure these urls are using the public_abbrev
+  - [X] geneRecord and transcriptRecord use public_abbrev
+  - [X] organismList for "Genome" link in jbrowse uses public_abbrev
+  - [-] other pages that create tracks link
+    - [ ] Model/config/datasetLinks.xml
+    - [X] *Model/lib/jbrowse/functions.conf*
+    - [ ] Model/lib/wdk/model/records/snpRecords.xml
+    - [ ] Model/lib/wdk/model/records/snpChipRecords.xml
+    - [ ] Model/lib/wdk/model/records/dynSpanRecord.xml
+
+    - [ ] Model/lib/wdk/model/records/genomeRecords.xml
+      - [ ] probably uses "bysequencesource" option in jbrowseTracks script
+
+** Synteny Subtracks
+- [ ] Ensure we are showing the user the publicAbbrev
+- [ ] update synteny query in genomeQueries.xml to use the publicAbbrev
+  - [ ] 'OrgAbbrev=' || sg.syn_organism_abbrev atts (there are 2 of these)
+  - [ ] join to organism table and return the public abbrev
+
+* Internal service calls
+- [X] the webapp/tracks/$organismAbbrev directory already uses internal "abbrev"
+- [-] All of these are guaranteed to consume the internal "abbrev" as the organismAbbrev.  For each of these check if we query assuming it is the public_abbrev and if so change
+  - [X] "tracks" service /a/service/jbrowse/tracks/default
+  - [ ] "trackList" service trackList.json
+  - [ ] "refSeqs" /a/service/jbrowse/seq
+  - [ ] "names" /a/service/jbrowse/names/pfal3D7
+  - [ ] Service calls that return tracks
+    - [ ]/a/jbrowse/tracks/pfal3D7/tracks.conf
+    - [ ]/a/service/jbrowse/dnaseq/pfal3D7
+    - [ ]/a/service/jbrowse/rnaseq/pfal3D7
+    - [ ]/a/service/jbrowse/rnaseqJunctions/pfal3D7
+    - [ ]/a/service/jbrowse/chipseq/pfal3D7
+    - [ ]/a/service/jbrowse/organismSpecific/pfal3D7
+    - [ ]/a/service/users/current/user-datasets-jbrowse/Pfalciparum3D7
+- [X] User Datasets already uses the publicNamesForFilenames
+
+- [ ] Anytime we show the organismAbbrev... we need to convert to the public facing Oneal
+  - [ ] synteny subtracks
+
+* TODO Apollo considerations
+- [ ] same as above... any public facing urls should use the public_abbrev and the internal service calls should use the internal "abbrev"
