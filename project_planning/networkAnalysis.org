@@ -149,12 +149,22 @@ We can make nice Directed graphs from the data we already have loaded.  This see
   - FungiDB/scerS288c_interaction_SGD_RSRC
 - Current table is ApiDB.GeneInteraction  (why not ProteinInteraction? or Y2HProteinInteraction?)
 * Host Pathogen
-** Profile Similarity Search :BinduG:
+
+** Leverage Meta Data
+- for experiments like MAPIC
+
+** Cluster analysis
+
+
+** Profile Similarity Search
 - [ ] Extend Protein Similarity Search To Return Host and Pathogen genes
-** wgcna
+
+** IN PROGRESS wgcna
 - [ ] For datasets with both Host and Pathogen RNASeq ...  find related modules
+
 ** IN PROGRESS Gene Set Enrichment
 - [ ] Upgrade Code to use clusterProfiler software
+- [ ] single sample gsea
 - We have several types of  [[readtheorgs:/project_planning/geneLists.html][Gene Lists]]
 - Host Pathogen will benefit from new Study / Dataset Records
  - [[readtheorgs:/project_planning/dataset.html][Dataset Record Phase 3]]

@@ -44,30 +44,35 @@ stop
 #+RESULTS: Process Flow
 [[file:images/eda_diy.png]]
 
-- [ ] (Wojtek) confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
-  - [ ] is there a gus.config in $GUS_HOME/congig?  does that have group/project ?
+- [X] (Wojtek) confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
+  - [X] is there a gus.config in $GUS_HOME/congig?  does that have group/project ?
 
 - [X] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
   - [X] Use Reflow Workflow Step to add joe user and link to Group and Project to be run on "inc" database instance during build
 
 - [X] Assume Dependent data like Ontology Term Types are loaded by Reflow Worfklow and available to UserDataset Installer
 
-- [ ] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
+- [X] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
   - are we able to consistently pull from docker?
   - does singularity use the cache?
   - currently we're using the latest version of the RServe code.  Should change that to a tags
 
 
-- [ ] (JohnB) add user_dataset_id to each eda_ud table
-  - [ ] sql to be run after "createEntityGraph" tables in schema installer
+- [X] (JohnB) add user_dataset_id to each eda_ud table
+  - [X] sql to be run after "createEntityGraph" tables in schema installer
 
 - [X] need access to GUS_HOME on jenkins.
   - [X] $GUS_HOME/config/gus.config specifies the database
 
-- [ ] (JohnB) Create EDA_UD tables to store Attribution/Dataset info
+- [X] (JohnB) Create EDA_UD tables to store Attribution/Dataset info
   - this should mirror what we have in apidbtuning.datasetpresenter
   - begin with minimal info (name, description, ID)
-  - [ ] Requires a unique id for the study/dataset.  Can we just store the user dataset id??
+  - [X] Requires a unique id for the study/dataset.  Can we just store the user dataset id??
+
+- [X] (JayH) Need a workflow step (eda-inc and mbio) which will add joeuser and associate with row(s) in core.projectinfo and core.groupinfo
+
+- [X] (JayH) make jenkins job to make container and push to dockerhub
+
 
 * Validator
 
@@ -96,19 +101,19 @@ Write some python code?  The parent is in python.
   - a) uncategorized variables are ok.
 
 
-* Preprocess/Transform Script :JayH:
+* Preprocess/Transform Script                                                                                     :JayH:
+
 
 These scripts can be called in the Validator or Installer (for legacy user datasets in IRODs)
 
-- [ ] Create ontology files
-  - [ ] Entity Types (mbio will have 2 rows.  ClinEpi one row per file)
-  - [ ] Variables/Attributes
-  - [ ] Protocols?  Check if these are required
+- [X] Create ontology files
+  - [X] Entity Types (mbio will have 2 rows.  ClinEpi one row per file)
+  - [X] Variables/Attributes
 
-- [ ] ISASimple data file
-- [ ] ISASimple ancilary files (use ontology term source_ids from above)
-  - [ ] "investigation.xml" file for the study
-  - [ ] ontologyMapping.xml? is this needed?
+- [X] ISASimple data file
+- [X] ISASimple ancilary files (use ontology term source_ids from above)
+  - [X] "investigation.xml" file for the study
+  - [X] ontologyMapping.xml? is this needed?
 
 * Installer
 
@@ -139,36 +144,34 @@ These scripts can be called in the Validator or Installer (for legacy user datas
 bash script with the following plugins configured.  We can test in the rm41910 eda_ud schema
 
 - where does this bash script live in the codebase??
-
-
 *** ExternalDatabase and ExternalDatabaeRelease
-- [ ] GUS::Supported::Plugin::InsertExternalDatabase
-- [ ] GUS::Supported::Plugin::InsertExternalDatabaseRls
+- [X] GUS::Supported::Plugin::InsertExternalDatabase
+- [X] GUS::Supported::Plugin::InsertExternalDatabaseRls
 
 *** Insert "Ontology" (EntityTypes, Variables and Protocols?)
-- [ ] GUS::Supported::Plugin::InsertOntologyFromTabDelim
+- [X] GUS::Supported::Plugin::InsertOntologyFromTabDelim
   - This will load into OntologyTerm and OntologySynonym
 
 *** Insert Entity Graph
-  - [ ] ApiCommonData::Load::Plugin::InsertEntityGraph
-  - [ ] ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph
-  - [ ] ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs
-  - [ ] ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph
+  - [X] ApiCommonData::Load::Plugin::InsertEntityGraph
+  - [X] ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph
+  - [X] ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs
+  - [X] ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph
   - [X] No need to load StudyCharacteristics
 
 *** Insert Dataset tables :JohnB:
 The EDA requires a dataset record.  Steve's proposal is to create a UserDatasetPresenter table which can be installed along with other data.
 NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not simply the user dataset page.
 
-- [ ] Table(s) for the Dataset, Contact, PumedID (bib ref), ...
+- [X] Table(s) for the Dataset
 - [ ] Create View which unions apidbtuning.datasetpresener with eda_ud.datasetpresenter
 
 * Undo for Installer!!!
-- [ ] create script which manages undo (given user dataset id)
-- [ ] confirm that undo mechanism can handle tables which do not have a user_dataset_id (SRes tables)
+- [X] create script which manages undo (given user dataset id)
+- [X] confirm that undo mechanism can handle tables which do not have a user_dataset_id (SRes tables)
 
    #+name: Ontology Undo
- #+begin_src sql
+   #+begin_src sql
      delete blah from sres.ontologyterm where ontology_term_id in (
 	select distinct ontology_term_id from eda_ud.attribute where user_dataset_id = ?
 	union
@@ -177,6 +180,34 @@ NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not s
 	...
      )
 #+end_src
+
+** how to delete a study
+
+1. [X] find study_id and internal abbrev (input is user_dataset_id)
+2. [X] find entity_type_id and internal abbrev (input is study_id)
+3. [X] find external_database_release_id for study
+4. [X] find external_database_id for study
+5. [X] find external_database_release_id for ontology terms
+6. [X] find external_database_id for ontology terms
+7. [X] Delete dataset specific tables
+   - ANCESTORS_${studyAbbrev}_${entityTypeAbbrev}
+   - ATTRIBUTEGRAPH_${studyAbbrev}_${entityTypeAbbrev}
+   - ATTRIBUTEVALUE_${studyAbbrev}_${entityTypeAbbrev}
+8. [X] delete EntityTypeGraph by study_id
+9. [X] delete AttributeGraph by study_id
+10. [X] delete attributeunit by entity_type_id
+11. [X] delete attribute by entity_type_id
+12. [X] delete processattributes by linking to entityattributes
+13. [X] delete entityattributes by entity_type_id
+14. [X] delete attributevalue by entity_type_id
+15. [X] delete EntityType by study_id
+16. [X] delete study by study_id
+17. [X] delete studydataset by study_id
+18. [X] delete studycharacteristict by study_id
+19. [X] delete sres.ontologyrelationship by external_database_release_id
+20. [X] delete sres.ontologysynonym by external_database_release_id
+21. [X] delete sres.externaldatabaserelease (2)
+22. [X] delete sres.externaldatabase (2)
 
 
 * WDK Model

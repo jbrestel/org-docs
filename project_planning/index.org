@@ -10,11 +10,11 @@
 *** BLOCKED UniDB                                                                                              :JohnB:
 [[readtheorgs:/project_planning/unidb.html][html]] | [[orgdocs:/project_planning/unidb.org][org]] | [[https://redmine.apidb.org/projects/jbdqh][redmine]]
 *** THEM JBrowse Migration                                                                                     :JohnI:
-[[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]] 
+[[readtheorgs:/SOPs/jbrowseFlatFileMigration.html][html]] | [[orgdocs:/SOPs/jbrowseFlatFileMigration.org][org]]
 - [ ] QA Test new files
 *** QA DNASeq Workflow (nextflow)                                                               :KathrynC:JohnB:
 [[readtheorgs:/project_planning/dnaseq.html][html]] | [[orgdocs:/project_planning/dnaseq.org][org]] | [[https://redmine.apidb.org/projects/p30029][redmine]]
-- [ ] YMAP (mark/kathryn/david)  
+- [ ] YMAP (mark/kathryn/david)
 - [ ] [[redmine:42258]] reflow workflow / database
 - [ ] [[redmine:32649]] and [[redmine:42259]] variation front end
 - [ ] [[redmine:32307]] user workspace / exporters
@@ -27,7 +27,7 @@
 **** DONE Intron Junctions                                                                             :BrianB:JohnI:
 ** EDA
 *** IN_PROGRESS EDA DataLoad                                                                      :JayH:JohnB:WojtekB:
-[[readtheorgs:/project_planning/eda.html][html]] | [[orgdocs:/project_planning/eda.org][org]] 
+[[readtheorgs:/project_planning/eda.html][html]] | [[orgdocs:/project_planning/eda.org][org]]
 **** IN_PROGRESS MapVEu and Mbio (Mega Study)                                                                 :JohnB:
 **** IN_PROGRESS DIY                                                                             :WojtekB:JayH:JohnB:
  [[readtheorgs:/project_planning/eda_diy.html][html]] | [[orgdocs:/project_planning/eda_diy.org][org]]
@@ -39,11 +39,11 @@
 *** DONE Eukaryotic Detection                                                                                :WojtekB:
 * Front End Applications
 ** WDK
-*** Genomics 
+*** Genomics
 **** BLOCKED UniDB Performance and App Specific Databases                                         :JohnB:MarkH:JohnI:
-[[readtheorgs:/project_planning/appDb.html][html]] | [[orgdocs:/project_planning/appDb.org][org]] 
+[[readtheorgs:/project_planning/appDb.html][html]] | [[orgdocs:/project_planning/appDb.org][org]]
 **** Network Analysis and Host Pathogen                                                                        :AnnB:
-[[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]] 
+[[readtheorgs:/project_planning/networkAnalysis.html][html]] | [[orgdocs:/project_planning/networkAnalysis.org][org]]
 **** Gene Lists                                                                       :HaimingW:OmarH:CristinaA:AnnB:
 [[readtheorgs:/project_planning/geneLists.html][html]] | [[orgdocs:/project_planning/geneLists.org][org]]
 **** Dataset and Project Record                                                                                :AnnB:
@@ -51,7 +51,7 @@
 **** THEM Organism Preferences                                                                               :BinduG:
 [[redmine:47221]]
 **** THEM Selenium Tests                                                                                      :RichD:
-[[readtheorgs:/project_planning/selenium.html][html]] | [[orgdocs:/project_planning/selenium.org][org]] 
+[[readtheorgs:/project_planning/selenium.html][html]] | [[orgdocs:/project_planning/selenium.org][org]]
 **** THEM Download File Record                                                                               :BinduG:
 *** OrthoMCL
 **** BLOCKED Phylogenetic Pattern WS improve performance                                                      :MarkH:
@@ -64,18 +64,18 @@
 
 ** EDA
 *** THEM Dataviz Foothills                                                                                 :DanielleC:
-[[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][notion]] 
+[[https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390][notion]]
 *** THEM MicrobiomeDB                                                                                   :WojtekB:AnnB:
 - [X] Remove Sample WDK Records (need a new branch of MbioModel?)
   - [X] comment sample records in MicrobiomeModel/Model/lib/wdk/microbiomeModel.xml
 - [X] first release no compute service
-- 
+-
 ** THEM MapVEu                                                                                                   :BobM:
- [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]] 
+ [[https://redmine.apidb.org/projects/maprefad/issues?set_filter=0][redmine]]
 ** Genome Browser
  [[https://redmine.apidb.org/projects/p110][redmine]]
 *** THEM Apollo                                                                                                :PaulW:
-[[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]] 
+[[readtheorgs:/project_planning/apollo.html][html]] | [[orgdocs:/project_planning/apollo.org][org]]
 ** Galaxy / Globus                                                                                              :OmarH:
  [[https://onedrive.live.com/edit.aspx?resid=A33886B8E9920EF7!8142&ithint=file%2cxlsx&authkey=!AEhTv4bcB6N8NZs][onedrive]] :MarkH:
 - [ ] strand specific UD error
@@ -91,12 +91,3 @@
 *** How to change Database Schema
 - [ ] Alter Table
 - [ ] New Table
-
-
-
-
-
-
-
-
-

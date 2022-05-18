@@ -138,7 +138,7 @@
 
 
 
-* TODO ESTs                                                                                                       :JayH:
+* THEM ESTs                                                                                                       :JayH:
 - [ ] replace dbest Mirror query with eutils webservice query for EST sequences by species
 - [ ] "Plasmodium falciparum"[Primary Organism] AND is_est[filter]
 - [ ] replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests "referenceStrain-dbEST"

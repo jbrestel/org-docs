@@ -426,23 +426,29 @@ For the user in this case they would see the following Entity Type Graph.  There
 
 #+begin_src plantuml :file images/mega_entity_type_graph2_cet.png  :exports results
 rectangle "EntityTypeGraph Alternate Path" {
-object H
-object HR
-object P
-object RM
-object S
-object D
+object Household
+object HouseholdRepeatedMeasure
+object Participant
+object ParticipantRepeatedMeasure
+object SampleP
+object SampleRM
+object AssayP
+object AssayRM
 }
-H --> HR
-H --> P
-P --> RM
-P --> S
-RM --> S
-S --> D
+Household --> HouseholdRepeatedMeasure
+Household --> Participant
+Participant --> ParticipantRepeatedMeasure
+Participant --> SampleP
+ParticipantRepeatedMeasure --> SampleRM
+SampleP --> AssayP
+SampleRM --> AssayRM
 #+end_src
 
 #+RESULTS:
+
+
 [[file:images/mega_entity_type_graph2_cet.png]]
+
 
 
 *** Source

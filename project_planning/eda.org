@@ -2,7 +2,7 @@
 #+TITLE:     EDA Backend
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA Backend
-#+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+#+OPTIONS:   H:5 num:nil toc:2 p:t tags:nil todo:nil
 * Basics
 ** Vocabulary
 - Study :: An investigation and analysis of subjects
@@ -421,8 +421,11 @@ digraph {
 - [X] Genotype / Phenotype Assays
 - [ ] Add variables for protocols to InsertEntityGraph.pm
 - [ ] Species reconciliation
-
-
+- [ ] Microsattelites
+  #+begin_example
+  If we can make variables for each microsatellite locus without ontology terms, please let me know what this should look like in the ISA-Tab.
+  Alternatively we could make "proper" variables within 3-4 weeks I guess.
+  #+end_example
 ** IN_PROGRESS Cross Study Comparison / Mega Study
 *** YAML file to define Mega Study
 
