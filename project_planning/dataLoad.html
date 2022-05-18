@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Data Loading</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Data Loading" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Data Loading</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org230b508">Genome Pipeline</a>
+<ul>
+<li><a href="#org4b5c63b">Data Tables</a></li>
+<li><a href="#orgb0cecdd">Graph</a></li>
+</ul>
+</li>
+<li><a href="#org23e15ec">Dataset Scheduling</a>
+<ul>
+<li><a href="#org599cd29">Data Tables</a></li>
+<li><a href="#org3aa63c3">Graph Results</a></li>
+</ul>
+</li>
+<li><a href="#org724c046"><span class="todo THEM">THEM</span> ESTs</a></li>
+<li><a href="#org89b615b"><span class="todo TODO">TODO</span> GPI anchor and MitoProt and other analysis</a></li>
+<li><a href="#orgb782f50">Intron Junctions</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org230b508" class="outline-2">
+<h2 id="org230b508">Genome Pipeline</h2>
+<div class="outline-text-2" id="text-org230b508">
+</div>
+<div id="outline-container-org4b5c63b" class="outline-3">
+<h3 id="org4b5c63b">Data Tables</h3>
+<div class="outline-text-3" id="text-org4b5c63b">
+<table id="org033e9db">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>node</b></th>
+<th scope="col" class="org-left"><b>label</b></th>
+<th scope="col" class="org-left"><b>shape</b></th>
+<th scope="col" class="org-left"><b>fillcolor</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">start</td>
+<td class="org-left">start</td>
+<td class="org-left">ellipse</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">init_prior</td>
+<td class="org-left">Schedule For Release (Overbook)</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">red</td>
+</tr>
+
+<tr>
+<td class="org-left">get_data</td>
+<td class="org-left">Get Data</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_data</td>
+<td class="org-left">Validate</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">pass</td>
+<td class="org-left">Passes Validation?</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">ebi</td>
+<td class="org-left">EBI Workflow</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">prioritize</td>
+<td class="org-left">Prioritize</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">is_high</td>
+<td class="org-left">Is Critical Priority?</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">will_provider_fix</td>
+<td class="org-left">Provider Fix?</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">manual_work</td>
+<td class="org-left">Process Ourselves For Next Release</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">red</td>
+</tr>
+
+<tr>
+<td class="org-left">manual_work_later</td>
+<td class="org-left">Process Ourselves For Future Release</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">red</td>
+</tr>
+
+<tr>
+<td class="org-left">reflow</td>
+<td class="org-left">ReFlow Workflow</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">end</td>
+<td class="org-left">end</td>
+<td class="org-left">ellipse</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+<table id="org9613c89">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">from</th>
+<th scope="col" class="org-left">to</th>
+<th scope="col" class="org-left">label</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">start</td>
+<td class="org-left">init_prior</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">init_prior</td>
+<td class="org-left">get_data</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">get_data</td>
+<td class="org-left">validate_data</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_data</td>
+<td class="org-left">pass</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">pass</td>
+<td class="org-left">ebi</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">pass</td>
+<td class="org-left">prioritize</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">prioritize</td>
+<td class="org-left">is_high</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">is_high</td>
+<td class="org-left">will_provider_fix</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">is_high</td>
+<td class="org-left">manual_work</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">will_provider_fix</td>
+<td class="org-left">init_prior</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">will_provider_fix</td>
+<td class="org-left">manual_work_later</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">manual_work</td>
+<td class="org-left">validate_data</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">manual_work_later</td>
+<td class="org-left">validate_data</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">ebi</td>
+<td class="org-left">reflow</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">reflow</td>
+<td class="org-left">end</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+<div id="outline-container-orgb0cecdd" class="outline-3">
+<h3 id="orgb0cecdd">Graph</h3>
+<div class="outline-text-3" id="text-orgb0cecdd">
+
+<figure id="orgf24f49f">
+<img src="images/ddOrgGenome.png" alt="ddOrgGenome.png">
+
+</figure>
+</div>
+</div>
+</section>
+
+
+
+
+<section id="outline-container-org23e15ec" class="outline-2">
+<h2 id="org23e15ec">Dataset Scheduling</h2>
+<div class="outline-text-2" id="text-org23e15ec">
+</div>
+<div id="outline-container-org599cd29" class="outline-3">
+<h3 id="org599cd29">Data Tables</h3>
+<div class="outline-text-3" id="text-org599cd29">
+<table id="org310b178">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>node</b></th>
+<th scope="col" class="org-left"><b>label</b></th>
+<th scope="col" class="org-left"><b>shape</b></th>
+<th scope="col" class="org-left"><b>fillcolor</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">start</td>
+<td class="org-left">start</td>
+<td class="org-left">ellipse</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">known_datatype</td>
+<td class="org-left">Is Existing Data Type?</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">new_features</td>
+<td class="org-left">New Features?</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">is_automated</td>
+<td class="org-left">Is Fully Automated?</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">auto_config</td>
+<td class="org-left">Configuration (Dataset/Presenter)</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">MediumSeaGreen</td>
+</tr>
+
+<tr>
+<td class="org-left">manual_config</td>
+<td class="org-left">Configuration (Model)</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">MediumSeaGreen</td>
+</tr>
+
+<tr>
+<td class="org-left">prioritization</td>
+<td class="org-left">Prioritization</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Tomato</td>
+</tr>
+
+<tr>
+<td class="org-left">dd_work</td>
+<td class="org-left">Data Development</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">DodgerBlue</td>
+</tr>
+
+<tr>
+<td class="org-left">end</td>
+<td class="org-left">end</td>
+<td class="org-left">ellipse</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+
+<table id="orga520c20">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">from</th>
+<th scope="col" class="org-left">to</th>
+<th scope="col" class="org-left">label</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">start</td>
+<td class="org-left">known_datatype</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">known_datatype</td>
+<td class="org-left">is_automated</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">known_datatype</td>
+<td class="org-left">prioritization</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">is_automated</td>
+<td class="org-left">auto_config</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">is_automated</td>
+<td class="org-left">new_features</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">new_features</td>
+<td class="org-left">prioritization</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">new_features</td>
+<td class="org-left">manual_config</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">auto_config</td>
+<td class="org-left">end</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">prioritization</td>
+<td class="org-left">dd_work</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">dd_work</td>
+<td class="org-left">is_automated</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">manual_config</td>
+<td class="org-left">end</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org3aa63c3" class="outline-3">
+<h3 id="org3aa63c3">Graph Results</h3>
+<div class="outline-text-3" id="text-org3aa63c3">
+
+<figure id="org415f3f5">
+<img src="images/ddOrg.png" alt="ddOrg.png">
+
+</figure>
+</div>
+</div>
+</section>
+
+
+
+<section id="outline-container-org724c046" class="outline-2">
+<h2 id="org724c046"><span class="todo THEM">THEM</span> ESTs&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JayH">JayH</span></span></h2>
+<div class="outline-text-2" id="text-org724c046">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> replace dbest Mirror query with eutils webservice query for EST sequences by species</li>
+<li class="off"><input type='checkbox' /> &ldquo;Plasmodium falciparum&rdquo;[Primary Organism] AND is_est[filter]</li>
+<li class="off"><input type='checkbox' /> replace GUS::Supported::Plugin::dbEST plugin in dataset class for ests &ldquo;referenceStrain-dbEST&rdquo;</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-org89b615b" class="outline-2">
+<h2 id="org89b615b"><span class="todo TODO">TODO</span> GPI anchor and MitoProt and other analysis&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span>&#xa0;<span class="KathrynC">KathrynC</span>&#xa0;<span class="BrianB">BrianB</span>&#xa0;<span class="BobM">BobM</span>&#xa0;<span class="JohnB">JohnB</span></span></h2>
+<div class="outline-text-2" id="text-org89b615b">
+<ul class="org-ul">
+<li><a href="https://github.com/BolognaBiocomp/predgpi">https://github.com/BolognaBiocomp/predgpi</a></li>
+<li><a href="https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions">https://github.com/OXPHOS/MitoProt/blob/master/mitoprotII-v1.101-origin/Instructions</a></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgb782f50" class="outline-2">
+<h2 id="orgb782f50">Intron Junctions&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnI">JohnI</span>&#xa0;<span class="Brian">Brian</span></span></h2>
+<div class="outline-text-2" id="text-orgb782f50">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Move Intron Junctions out of tuning manager into workflow</li>
+</ul>
+</div>
+</section>
+</main>
+</body>
+</html>

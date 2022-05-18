@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project Pages / Study Record</title>
+<meta name="author" content="John Brestelli" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Project Pages / Study Record</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org081c4dc">Use Cases</a>
+<ul>
+<li><a href="#org30048ad">RNASeq</a></li>
+<li><a href="#orgd02c778">Multiple Assays per Study</a></li>
+<li><a href="#org1512ccd">Host Pathogen</a></li>
+<li><a href="#org7a2a0e1">ClinEpi Study</a></li>
+<li><a href="#org16a9938">ClinEpi Investigation</a></li>
+<li><a href="#orge540297">ClinEpi / Plasmo Cross Component</a></li>
+<li><a href="#org0ce5ecf">Compound Mass Spec</a></li>
+<li><a href="#orga1c6363">Global</a></li>
+</ul>
+</li>
+<li><a href="#org84b9edb">Proposed Study files</a>
+<ul>
+<li><a href="#org7a76b81">Study</a></li>
+<li><a href="#orgac9df4d">RawData</a></li>
+<li><a href="#org1b97ce0">ProcessedData</a></li>
+</ul>
+</li>
+<li><a href="#org1e72cbc">Proposed WDK Records</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org081c4dc" class="outline-2">
+<h2 id="org081c4dc">Use Cases</h2>
+<div class="outline-text-2" id="text-org081c4dc">
+</div>
+<div id="outline-container-org30048ad" class="outline-3">
+<h3 id="org30048ad">RNASeq</h3>
+<div class="outline-text-3" id="text-org30048ad">
+<p>
+Common case where we have Study-&gt;Assay-&gt;Data-&gt;Analysis
+</p>
+
+
+<figure id="org776d158">
+<img src="images/rnaseq_uml.png" alt="rnaseq_uml.png">
+
+</figure>
+</div>
+</div>
+
+<div id="outline-container-orgd02c778" class="outline-3">
+<h3 id="orgd02c778">Multiple Assays per Study</h3>
+<div class="outline-text-3" id="text-orgd02c778">
+<p>
+One publication typically has muliple types of assays.  
+</p>
+
+
+<figure id="org6027d52">
+<img src="images/multiple_assays_uml.png" alt="multiple_assays_uml.png">
+
+</figure>
+</div>
+</div>
+
+<div id="outline-container-org1512ccd" class="outline-3">
+<h3 id="org1512ccd">Host Pathogen</h3>
+<div class="outline-text-3" id="text-org1512ccd">
+<p>
+For the Same raw data, we align to multiple organisms for host pathogen 
+</p>
+
+
+<figure id="org7e1f5d4">
+<img src="images/host_pathogen_assays_uml.png" alt="host_pathogen_assays_uml.png">
+
+</figure>
+</div>
+</div>
+<div id="outline-container-org7a2a0e1" class="outline-3">
+<h3 id="org7a2a0e1">ClinEpi Study</h3>
+<div class="outline-text-3" id="text-org7a2a0e1">
+<p>
+ClinEpi Studies have &ldquo;Tests&rdquo; but are not represented as assays.  Workflows consume sampleDetails/metadata
+</p>
+
+
+<figure id="org0cbc7f8">
+<img src="images/clinepi_study_uml.png" alt="clinepi_study_uml.png">
+
+</figure>
+</div>
+</div>
+<div id="outline-container-org16a9938" class="outline-3">
+<h3 id="org16a9938">ClinEpi Investigation</h3>
+<div class="outline-text-3" id="text-org16a9938">
+<p>
+Multiple Studies can be associatated 
+</p>
+
+
+<figure id="orgcdd0b72">
+<img src="images/clinepi_investigation_uml.png" alt="clinepi_investigation_uml.png">
+
+</figure>
+</div>
+</div>
+
+
+<div id="outline-container-orge540297" class="outline-3">
+<h3 id="orge540297">ClinEpi / Plasmo Cross Component</h3>
+<div class="outline-text-3" id="text-orge540297">
+<p>
+Antibody Microarray Data in PlasmoDB and ClinEpi &ldquo;MetaData&rdquo; comes from PRISM Study
+</p>
+
+
+<figure id="org65b9736">
+<img src="images/clinepi_plasmo_study_uml.png" alt="clinepi_plasmo_study_uml.png">
+
+</figure>
+</div>
+</div>
+<div id="outline-container-org0ce5ecf" class="outline-3">
+<h3 id="org0ce5ecf">Compound Mass Spec</h3>
+<div class="outline-text-3" id="text-org0ce5ecf">
+<p>
+Compound Mass Spec can be treated similar to above
+</p>
+
+
+<figure id="org1c5f4c3">
+<img src="images/ms_compound_uml.png" alt="ms_compound_uml.png">
+
+</figure>
+</div>
+</div>
+
+<div id="outline-container-orga1c6363" class="outline-3">
+<h3 id="orga1c6363">Global</h3>
+<div class="outline-text-3" id="text-orga1c6363">
+<p>
+Compound,Pathway,Ontologies only have raw data which is loaded.  Often no publication
+</p>
+
+
+<figure id="orgf89641d">
+<img src="images/global_uml.png" alt="global_uml.png">
+
+</figure>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org84b9edb" class="outline-2">
+<h2 id="org84b9edb">Proposed Study files</h2>
+<div class="outline-text-2" id="text-org84b9edb">
+</div>
+<div id="outline-container-org7a76b81" class="outline-3">
+<h3 id="org7a76b81">Study</h3>
+<div class="outline-text-3" id="text-org7a76b81">
+<div class="org-src-container">
+<pre class="src src-xml">   <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">study</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"PRISM"</span>
+         <span class="org-nxml-attribute-local-name">id</span>=<span class="org-string">"STUDY_XXXX"</span>
+         <span class="org-nxml-attribute-local-name">projectName</span>=<span class="org-string">"PlasmoDB,ClinEpiDB"</span>
+         <span class="org-nxml-attribute-local-name">investigationId</span>=<span class="org-string">"someOtherStudyId""</span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">displayName</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">&lt;![</span></span><span class="org-string"><span class="org-nxml-cdata-section-cdata">CDATA</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">[</span></span><span class="org-string"><span class="org-nxml-cdata-section-content">Study Display Name</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">]]&gt;</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">displayName</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">shortDisplayName</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">&lt;![</span></span><span class="org-string"><span class="org-nxml-cdata-section-cdata">CDATA</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">[</span></span><span class="org-string"><span class="org-nxml-cdata-section-content">Study Short Display Name</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">]]&gt;</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">shortDisplayName</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">shortAttribution</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">&lt;![</span></span><span class="org-string"><span class="org-nxml-cdata-section-cdata">CDATA</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">[</span></span><span class="org-string"><span class="org-nxml-cdata-section-content">Study Short Attriution</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">]]&gt;</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">shortAttribution</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">summary</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">&lt;![</span></span><span class="org-string"><span class="org-nxml-cdata-section-cdata">CDATA</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">[</span></span><span class="org-string"><span class="org-nxml-cdata-section-content">Study Summary</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">]]&gt;</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">summary</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">description</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">&lt;![</span></span><span class="org-string"><span class="org-nxml-cdata-section-cdata">CDATA</span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">[</span></span><span class="org-string"><span class="org-nxml-cdata-section-content"> Study Description    </span></span><span class="org-string"><span class="org-nxml-cdata-section-delimiter">]]&gt;</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">description</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">protocol</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">protocol</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">caveat</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">caveat</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">acknowledgement</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">acknowledgement</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">releasePolicy</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">releasePolicy</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">primaryContactId</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-text">primary.contact</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">primaryContactId</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">contactId</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-text">other.contact</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">contactId</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">link</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">            </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">text</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-text">LinkDisplay</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">text</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">            </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">url</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-text">https://somewhere.on.the.web</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">url</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">link</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string">    </span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-element-local-name">pubmedId</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span><span class="org-string"><span class="org-nxml-text">12345</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">pubmedId</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+<span class="org-string"><span class="org-nxml-tag-delimiter">&lt;</span></span><span class="org-string"><span class="org-nxml-tag-slash">/</span></span><span class="org-string"><span class="org-nxml-element-local-name">study</span></span><span class="org-string"><span class="org-nxml-tag-delimiter">&gt;</span></span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgac9df4d" class="outline-3">
+<h3 id="orgac9df4d">RawData</h3>
+<div class="outline-text-3" id="text-orgac9df4d">
+<div class="org-src-container">
+<pre class="src src-xml"><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">rawData</span> <span class="org-nxml-attribute-local-name">studyId</span>=<span class="org-string">"STUDYXXXX"</span>
+         <span class="org-nxml-attribute-local-name">id</span>=<span class="org-string">"STUDY_XXXX_ASSAYYYYY"</span>
+         <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"AssayYYYY"</span>
+         <span class="org-nxml-attribute-local-name">includeProjects</span>=<span class="org-string">"PlasmoDB"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">rawDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+            <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">LinkDisplay</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span>
+            <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">https://somewhere.on.the.web</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">rawDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">rawData</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">rawData</span> <span class="org-nxml-attribute-local-name">studyId</span>=<span class="org-string">"STUDYXXXX"</span>
+         <span class="org-nxml-attribute-local-name">id</span>=<span class="org-string">"STUDY_XXXX_CategoryZZZZ"</span>
+         <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"CategoryZZZZ"</span>
+         <span class="org-nxml-attribute-local-name">includeProjects</span>=<span class="org-string">"ClinEpi"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">rawDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+            <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">LinkDisplay</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span>
+            <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">https://somewhere.on.the.web</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">rawDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">rawData</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1b97ce0" class="outline-3">
+<h3 id="org1b97ce0">ProcessedData</h3>
+<div class="outline-text-3" id="text-org1b97ce0">
+<div class="org-src-container">
+<pre class="src src-xml"><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">processedData</span> <span class="org-nxml-attribute-local-name">rawData</span>=<span class="org-string">"STUDYXXXX_ASSAYYYYY"</span>
+               <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"orgAbbrev_expt_RSRC"</span>
+               <span class="org-nxml-attribute-local-name">projectName</span>=<span class="org-string">"PlasmoDB"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">history</span> <span class="org-nxml-attribute-local-name">buildNumber</span>=<span class="org-string">"51"</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">processedDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+          <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">NCBI BioProject</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span>
+          <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">https://www.ncbi.nlm.nih.gov/bioproject/PRJEB21707</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">processedDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">templateInjector</span> <span class="org-nxml-attribute-local-name">className</span>=<span class="org-string">"org.apidb.apicommon.model.datasetInjector.SomeInjector"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">templateInjector</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">processedData</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">processedData</span> <span class="org-nxml-attribute-local-name">rawData</span>=<span class="org-string">"STUDYXXXX_ASSAYYYYY"</span>
+               <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"orgAbbrev_expt_RSRC"</span>
+               <span class="org-nxml-attribute-local-name">projectName</span>=<span class="org-string">"ClinEpiDB"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">history</span> <span class="org-nxml-attribute-local-name">buildNumber</span>=<span class="org-string">"5"</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">processedDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+          <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">Downloads</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">text</span><span class="org-nxml-tag-delimiter">&gt;</span>
+          <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">/downloads</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">url</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">processedDataLink</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">templateInjector</span> <span class="org-nxml-attribute-local-name">className</span>=<span class="org-string">"org.apidb.apicommon.model.datasetInjector.ClinEpiInjector"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">templateInjector</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">processedData</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
+
+
+<section id="outline-container-org1e72cbc" class="outline-2">
+<h2 id="org1e72cbc">Proposed WDK Records</h2>
+<div class="outline-text-2" id="text-org1e72cbc">
+
+<figure id="org3c549ad">
+<img src="images/pp_wdk_study.png" alt="pp_wdk_study.png">
+
+</figure>
+</div>
+</section>
+</main>
+</body>
+</html>

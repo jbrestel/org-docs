@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Task Backlog Jamboree</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Task Backlog Jamboree" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Task Backlog Jamboree</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org1ed1ac7">Jamboree Details</a>
+<ul>
+<li><a href="#orgb8fb74f">Small Groups</a></li>
+<li><a href="#org497c749">Pre-meeting</a></li>
+<li><a href="#org8f3f113">How to Choose Tasks</a></li>
+<li><a href="#org2b89713">Small Group SOP</a></li>
+</ul>
+</li>
+<li><a href="#org2cf925d">Configurations and Useful Commands</a>
+<ul>
+<li><a href="#orgc567938">Environment</a></li>
+<li><a href="#org76a303b">Conifer</a></li>
+<li><a href="#org9265b87">tsrc</a></li>
+<li><a href="#org04eb9dc">build site commands</a></li>
+<li><a href="#org4107a32">other useful commands</a></li>
+<li><a href="#org105ba1c">other good stuff to know</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org1ed1ac7" class="outline-2">
+<h2 id="org1ed1ac7">Jamboree Details</h2>
+<div class="outline-text-2" id="text-org1ed1ac7">
+<p>
+We will focus on Genomic sites so everyone needs to have one VEuPathDB site built (can switch the project and db instance as needed).  Tasks for Mbio are ok but ClinEpi tasks should not be the focus as the eda will soon make the current ClinEpi WDK obsolete.
+</p>
+</div>
+
+<div id="outline-container-orgb8fb74f" class="outline-3">
+<h3 id="orgb8fb74f">Small Groups</h3>
+<div class="outline-text-3" id="text-orgb8fb74f">
+<p>
+Small Groups will discuss the issue and propose a solution.  Each person should bring some tasks with them to discuss.  
+</p>
+</div>
+<div id="outline-container-orgfac250d" class="outline-4">
+<h4 id="orgfac250d">UK&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Kathryn">Kathryn</span>&#xa0;<span class="BobM">BobM</span>&#xa0;<span class="Paul">Paul</span>&#xa0;<span class="Wojtek">Wojtek</span></span></h4>
+<div class="outline-text-4" id="text-orgfac250d">
+<ul class="org-ul">
+<li>Kathryn</li>
+<li>BobM</li>
+<li>Paul</li>
+<li>Wojtek</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org26279c6" class="outline-4">
+<h4 id="org26279c6">US-1&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Mark">Mark</span>&#xa0;<span class="Bindu">Bindu</span>&#xa0;<span class="Danielle">Danielle</span>&#xa0;<span class="Brian">Brian</span></span></h4>
+<div class="outline-text-4" id="text-org26279c6">
+<ul class="org-ul">
+<li>Mark</li>
+<li>Bindu</li>
+<li>Danielle</li>
+<li>Brian</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org5a2ba76" class="outline-4">
+<h4 id="org5a2ba76">US-2&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span>&#xa0;<span class="JohnI">JohnI</span>&#xa0;<span class="Ann">Ann</span>&#xa0;<span class="Jay">Jay</span></span></h4>
+<div class="outline-text-4" id="text-org5a2ba76">
+<ul class="org-ul">
+<li>JohnB</li>
+<li>JohnI</li>
+<li>Ann</li>
+<li>Jay</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org497c749" class="outline-3">
+<h3 id="org497c749">Pre-meeting</h3>
+<div class="outline-text-3" id="text-org497c749">
+<ol class="org-ol">
+<li>Identify several (5-10) tasks and be ready to discuss a) what the issue is and b) initial thoughts on a solution</li>
+
+<li>Look through your redmine tasks.  If there is no realistic intention to work on a task in the next 2 months,set the VEuPath Team = Datatype Development and the assignee to None/Nobody.</li>
+
+<li>Make sure you have a website using master code and it has been built.  The choice of website can be informed by the tasks you&rsquo;ve chosen.  Let JohnB or BobB know if you need to create a website.</li>
+
+<li>Let JohnB know before next Tuesday if you need help selecting tasks.</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org8f3f113" class="outline-3">
+<h3 id="org8f3f113">How to Choose Tasks</h3>
+<div class="outline-text-3" id="text-org8f3f113">
+<ul class="org-ul">
+<li>Search for Tasks already assigned to you
+<a href="https://redmine.apidb.org/issues?query_id=138">Data Dev Redmine Tasks Grouped By Person</a></li>
+<li>Search for Unassigned Tasks + VEuPathDB Team is &ldquo;Datatype Development&rdquo;
+<ul class="org-ul">
+<li>Make sure to assign yourself if you choose from unassigned Task list so no one else picks up same issue.</li>
+<li><a href="https://redmine.apidb.org/issues?query_id=21">All Unassigned Redmine Tasks Grouped By VEuPathDB Team</a></li>
+</ul></li>
+<li>Search for Tasks which are low cost</li>
+<li>Search for PIP != &ldquo;yes&rdquo;</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2b89713" class="outline-3">
+<h3 id="org2b89713">Small Group SOP</h3>
+<div class="outline-text-3" id="text-org2b89713">
+<ol class="org-ol">
+<li>Discuss issues
+<ul class="org-ul">
+<li>Demonstrate that we can reproduce the issue</li>
+<li>Discuss proposed solution</li>
+<li>Discuss where in the code to find/fix</li>
+<li>Tasks can be proposed for &ldquo;Rejection&rdquo; if there is agreement within group</li>
+</ul></li>
+<li>Some set amount of time will be given to work on own (?? full day??)
+<ul class="org-ul">
+<li>If you are stuck for more than 5 min, reach out to group leader</li>
+<li>Group check in via slack often</li>
+</ul></li>
+<li>Regroup and discuss
+if fixed then group closes task
+if not fixed, discuss next steps
+  indicate thinking in comment and unassign task if too large</li>
+<li>How to handle commits
+<ul class="org-ul">
+<li>commit to master but put a link to the commit(s) in the redmine ticket</li>
+</ul></li>
+<li>At the following data dev meeting, each small group can present highlights
+<ul class="org-ul">
+<li>what went well?</li>
+<li>what went poorly?</li>
+<li>highlight completed tasks</li>
+<li>discuss rejected tasks</li>
+</ul></li>
+</ol>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org2cf925d" class="outline-2">
+<h2 id="org2cf925d">Configurations and Useful Commands</h2>
+<div class="outline-text-2" id="text-org2cf925d">
+</div>
+<div id="outline-container-orgc567938" class="outline-3">
+<h3 id="orgc567938">Environment</h3>
+<div class="outline-text-3" id="text-orgc567938">
+<pre class="example" id="orge9c13b9">
+BASE_GUS=ash:/var/www/EuPathDB/eupathdb.jbrestel
+cd $BASE_GUS
+source $BASE_GUS/etc/setenv
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org76a303b" class="outline-3">
+<h3 id="org76a303b">Conifer</h3>
+<div class="outline-text-3" id="text-org76a303b">
+<p>
+Modify the project and appDb_connectionUrl to switch your website in conifer yml file 
+</p>
+<pre class="example" id="orga09f172">
+$BASE_GUS/conifer_site_vars.yml
+</pre>
+
+<p>
+you can make a vectorbase site behave like a plasmo site or vice versa
+</p>
+<pre class="example" id="orgf530447">
+project: $PROJECT_NAME
+appDb_connectionUrl: jdbc:oracle:oci:@$dbInstance
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org9265b87" class="outline-3">
+<h3 id="org9265b87">tsrc</h3>
+<div class="outline-text-3" id="text-org9265b87">
+<p>
+Clone projects for group
+</p>
+<pre class="example" id="org3e04026">
+cd $PROJECT_HOME
+tsrc init git@github.com:EuPathDB/tsrc.git --group apiSite
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org04eb9dc" class="outline-3">
+<h3 id="org04eb9dc">build site commands</h3>
+<div class="outline-text-3" id="text-org04eb9dc">
+</div>
+<div id="outline-container-org8928d76" class="outline-4">
+<h4 id="org8928d76">rebuilder</h4>
+<div class="outline-text-4" id="text-org8928d76">
+<p>
+re-install your dev site (retains changes you&rsquo;ve made in $PROJECT_HOME) if you are having issues
+</p>
+<pre class="example" id="orga1be3bf">
+rebuilder jbrestel.eupathdb.org [--configure-with $$yamlFile]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org8bcef13" class="outline-4">
+<h4 id="org8bcef13">wb</h4>
+<div class="outline-text-4" id="text-org8bcef13">
+<p>
+shortcut commands for building websites
+</p>
+<pre class="example" id="orga22d286">
+wb full|model|graph|gbrowse|ontology|site|watch-ts|shiny|cgi|jbrowse
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4107a32" class="outline-3">
+<h3 id="org4107a32">other useful commands</h3>
+<div class="outline-text-3" id="text-org4107a32">
+<p>
+reset your wdkCache:  (rare) Run this if you make model changes to queries which get cached
+</p>
+<pre class="example" id="orgb95c3bf">
+wdkCache -model ${PROJECT} -reset
+</pre>
+
+<p>
+check if the model compiles: (common)  You could run this every time you bld ApiCommonShared/Model OR inject templates;  Lots of output is good;  A stack trace means there is a problem w/ the model.  This is run as as step in wb commands
+</p>
+<pre class="example" id="org1ae4740">
+wdkXml -model ${PROJECT}
+</pre>
+
+<p>
+check if your tomcat instance is running:  (rare) You can run this to determine if your instance is running (your site will not be accessible if it isn&rsquo;t)
+</p>
+<pre class="example" id="orgeff83a3">
+instance_manager manage ${PROJECT} list
+</pre>
+
+<p>
+reload your instance:  (common) You need to do this immediately after building your model OR injecting templates!!!
+</p>
+<pre class="example" id="orgd1dabb0">
+instance_manager manage ${PROJECT} reload ${webapp_name}
+</pre>
+
+<p>
+Error Logs.  use individual switches for individual logs: -c (catalina.out (tomcat&rsquo;s stderr/stdout)), -a (apache), -t (tomcat webapp)
+</p>
+<pre class="example" id="org53b03a3">
+cattail [-act] ${user}.website.org
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org105ba1c" class="outline-3">
+<h3 id="org105ba1c">other good stuff to know</h3>
+<div class="outline-text-3" id="text-org105ba1c">
+</div>
+<div id="outline-container-org125740c" class="outline-4">
+<h4 id="org125740c">how to validate dataset presenters</h4>
+<div class="outline-text-4" id="text-org125740c">
+<p>
+You should run this every time immediately before committing changes to dataset presenters.  tuningManagerProp.xml is the same configuration used by tuning manager.
+</p>
+<pre class="example" id="org9a1714f">
+buildDatasetPresentersTT \\
+ --propFile $GUS_HOME/config/tuningManagerProp.xml \\
+ --instance ${instance} \\
+ --schema apidbtuning \\
+ --report \\
+ --suffix 1234
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-org464184b" class="outline-4">
+<h4 id="org464184b">Changes made to Presenters affect the website at tuning manager time and at build time</h4>
+<div class="outline-text-4" id="text-org464184b">
+<ul class="org-ul">
+<li>Tuning manager loads ApiDBTuning.DatasetPresenter (and related tables) storing descriptions, summary, contact, publication, links, &#x2026;</li>
+<li>Tuning manager reads the Injector Java Class and loads ApiDBTuning.DatasetModelRef which associates website &ldquo;things&rdquo; (questions, record tables, graphs, &#x2026;) with a dataset</li>
+<li>After adding the presenter and injector you must commit and run the tuning manager.</li>
+<li>At build time (wb), the java code will &ldquo;injectTemplates&rdquo; and add code snippets into gus_home</li>
+<li>The xml for a templateInjector has access to dataset elements &amp;&amp; whatever additional props it needs</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge5c03d2" class="outline-4">
+<h4 id="orge5c03d2">tuning manager run</h4>
+<div class="outline-text-4" id="text-orge5c03d2">
+<p>
+Best option is to run in jenkins <a href="https://tm.apidb.org">https://tm.apidb.org</a>
+</p>
+
+<p>
+As alternative, you can run tuning manager command yourself.
+</p>
+<pre class="example" id="org7584da9">
+tuningManager \\
+  --instance ${instance} \\
+  --propFile $GUS_HOME/config/tuningManagerProp.xml \\
+  --configFile $GUS_HOME/lib/xml/tuningManager/tuningManager.xml \\
+  --doUpdate  \\
+  --tables ~DatasetPresenter
+</pre>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

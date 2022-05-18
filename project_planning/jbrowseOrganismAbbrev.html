@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jbrowse Organism Abbrev</title>
+<meta name="author" content="John E. Brestelli Jr." />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Jbrowse Organism Abbrev</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org840bf4b">Public Facing (There are 2 places we show the organism abbreviation to user)</a>
+<ul>
+<li><a href="#org2e301a2">URL</a></li>
+<li><a href="#orgcfe8518">Synteny Subtracks</a></li>
+</ul>
+</li>
+<li><a href="#org44a0af7">Internal service calls</a></li>
+<li><a href="#org1c21bcc"><span class="todo TODO">TODO</span> Apollo considerations</a></li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-org840bf4b" class="outline-2">
+<h2 id="org840bf4b">Public Facing (There are 2 places we show the organism abbreviation to user)</h2>
+<div class="outline-text-2" id="text-org840bf4b">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Need to decide what makes most sense.  Should webservices expect &ldquo;abbrev&rdquo; or &ldquo;publicAbbrev&rdquo;?
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> URL should provide public_abbrev.  Script Maps to &ldquo;abbrev&rdquo; (internal)</li>
+</ul></li>
+</ul>
+</div>
+
+<div id="outline-container-org2e301a2" class="outline-3">
+<h3 id="org2e301a2">URL</h3>
+<div class="outline-text-3" id="text-org2e301a2">
+<ul class="org-ul">
+<li>URL has a  &ldquo;data&rdquo; argument.  we use a service call which specifies organism.</li>
+<li class="trans"><input type='checkbox' /> Make sure these urls are using the public_abbrev
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> geneRecord and transcriptRecord use public_abbrev</li>
+<li class="on"><input type='checkbox' checked='checked' /> organismList for &ldquo;Genome&rdquo; link in jbrowse uses public_abbrev</li>
+<li class="trans"><input type='checkbox' /> other pages that create tracks link
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Model/config/datasetLinks.xml</li>
+<li class="on"><input type='checkbox' checked='checked' /> <b>Model/lib/jbrowse/functions.conf</b></li>
+<li class="off"><input type='checkbox' /> Model/lib/wdk/model/records/snpRecords.xml</li>
+<li class="off"><input type='checkbox' /> Model/lib/wdk/model/records/snpChipRecords.xml</li>
+<li class="off"><input type='checkbox' /> Model/lib/wdk/model/records/dynSpanRecord.xml</li>
+
+<li class="off"><input type='checkbox' /> Model/lib/wdk/model/records/genomeRecords.xml
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> probably uses &ldquo;bysequencesource&rdquo; option in jbrowseTracks script</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcfe8518" class="outline-3">
+<h3 id="orgcfe8518">Synteny Subtracks</h3>
+<div class="outline-text-3" id="text-orgcfe8518">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Ensure we are showing the user the publicAbbrev</li>
+<li class="off"><input type='checkbox' /> update synteny query in genomeQueries.xml to use the publicAbbrev
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> &rsquo;OrgAbbrev=&rsquo; || sg.syn_organism_abbrev atts (there are 2 of these)</li>
+<li class="off"><input type='checkbox' /> join to organism table and return the public abbrev</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org44a0af7" class="outline-2">
+<h2 id="org44a0af7">Internal service calls</h2>
+<div class="outline-text-2" id="text-org44a0af7">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> the webapp/tracks/$organismAbbrev directory already uses internal &ldquo;abbrev&rdquo;</li>
+<li class="trans"><input type='checkbox' /> All of these are guaranteed to consume the internal &ldquo;abbrev&rdquo; as the organismAbbrev.  For each of these check if we query assuming it is the public_abbrev and if so change
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> &ldquo;tracks&rdquo; service /a/service/jbrowse/tracks/default</li>
+<li class="off"><input type='checkbox' /> &ldquo;trackList&rdquo; service trackList.json</li>
+<li class="off"><input type='checkbox' /> &ldquo;refSeqs&rdquo; /a/service/jbrowse/seq</li>
+<li class="off"><input type='checkbox' /> &ldquo;names&rdquo; /a/service/jbrowse/names/pfal3D7</li>
+<li class="off"><input type='checkbox' /> Service calls that return tracks
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> /a/jbrowse/tracks/pfal3D7/tracks.conf</li>
+<li class="off"><input type='checkbox' /> /a/service/jbrowse/dnaseq/pfal3D7</li>
+<li class="off"><input type='checkbox' /> /a/service/jbrowse/rnaseq/pfal3D7</li>
+<li class="off"><input type='checkbox' /> /a/service/jbrowse/rnaseqJunctions/pfal3D7</li>
+<li class="off"><input type='checkbox' /> /a/service/jbrowse/chipseq/pfal3D7</li>
+<li class="off"><input type='checkbox' /> /a/service/jbrowse/organismSpecific/pfal3D7</li>
+<li class="off"><input type='checkbox' /> /a/service/users/current/user-datasets-jbrowse/Pfalciparum3D7</li>
+</ul></li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> User Datasets already uses the publicNamesForFilenames</li>
+
+<li class="off"><input type='checkbox' /> Anytime we show the organismAbbrev&#x2026; we need to convert to the public facing Oneal
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> synteny subtracks</li>
+</ul></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-org1c21bcc" class="outline-2">
+<h2 id="org1c21bcc"><span class="todo TODO">TODO</span> Apollo considerations</h2>
+<div class="outline-text-2" id="text-org1c21bcc">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> same as above&#x2026; any public facing urls should use the public_abbrev and the internal service calls should use the internal &ldquo;abbrev&rdquo;</li>
+</ul>
+</div>
+</section>
+</main>
+</body>
+</html>

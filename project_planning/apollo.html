@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Apollo</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Apollo" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Apollo</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org49d174f">Tasks</a>
+<ul>
+<li><a href="#orgf811343"><span class="todo TODO">TODO</span> check on junction strand for apollo track</a></li>
+<li><a href="#org56eff42"><span class="todo TODO">TODO</span> Apollo Intron weak evidence Track</a></li>
+<li><a href="#orgaa58d8e"><span class="todo TODO">TODO</span> single exon error?  try naming the exons?</a></li>
+<li><a href="#org2f962be"><span class="todo TODO">TODO</span> Check with Gareth if description is stored</a></li>
+<li><a href="#orgb7b7036"><span class="todo TODO">TODO</span> Additional warning to check if cds has changed&#x2026; are go functions the same</a></li>
+</ul>
+</li>
+<li><a href="#org5b4fedb">Initial Design</a>
+<ul>
+<li><a href="#org5594c7a">Structural and Functinal annotation will be used in place of existing transcripts.</a></li>
+<li><a href="#orgabd3c67">Transcripts can be added in apollo in various ways.</a></li>
+<li><a href="#org2e6e93b">None of the functional annotations are applied to the Apollo Transcript by default.</a></li>
+<li><a href="#orge1a0434">Incorporation of edits into VEuPath genomics sites</a></li>
+</ul>
+</li>
+<li><a href="#org7f082a3">Build SOPs</a>
+<ul>
+<li><a href="#org365f882">JBrowse Configuration</a></li>
+<li><a href="#orgd0b7471">Organism Version Changes</a></li>
+</ul>
+</li>
+<li><a href="#orgf0e3bab">How to do QA?</a></li>
+<li><a href="#orgfddbbce">GO Annotations</a>
+<ul>
+<li><a href="#org30f09e5">Option 1:  Bring over Functional Annotations separate from Structural</a></li>
+<li><a href="#org1787d01">Option 2:  Apply GO functions when user drags track</a></li>
+<li><a href="#orga9eee5e">Option 3:  Pre populate the entire curation track</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-org49d174f" class="outline-2">
+<h2 id="org49d174f">Tasks</h2>
+<div class="outline-text-2" id="text-org49d174f">
+</div>
+<div id="outline-container-orgf811343" class="outline-3">
+<h3 id="orgf811343"><span class="todo TODO">TODO</span> check on junction strand for apollo track</h3>
+</div>
+<div id="outline-container-org56eff42" class="outline-3">
+<h3 id="org56eff42"><span class="todo TODO">TODO</span> Apollo Intron weak evidence Track</h3>
+<div class="outline-text-3" id="text-org56eff42">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Add &ldquo;score&rdquo; as the glyph label</li>
+<li class="off"><input type='checkbox' /> filter junctions by count of isr (score)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgaa58d8e" class="outline-3">
+<h3 id="orgaa58d8e"><span class="todo TODO">TODO</span> single exon error?  try naming the exons?</h3>
+</div>
+
+<div id="outline-container-org2f962be" class="outline-3">
+<h3 id="org2f962be"><span class="todo TODO">TODO</span> Check with Gareth if description is stored</h3>
+</div>
+<div id="outline-container-orgb7b7036" class="outline-3">
+<h3 id="orgb7b7036"><span class="todo TODO">TODO</span> Additional warning to check if cds has changed&#x2026; are go functions the same</h3>
+<div class="outline-text-3" id="text-orgb7b7036">
+<ul class="org-ul">
+<li>This should happen when curation team sets status to &ldquo;finished&rdquo;&#x2026;. warning popup</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org5b4fedb" class="outline-2">
+<h2 id="org5b4fedb">Initial Design</h2>
+<div class="outline-text-2" id="text-org5b4fedb">
+</div>
+<div id="outline-container-org5594c7a" class="outline-3">
+<h3 id="org5594c7a">Structural and Functinal annotation will be used in place of existing transcripts.</h3>
+<div class="outline-text-3" id="text-org5594c7a">
+<ul class="org-ul">
+<li>Does the patch build expect apollo transcripts to have gene identifiers or is it using the genomic locations for existing genes?</li>
+<li>Confirm this process is strand aware as we do have genes which overlap on different strands</li>
+<li>Do we ever have a case where 2 genes overlap on same strand?</li>
+<li>Does the patch build system have a mechanism for retaining transcript ids if the gene structure hasn&rsquo;t changed?</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgabd3c67" class="outline-3">
+<h3 id="orgabd3c67">Transcripts can be added in apollo in various ways.</h3>
+<div class="outline-text-3" id="text-orgabd3c67">
+<ul class="org-ul">
+<li>Any evidence track can be used to make a new apollo transcript (RNASeq Junctions, Protein Alignments, Transcript, Gene&#x2026;)</li>
+<li>BUT Only Gene or Transcript Tracks can apply the existing transcript/gene source_ids which may be useful</li>
+<li>Draggable Transcript Tracks add one transcript at at time.  Does the Gene Track allow the user to add ALL transcripts for the Gene by right clicking on the gene?</li>
+<li>This seems like a bad UX as it would be very easy to create Apollo transcripts which clobber existing things.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2e6e93b" class="outline-3">
+<h3 id="org2e6e93b">None of the functional annotations are applied to the Apollo Transcript by default.</h3>
+<div class="outline-text-3" id="text-org2e6e93b">
+<ul class="org-ul">
+<li>Currently the currator must remember to add all go terms, products, + anything else used by patch build</li>
+<li>I think it is a requirement to have the product, GO,&#x2026; automatically set in the Apollo Transcript if the Apollo Transcript was created by an existing Transcript or Gene Evidence Track.</li>
+<li>The features in our Evidence tracks can contain the Functional Annotation.</li>
+<li>Nathan said it was hard to automatically apply to Apollo Features as they are created.  I think it&rsquo;s worth a second look.  At a minimum, any process which is able to add Functional Annotation to an APollo Transcript should be able to be called as a hook after the apollo feature is created.</li>
+</ul>
+</div>
+</div>
+
+
+
+<div id="outline-container-orge1a0434" class="outline-3">
+<h3 id="orge1a0434">Incorporation of edits into VEuPath genomics sites</h3>
+<div class="outline-text-3" id="text-orge1a0434">
+</div>
+<div id="outline-container-org9c959ac" class="outline-4">
+<h4 id="org9c959ac">Visualize edits in real time</h4>
+<div class="outline-text-4" id="text-org9c959ac">
+<ul class="org-ul">
+<li>Explore sending track data from apollo to VEuPathDB sites.  (analogous to what we do with evidence tracks but in the opposite direction).  This could be shown in the gene annotation section of the gene page and in the genome browser.</li>
+<li>Current VEuPathDB sites allow users to find all genes which have any edit.  We would need to create a service to use apollo instead of GeneDB.</li>
+<li>Current VEuPathDB sites show updated gene product from GeneDB.  We would need to create a service to use apollo</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org6303f23" class="outline-4">
+<h4 id="org6303f23">How to incorporate edits into production (patch build)</h4>
+<div class="outline-text-4" id="text-org6303f23">
+<ul class="org-ul">
+<li>structrual edits will be incorporated using ebi patch builds.  Will all structural edits be moved over or cherry picked (approved edits)?</li>
+<li>We are assuming that the patch build process will remove edits from the apollo instance (possibly recreate the organism?).</li>
+<li>Functional edits MUST be incorporated in the same release as a patch build.</li>
+<li>Functional edits may be incorporated on a more frequent release schedule.</li>
+<li>TODO: we need a way to dump functional edits from apollo and sop for sending to data load team.</li>
+<li>How do we manage the process from the start of a patch build until the time the annotations have been incorporated into GUS?  Will this be an entire release cycle (2 months?) where users cannot make edits to an organism?</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+
+<section id="outline-container-org7f082a3" class="outline-2">
+<h2 id="org7f082a3">Build SOPs</h2>
+<div class="outline-text-2" id="text-org7f082a3">
+</div>
+<div id="outline-container-org365f882" class="outline-3">
+<h3 id="org365f882">JBrowse Configuration</h3>
+<div class="outline-text-3" id="text-org365f882">
+<ul class="org-ul">
+<li>use fasta file for the top level genomic sequences.  Currently the script uses workflow&rsquo;s topLevelSequence directory</li>
+<li>General refactoring of the scripts</li>
+<li>Add any new Organisms</li>
+<li>add additional config file for the &ldquo;extra organisms&rdquo;</li>
+</ul>
+
+<pre class="example" id="org550a22e">
+perl dumpConfigurationsForApollo.pl  \\
+     --output_dir /eupath/data/apolloConfigs/release-${buildNumber}/prod/${projectName}/ \\
+     --website https://${lc_projectName}.org  \\
+     --subdomain qa \\
+     --strip_subdomain \\
+     --database ${projectName}
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgd0b7471" class="outline-3">
+<h3 id="orgd0b7471">Organism Version Changes</h3>
+<div class="outline-text-3" id="text-orgd0b7471">
+</div>
+<div id="outline-container-orgb4c2b61" class="outline-4">
+<h4 id="orgb4c2b61">Handle new organisms (groovy script)</h4>
+<div class="outline-text-4" id="text-orgb4c2b61">
+<pre class="example">
+perl makeGroovyAddOrganismCommands.pl &gt; commands.txt
+</pre>
+</div>
+<div id="outline-container-org0917557" class="outline-5">
+<h5 id="org0917557">Retrieve all organisms within apollo</h5>
+<div class="outline-text-5" id="text-org0917557">
+<pre class="example" id="orgb25e543">
+curl -X POST -F 'username=api@local.host' \\
+ -F 'password=${password}' \\
+ -L https://apollo-api.veupathdb.org/organism/findAllOrganisms
+</pre>
+</div>
+</div>
+<div id="outline-container-org586f893" class="outline-5">
+<h5 id="org586f893">Delete an organism within apollo</h5>
+<div class="outline-text-5" id="text-org586f893">
+<pre class="example" id="orgc49a00a">
+curl -X POST -H "Content-Type: application/json" \\
+ --data '{"username":"api@local.host","password":"${password}","id":"${organismId}"}' \\
+ https://apollo-api.veupathdb.org/organism/deleteOrganism
+</pre>
+</div>
+</div>
+<div id="outline-container-org3b69fa4" class="outline-5">
+<h5 id="org3b69fa4">Update Organism</h5>
+<div class="outline-text-5" id="text-org3b69fa4">
+<pre class="example">
+curl -X POST -H "Content-Type: application/json" \\
+ --data '{"username":"api@local.host","password":"${password}","id":"${organismId}", "directory":"/data/apollo_data/${organismAbbrev}", "blatdb":"/data/apollo_data/twoBit/${organismAbbrev}.2bit", "publicMode":"true"}' \\
+ https://apollo-api.veupathdb.org/organism/updateOrganismInfo
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgab427ee" class="outline-4">
+<h4 id="orgab427ee">How to update organism names?</h4>
+<div class="outline-text-4" id="text-orgab427ee">
+<ul class="org-ul">
+<li>is there a groovy script to update organism name?  we&rsquo;ll need to do this manually; updateOrganismInfo?</li>
+</ul>
+<pre class="example" id="orgd6e67c4">
+if( $apolloOrganismName =~ /$organismFullName \[$version]/) {
+       # do nothing
+    } elsif( $apolloOrganismName =~ /$organismFullName \[.+\]/) {
+      # print groovy command to Update the organism name
+    } else {
+      # print groovy command to add new organism
+    }
+</pre>
+<ul class="org-ul">
+<li>What happens if the underlying sequence changes?
+<ul class="org-ul">
+<li>there would need to be a manual liftover mapping or remove the organism from apollo and discard any curations for that organism</li>
+<li>this will be rare if ever</li>
+</ul></li>
+<li>When we generate the configurations for build 49&#x2026;
+<ul class="org-ul">
+<li>Toxo,Amoeba,Piro,and VectorBase + extras for David</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgf0e3bab" class="outline-2">
+<h2 id="orgf0e3bab">How to do QA?</h2>
+<div class="outline-text-2" id="text-orgf0e3bab">
+<ul class="org-ul">
+<li>The Curation team must have a way to check any locus that has missing transcipts (either from themselves or via community users)</li>
+<li>The genomic sites query apollo nightly to get a list of changes.  We should be able to provide a report back to users to indicate if there are now missing transcripts in that region or missing functional annotation.  This same report may be what is needed for curator review.</li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgfddbbce" class="outline-2">
+<h2 id="orgfddbbce">GO Annotations</h2>
+<div class="outline-text-2" id="text-orgfddbbce">
+</div>
+<div id="outline-container-org30f09e5" class="outline-3">
+<h3 id="org30f09e5">Option 1:  Bring over Functional Annotations separate from Structural</h3>
+<div class="outline-text-3" id="text-org30f09e5">
+<ul class="org-ul">
+<li>This is the least appealing option</li>
+<li>This is what is being requested</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1787d01" class="outline-3">
+<h3 id="org1787d01">Option 2:  Apply GO functions when user drags track</h3>
+<div class="outline-text-3" id="text-org1787d01">
+<ul class="org-ul">
+<li>Apollo Developer said this was not possible??</li>
+<li>If we do this now?  would we still need to do option 1 for existing features?</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga9eee5e" class="outline-3">
+<h3 id="orga9eee5e">Option 3:  Pre populate the entire curation track</h3>
+<div class="outline-text-3" id="text-orga9eee5e">
+<ul class="org-ul">
+<li>Start in sync with genomic site</li>
+<li>Performance issue with Apollo Chado Database</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EDA DIY</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="EDA DIY" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">EDA DIY</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgfd995f4">Overview</a></li>
+<li><a href="#org8d48ef3">Validator</a></li>
+<li><a href="#org2770218">Preprocess/Transform Script</a></li>
+<li><a href="#orgc0e8ff6">Installer</a>
+<ul>
+<li><a href="#org74d484b">Example files</a></li>
+<li><a href="#org8d862da">Use existing plugins / workflow</a></li>
+</ul>
+</li>
+<li><a href="#orgad84767">Undo for Installer!!!</a>
+<ul>
+<li><a href="#orgf6ca83f">how to delete a study</a></li>
+</ul>
+</li>
+<li><a href="#org99ce4b6">WDK Model</a></li>
+<li><a href="#orgaf9cfe6">UX</a></li>
+<li><a href="#org6d41be0">What to do about legacy user datasets?</a></li>
+<li><a href="#orgfd5d1d2">Study access</a>
+<ul>
+<li><a href="#orgcf3cbcb"><span class="todo TODO">TODO</span> How does user dataset access differ from &ldquo;study access&rdquo;</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-orgfd995f4" class="outline-2">
+<h2 id="orgfd995f4">Overview</h2>
+<div class="outline-text-2" id="text-orgfd995f4">
+<p>
+Because preprocessing may change for clinep (and already has for mbio) we will store both raw and preprocessed data in iRODs.  The initial validator step will make the transformed/preprocessed files.  The Installer will check if needed files are available and create if necessary.
+</p>
+
+
+<figure id="org9c78f5c">
+<img src="images/eda_diy.png" alt="eda_diy.png">
+
+</figure>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> (Wojtek) confirm that we run &ldquo;touch GusSchema/Definition/config/gus_schema.xml; bld GUS&rdquo; which creates the GUS model objects
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> is there a gus.config in $GUS_HOME/congig?  does that have group/project ?</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Use Reflow Workflow Step to add joe user and link to Group and Project to be run on &ldquo;inc&rdquo; database instance during build</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> Assume Dependent data like Ontology Term Types are loaded by Reflow Worfklow and available to UserDataset Installer</li>
+
+<li class="on"><input type='checkbox' checked='checked' /> how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
+<ul class="org-ul">
+<li>are we able to consistently pull from docker?</li>
+<li>does singularity use the cache?</li>
+<li>currently we&rsquo;re using the latest version of the RServe code.  Should change that to a tags</li>
+</ul></li>
+</ul>
+
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> (JohnB) add user_dataset_id to each eda_ud table
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> sql to be run after &ldquo;createEntityGraph&rdquo; tables in schema installer</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> need access to GUS_HOME on jenkins.
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> $GUS_HOME/config/gus.config specifies the database</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> (JohnB) Create EDA_UD tables to store Attribution/Dataset info
+<ul class="org-ul">
+<li>this should mirror what we have in apidbtuning.datasetpresenter</li>
+<li>begin with minimal info (name, description, ID)</li>
+<li class="on"><input type='checkbox' checked='checked' /> Requires a unique id for the study/dataset.  Can we just store the user dataset id??</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> (JayH) Need a workflow step (eda-inc and mbio) which will add joeuser and associate with row(s) in core.projectinfo and core.groupinfo</li>
+
+<li class="on"><input type='checkbox' checked='checked' /> (JayH) make jenkins job to make container and push to dockerhub</li>
+</ul>
+</div>
+</section>
+
+
+<section id="outline-container-org8d48ef3" class="outline-2">
+<h2 id="org8d48ef3">Validator</h2>
+<div class="outline-text-2" id="text-org8d48ef3">
+<p>
+Write some python code?  The parent is in python.
+</p>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> (Wojtek) confirm fresh checkout can run and pass tests
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> add some readme text describing how to run these</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> Confirm We will need separate validators for Mbio and ClinEpi</li>
+
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+Where does the validator code live?  is this built in a container?
+</p>
+
+<p>
+<a href="https://github.com/VEuPathDB/dataset-handler-biom">https://github.com/VEuPathDB/dataset-handler-biom</a>
+</p>
+
+<p>
+ValidationException :: User submitted a bad  file
+BaseException :: Some random error.  User should email us
+</p></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> mbio to use Use existing biom validator?
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Are there additional requirements for metadata table?&#x2026; NO!</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> Clinepi first deliveralbe, there will be a single file (one entity type)
+<ul class="org-ul">
+<li>What can we validate?
+<ul class="org-ul">
+<li>call the parser.  if it parses it we are good.</li>
+</ul></li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> (JohnB) Follow up with Ann/Dave
+<ul class="org-ul">
+<li>a) uncategorized variables are ok.</li>
+</ul></li>
+</ul>
+</div>
+</section>
+
+
+<section id="outline-container-org2770218" class="outline-2">
+<h2 id="org2770218">Preprocess/Transform Script&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JayH">JayH</span></span></h2>
+<div class="outline-text-2" id="text-org2770218">
+<p>
+These scripts can be called in the Validator or Installer (for legacy user datasets in IRODs)
+</p>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Create ontology files
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Entity Types (mbio will have 2 rows.  ClinEpi one row per file)</li>
+<li class="on"><input type='checkbox' checked='checked' /> Variables/Attributes</li>
+</ul></li>
+
+<li class="on"><input type='checkbox' checked='checked' /> ISASimple data file</li>
+<li class="on"><input type='checkbox' checked='checked' /> ISASimple ancilary files (use ontology term source_ids from above)
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> &ldquo;investigation.xml&rdquo; file for the study</li>
+<li class="on"><input type='checkbox' checked='checked' /> ontologyMapping.xml? is this needed?</li>
+</ul></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgc0e8ff6" class="outline-2">
+<h2 id="orgc0e8ff6">Installer</h2>
+<div class="outline-text-2" id="text-orgc0e8ff6">
+<ul class="org-ul">
+<li>Example:  irods.builder on <a href="https://ws.apidb.org">https://ws.apidb.org</a></li>
+
+<li class="off"><input type='checkbox' /> Confirm mbio can genreate ISASimple file from biom</li>
+</ul>
+</div>
+
+<div id="outline-container-org74d484b" class="outline-3">
+<h3 id="org74d484b">Example files</h3>
+<div class="outline-text-3" id="text-org74d484b">
+<table id="org0d13bcb">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Household ID</th>
+<th scope="col" class="org-left">Parent</th>
+<th scope="col" class="org-left">h_attr1</th>
+<th scope="col" class="org-left">h_attr2</th>
+<th scope="col" class="org-left">h_attr3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">hh_id1</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">attr1_val1</td>
+<td class="org-left">attr2_value1</td>
+<td class="org-left">attr3_val1</td>
+</tr>
+
+<tr>
+<td class="org-left">hh_id2</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">attr1_val2</td>
+<td class="org-left">attr2_value2</td>
+<td class="org-left">attr3_val2</td>
+</tr>
+
+<tr>
+<td class="org-left">hh_id3</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">attr1_val2</td>
+<td class="org-left">attr2_value3</td>
+<td class="org-left">attr3_val3</td>
+</tr>
+</tbody>
+</table>
+
+<table id="org736e412">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Household ID</th>
+<th scope="col" class="org-left">Parent</th>
+<th scope="col" class="org-left">h_attr1</th>
+<th scope="col" class="org-left">h_attr2</th>
+<th scope="col" class="org-left">h_attr3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">p_id1</td>
+<td class="org-left">hh_id1</td>
+<td class="org-left">attr1_val1</td>
+<td class="org-left">attr2_value1</td>
+<td class="org-left">attr3_val1</td>
+</tr>
+
+<tr>
+<td class="org-left">p_id2</td>
+<td class="org-left">hh_id2</td>
+<td class="org-left">attr1_val2</td>
+<td class="org-left">attr2_value2</td>
+<td class="org-left">attr3_val2</td>
+</tr>
+
+<tr>
+<td class="org-left">p_id3</td>
+<td class="org-left">hh_id3</td>
+<td class="org-left">attr1_val2</td>
+<td class="org-left">attr2_value3</td>
+<td class="org-left">attr3_val3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+<div id="outline-container-org8d862da" class="outline-3">
+<h3 id="org8d862da">Use existing plugins / workflow</h3>
+<div class="outline-text-3" id="text-org8d862da">
+<p>
+bash script with the following plugins configured.  We can test in the rm41910 eda_ud schema
+</p>
+
+<ul class="org-ul">
+<li>where does this bash script live in the codebase??</li>
+</ul>
+</div>
+<div id="outline-container-orgc763ac6" class="outline-4">
+<h4 id="orgc763ac6">ExternalDatabase and ExternalDatabaeRelease</h4>
+<div class="outline-text-4" id="text-orgc763ac6">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> GUS::Supported::Plugin::InsertExternalDatabase</li>
+<li class="on"><input type='checkbox' checked='checked' /> GUS::Supported::Plugin::InsertExternalDatabaseRls</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org04c6542" class="outline-4">
+<h4 id="org04c6542">Insert &ldquo;Ontology&rdquo; (EntityTypes, Variables and Protocols?)</h4>
+<div class="outline-text-4" id="text-org04c6542">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> GUS::Supported::Plugin::InsertOntologyFromTabDelim
+<ul class="org-ul">
+<li>This will load into OntologyTerm and OntologySynonym</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga312db5" class="outline-4">
+<h4 id="orga312db5">Insert Entity Graph</h4>
+<div class="outline-text-4" id="text-orga312db5">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> ApiCommonData::Load::Plugin::InsertEntityGraph</li>
+<li class="on"><input type='checkbox' checked='checked' /> ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph</li>
+<li class="on"><input type='checkbox' checked='checked' /> ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs</li>
+<li class="on"><input type='checkbox' checked='checked' /> ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph</li>
+<li class="on"><input type='checkbox' checked='checked' /> No need to load StudyCharacteristics</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf448fb2" class="outline-4">
+<h4 id="orgf448fb2">Insert Dataset tables&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h4>
+<div class="outline-text-4" id="text-orgf448fb2">
+<p>
+The EDA requires a dataset record.  Steve&rsquo;s proposal is to create a UserDatasetPresenter table which can be installed along with other data.
+NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not simply the user dataset page.
+</p>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Table(s) for the Dataset</li>
+<li class="off"><input type='checkbox' /> Create View which unions apidbtuning.datasetpresener with eda_ud.datasetpresenter</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgad84767" class="outline-2">
+<h2 id="orgad84767">Undo for Installer!!!</h2>
+<div class="outline-text-2" id="text-orgad84767">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> create script which manages undo (given user dataset id)</li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+confirm that undo mechanism can handle tables which do not have a user_dataset_id (SRes tables)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql" id="org62f69c2"><span class="org-keyword">delete</span> blah <span class="org-keyword">from</span> sres.ontologyterm <span class="org-keyword">where</span> ontology_term_id <span class="org-keyword">in</span> (
+   <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> ontology_term_id <span class="org-keyword">from</span> eda_ud.attribute <span class="org-keyword">where</span> user_dataset_id = ?
+   <span class="org-keyword">union</span>
+   <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> ontology_term_id <span class="org-keyword">from</span> eda_ud.entitytype <span class="org-keyword">where</span> user_dataset_id = ?
+   <span class="org-keyword">union</span>
+   ...
+)
+</pre>
+</div></li>
+</ul>
+</div>
+
+<div id="outline-container-orgf6ca83f" class="outline-3">
+<h3 id="orgf6ca83f">how to delete a study</h3>
+<div class="outline-text-3" id="text-orgf6ca83f">
+<ol class="org-ol">
+<li class="on"><input type='checkbox' checked='checked' /> find study_id and internal abbrev (input is user_dataset_id)</li>
+<li class="on"><input type='checkbox' checked='checked' /> find entity_type_id and internal abbrev (input is study_id)</li>
+<li class="on"><input type='checkbox' checked='checked' /> find external_database_release_id for study</li>
+<li class="on"><input type='checkbox' checked='checked' /> find external_database_id for study</li>
+<li class="on"><input type='checkbox' checked='checked' /> find external_database_release_id for ontology terms</li>
+<li class="on"><input type='checkbox' checked='checked' /> find external_database_id for ontology terms</li>
+<li class="on"><input type='checkbox' checked='checked' /> Delete dataset specific tables
+<ul class="org-ul">
+<li>ANCESTORS_\({studyAbbrev}_\){entityTypeAbbrev}</li>
+<li>ATTRIBUTEGRAPH_\({studyAbbrev}_\){entityTypeAbbrev}</li>
+<li>ATTRIBUTEVALUE_\({studyAbbrev}_\){entityTypeAbbrev}</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> delete EntityTypeGraph by study_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete AttributeGraph by study_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete attributeunit by entity_type_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete attribute by entity_type_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete processattributes by linking to entityattributes</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete entityattributes by entity_type_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete attributevalue by entity_type_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete EntityType by study_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete study by study_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete studydataset by study_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete studycharacteristict by study_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete sres.ontologyrelationship by external_database_release_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete sres.ontologysynonym by external_database_release_id</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete sres.externaldatabaserelease (2)</li>
+<li class="on"><input type='checkbox' checked='checked' /> delete sres.externaldatabase (2)</li>
+</ol>
+</div>
+</div>
+</section>
+
+
+<section id="outline-container-org99ce4b6" class="outline-2">
+<h2 id="org99ce4b6">WDK Model</h2>
+<div class="outline-text-2" id="text-org99ce4b6">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> For all relevant dataset record attributes and tables&#x2026; need to use the View (above) which is a union of the datasetpresenter tables and the eda_ud dataset tables</li>
+<li class="off"><input type='checkbox' /> Fix the general look of the dataset record page.  The UD version should only have the minimal info (name and description) for now</li>
+</ul>
+</div>
+</section>
+
+
+<section id="outline-container-orgaf9cfe6" class="outline-2">
+<h2 id="orgaf9cfe6">UX</h2>
+<div class="outline-text-2" id="text-orgaf9cfe6">
+<p>
+Existing UX for Microbiome biom files should remain in place.  ClinEpi DIY will need to consume 1 or more tab files and the user should be able to specifiy the &ldquo;parent&rdquo; entity type for each file
+</p>
+</div>
+</section>
+
+<section id="outline-container-org6d41be0" class="outline-2">
+<h2 id="org6d41be0">What to do about legacy user datasets?</h2>
+<div class="outline-text-2" id="text-org6d41be0">
+<p>
+versioning in user datasets is for what is stored in irods.  Add optional preprocessing/transform stept to installer.  This should give us flexibility (ie. if the raw data has not changed, we are free to switch around the installer steps)
+</p>
+</div>
+</section>
+
+<section id="outline-container-orgfd5d1d2" class="outline-2">
+<h2 id="orgfd5d1d2">Study access</h2>
+<div class="outline-text-2" id="text-orgfd5d1d2">
+</div>
+<div id="outline-container-orgcf3cbcb" class="outline-3">
+<h3 id="orgcf3cbcb"><span class="todo TODO">TODO</span> How does user dataset access differ from &ldquo;study access&rdquo;</h3>
+</div>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JBrowse Flat File Migration</title>
+<meta name="author" content="John Brestelli" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">JBrowse Flat File Migration</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org677eb0e">Workflow</a></li>
+<li><a href="#org1e7c3c0">Testing</a></li>
+<li><a href="#org6437b92">Configurations</a>
+<ul>
+<li><a href="#orgf2250c2">Queries</a></li>
+<li><a href="#org09f4501">Track Configuration (Optional)</a></li>
+</ul>
+</li>
+<li><a href="#orgf2b4b0b">Script</a></li>
+<li><a href="#orgfcb1d80">Front end</a>
+<ul>
+<li><a href="#org4710944">Popups</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org677eb0e" class="outline-2">
+<h2 id="org677eb0e">Workflow</h2>
+<div class="outline-text-2" id="text-org677eb0e">
+<ul class="org-ul">
+<li>How to add the script to Reflow?
+<ul class="org-ul">
+<li>organism specific graph</li>
+<li>create new webservice directories</li>
+<li>can we test with one example organism (start of 57)?</li>
+<li>all tracks (including bw) should be ready before running for real</li>
+<li>should we consider splitting up ?
+<ul class="org-ul">
+<li>pbrowse vs jbrowse might make sense</li>
+<li>update existing script to skip if file exists unless &#x2013;clearCache flag is set</li>
+</ul></li>
+<li>how to know when the workflow should remake the files?
+<ul class="org-ul">
+<li>organism changes (undo will delete all files)</li>
+<li>force update if known track change (remake everything)</li>
+<li>should we allow caching of files; should we be able to add tracks instead of remaking all?</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-org1e7c3c0" class="outline-2">
+<h2 id="org1e7c3c0">Testing</h2>
+<div class="outline-text-2" id="text-org1e7c3c0">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Use the local file dumps as backend for jbrowse tracks
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> either add via front end client OR add configuration to server</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-org6437b92" class="outline-2">
+<h2 id="org6437b92">Configurations</h2>
+<div class="outline-text-2" id="text-org6437b92">
+<p>
+The file <a href="https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/xml/jbrowseQueries.xml">jbrowseQueries.xml</a> defines quries to dump features.  It also contains lists property values when extra configurations are needed
+</p>
+</div>
+
+<div id="outline-container-orgf2250c2" class="outline-3">
+<h3 id="orgf2250c2">Queries</h3>
+<div class="outline-text-3" id="text-orgf2250c2">
+<ol class="org-ol">
+<li>Existing jbrowse queries can be found in &ldquo;ApiCommonModel/Model/lib/xml/jbrowse/*&rdquo;</li>
+<li>The list of tracks to be migrated can be found at the bottom of the &ldquo;jbrowseQueries.xml&rdquo; file (ie. we dont&rsquo; need to move over all queries).</li>
+<li>jbrowseQueries will be run by the workflow.  Do not include any tuning tables!</li>
+<li>Each Query MUST return rows for Features and Subfeatures.
+<ul class="org-ul">
+<li><b>NOTE</b>:  Previously jbrowse adaptor separated bulksubfeatures from features</li>
+</ul></li>
+<li>The query must retain a special MACRO for &ldquo;$srcfeature_id&rdquo;.  This will be either an &ldquo;na_sequence_id&rdquo; or an &ldquo;aa_sequence_id)
+<ul class="org-ul">
+<li><b>NOTE</b>:  Previously jbrowse queries specified &ldquo;$base_start&rdquo; and &ldquo;$rend&rdquo;.  We should not have these as the flat files will dump ALL features for each sequence</li>
+</ul></li>
+<li>Each track element MUST specify attributes for &ldquo;type [&rdquo;genomic&ldquo;,&rdquo;protein&ldquo;] and fileSuffix [&rdquo;gff&ldquo;, &rdquo;bw&ldquo;, &#x2026;]</li>
+<li>Each query must return fields which corespond to GFF3 spec (order does not matter). (
+<dl class="org-dl">
+<dt>source</dt><dd>(required) name of the program that generated this feature, or the data source (database or project name)</dd>
+<dt>feature</dt><dd>(required) feature type name, e.g. Gene, Variation, Similarity.  <b>NOTE</b> jbrowse has something called &ldquo;type&rdquo; but not used for anything.  we should be consistent with the feature name here moving forward as we&rsquo;ll likely provide these files in downloads</dd>
+<dt>startm</dt><dd>(required) Start position* of the feature, with sequence numbering starting at 1.</dd>
+<dt>end</dt><dd>(required) End position* of the feature, with sequence numbering starting at 1.</dd>
+<dt>score</dt><dd>A floating point value.</dd>
+<dt>strand</dt><dd>(required) defined as + (forward) or - (reverse).</dd>
+<dt>frame</dt><dd>One of &rsquo;0&rsquo;, &rsquo;1&rsquo; or &rsquo;2&rsquo;. &rsquo;0&rsquo; indicates that the first base of the feature is the first base of a codon, &rsquo;1&rsquo; that the second base is the first base of a codon, and so on..</dd>
+<dt>atts</dt><dd>A semicolon-separated list of tag-value pairs, providing additional information about each feature.  <b>NOTE</b> when we use additional trackConfigurations (below) we need to include here values we can use as filters.  Mostly the dataset=$edName is what we want.</dd>
+<dt>feature_id</dt><dd>(required) Unique ID for the Feature</dd>
+<dt>parent_id</dt><dd>Unique ID of the parent feature</dd>
+<dt>tstarts</dt><dd>comma sep list of subfeature starts</dd>
+<dt>blocksizes</dt><dd>comma sep list of subfeature lengths</dd>
+</dl></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org09f4501" class="outline-3">
+<h3 id="org09f4501">Track Configuration (Optional)</h3>
+<div class="outline-text-3" id="text-org09f4501">
+<p>
+The Query above will be run for each configuration and ALL features will be dumped into the same output file.
+</p>
+<div class="org-src-container">
+<pre class="src src-xml"><span class="org-comment-delimiter">&lt;!-- </span><span class="org-comment">GenericEndFeature Example </span><span class="org-comment-delimiter">--&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">trackConfigurations</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">properties</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">prop</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"edName"</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">tgonME49_Vinayak_FosmidEnds_clonedInsertEnds_RSRC</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">prop</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">prop</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"type"</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">fosmid</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">prop</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">prop</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"sourceIdField"</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">source_id</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">prop</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">prop</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"sourceIdJoiningRegex"</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">(.*)[^(for|rev).ab1)]</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">prop</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">prop</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"spanLengthCutoff"</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">5000</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">prop</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">prop</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"includeMultipleSpans"</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">true</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">prop</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">properties</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">trackConfigurations</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div>
+
+<p>
+Track Configurations can be gotten in a few different ways.  All can be found in jbrowse conf files or via webservice calls
+</p>
+
+
+<ol class="org-ol">
+<li><p>
+jbrowse conf files
+</p>
+<div class="org-src-container">
+<pre class="src src-example">    [jbrestel@ash]$ grep -r 'Microsatellite:sts' $GUS_HOME/lib/jbrowse/*
+/var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/jbrowse/auto_generated/pfal3D7/tracks.conf
+/var/www/PlasmoDB/plasmo.jbrestel/gus_home/lib/jbrowse/pfal3D7/tracks.conf
+</pre>
+</div></li>
+</ol>
+
+
+<ol class="org-ol">
+<li><p>
+configuration generated by ws calls
+</p>
+<pre class="example" id="orgcb67b49">
+[jbrestel@ash plasmo.jbrestel]$  grep -rl 'domain:MassSpecPeptide' $PROJECT_HOME/ApiCommonModel/Model/bin/*
+/var/www/PlasmoDB/plasmo.jbrestel/project_home/ApiCommonModel/Model/bin/jbrowseOrganismSpecificPbrowseTracks
+/var/www/PlasmoDB/plasmo.jbrestel/project_home/ApiCommonModel/Model/bin/jbrowseOrganismSpecificTracks
+</pre>
+
+<p>
+This one requires some database queries to find datasets.  Look in the script to determine how to find datasets and other parameter values
+</p></li>
+</ol>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgf2b4b0b" class="outline-2">
+<h2 id="orgf2b4b0b">Script</h2>
+<div class="outline-text-2" id="text-orgf2b4b0b">
+<p>
+The script <a href="https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/bin/jbrowseDumpAllFeatures">jbrowseDumpAllFeatures</a> will loop through all tracks defined in the xml configuration and dump a file for each (per organism).  The output directory has the same structure as the workflow&rsquo;s webservices directory.  
+</p>
+
+<div class="org-src-container">
+<pre class="src src-example">usage: jbrowseDumpAllFeatures --output_directory $OUTPUT_DIR \\
+			      [--organism_abbrev_filter $ORG_ABBREV] \\
+			      [--replace_existing ]
+
+</pre>
+</div>
+
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> make bw files</li>
+<li class="off"><input type='checkbox' /> check one off error for tstarts</li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgfcb1d80" class="outline-2">
+<h2 id="orgfcb1d80">Front end</h2>
+<div class="outline-text-2" id="text-orgfcb1d80">
+<p>
+JBrowse Application will read from file based Store (GFF or BW).  We will need to filter features by dataset name when appropriate. See GenericEndFeature above.
+</p>
+
+<p>
+We&rsquo;ll need to use filters to only show track data for one dataset.  May need a new 
+</p>
+</div>
+<div id="outline-container-org4710944" class="outline-3">
+<h3 id="org4710944">Popups</h3>
+<div class="outline-text-3" id="text-org4710944">
+<ul class="org-ul">
+<li><p>
+Example POST to get wdk Table for a gene
+</p>
+<pre class="example" id="org0cdf730">
+curl -X POST -d '{primaryKey: [{name: "source_id", value: "PF3D7_1133400"}, {name: "project_id", value: "PlasmoDB"}], attributes: [], tables: ["GOTerms"]}' -H 'Content-Type: application/json'  https://w2.plasmodb.org/plasmo/service/record-types/gene/records
+</pre></li>
+<li><p>
+Example Track
+</p>
+<pre class="example" id="orgdf4a775">
+[tracks.testGene]
+urlTemplate=PlasmoDB-54_Pfalciparum3D7_sorted.gff.gz
+storeClass=JBrowse/Store/SeqFeature/GFF3Tabix
+type=CanvasFeatures
+category=Gene Models
+key=Annotated Transcripts (UTRs in White when available) TEST
+type=NeatCanvasFeatures/View/Track/NeatFeatures
+glyph=JBrowse/View/FeatureGlyph/Gene
+unsafePopup=true
+onClick.content={geneTestDetails}
+menuTemplate+=json:{"label": "View Details", "content": "{geneTestDetails}"}
+</pre></li>
+<li><p>
+Example function to create popup from POST
+</p>
+<div class="org-src-container">
+<pre class="src src-js">geneTestDetails = <span class="org-keyword">function</span>(<span class="org-variable-name">track</span>, <span class="org-variable-name">feature</span>, <span class="org-variable-name">featureDiv</span>, <span class="org-variable-name">coreDetails</span>) {
+   <span class="org-keyword">var</span> <span class="org-variable-name">c</span> = track.browser.config;
+   container = dojo.create(<span class="org-string">'div'</span>, {
+       className: <span class="org-string">'detail feature-detail feature-detail-'</span> + track.name.replace(<span class="org-string">/\s+/</span>g, <span class="org-string">'_'</span>).toLowerCase(),
+            innerHTML: <span class="org-string">''</span>
+          });
+   <span class="org-keyword">var</span> <span class="org-variable-name">coreDetails</span> = dojo.create(<span class="org-string">'div'</span>, {
+            className: <span class="org-string">'core'</span>
+          }, container);
+   <span class="org-keyword">var</span> <span class="org-variable-name">hitchCore</span> = dojo.hitch(track, <span class="org-string">'renderDetailField'</span>, coreDetails);
+   coreDetails.innerHTML += <span class="org-string">'&lt;h2 class="sectiontitle"&gt;Gene Details&lt;/h2&gt;'</span>;
+   <span class="org-keyword">var</span> <span class="org-variable-name">gene</span> = feature.data.id;
+   hitchCore( <span class="org-string">'Gene'</span>, gene, feature );
+   <span class="org-keyword">var</span> <span class="org-variable-name">endDetails</span> = dojo.create(<span class="org-string">'div'</span>, {
+             className: <span class="org-string">'end'</span>
+          }, container);
+   <span class="org-keyword">var</span> <span class="org-variable-name">hitchEnd</span> = dojo.hitch(track, <span class="org-string">'renderDetailField'</span>, endDetails);
+   <span class="org-keyword">var</span> <span class="org-variable-name">goRows</span> = <span class="org-keyword">new</span> <span class="org-type">Array</span>();
+   <span class="org-comment-delimiter">// </span><span class="org-comment">how to get project_id here??</span>
+   <span class="org-keyword">var</span> <span class="org-variable-name">data</span> = {primaryKey: [{name: <span class="org-string">"source_id"</span>, value: gene}, {name: <span class="org-string">"project_id"</span>, value: <span class="org-string">"PlasmoDB"</span>}], attributes: [], tables: [<span class="org-string">"GOTerms"</span>]};
+   c.fetchWithPost(<span class="org-string">"/a/service/record-types/gene/records"</span>, data)
+     .then(obj =&gt; {
+                obj.tables.GOTerms.map(x =&gt; goRows.push(c.twoColRow(x.go_id, x.ontology)));
+                hitchEnd(<span class="org-string">'GOTerms'</span>, c.goTermTable(goRows), feature);
+             });
+   <span class="org-keyword">return</span> container;
+   }          
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

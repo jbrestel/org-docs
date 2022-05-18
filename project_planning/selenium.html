@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Functional Tests / Selenium</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Selenium Tests" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Functional Tests / Selenium</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org84a1059">Types of Tests</a>
+<ul>
+<li><a href="#orgcc841ad">Smoke Tests</a></li>
+<li><a href="#org5a39c89">End to End testing</a></li>
+<li><a href="#org3e7f5db">Regression tests</a></li>
+<li><a href="#orgcb534e5">SQL Performance Testing</a></li>
+<li><a href="#org0007a80">Unit Tests for new code where appropriate</a></li>
+</ul>
+</li>
+<li><a href="#org5e6b583">Implementation</a>
+<ul>
+<li><a href="#org0604159">HTMLUnit</a></li>
+<li><a href="#org60546ee">Selenium / TestNG</a></li>
+</ul>
+</li>
+<li><a href="#org16f72fe">Which tests, how often for TestPlan</a>
+<ul>
+<li><a href="#orgbf0a82e">Smoke Tests</a></li>
+<li><a href="#org18c9bb0">End To End</a></li>
+</ul>
+</li>
+<li><a href="#orgbef3184">Specific Things to Test</a>
+<ul>
+<li><a href="#org1ede336">Front End</a></li>
+<li><a href="#org019e27a">Back End</a></li>
+<li><a href="#orga65a1d4">Automation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org84a1059" class="outline-2">
+<h2 id="org84a1059">Types of Tests</h2>
+<div class="outline-text-2" id="text-org84a1059">
+</div>
+<div id="outline-container-orgcc841ad" class="outline-3">
+<h3 id="orgcc841ad">Smoke Tests</h3>
+<div class="outline-text-3" id="text-orgcc841ad">
+<ul class="org-ul">
+<li>Basic test like &ldquo;is the application is running&rdquo;</li>
+<li>I believe our integration sites are a form of smoke test.</li>
+<li>This could be enhanced as we used to have by trying to load the home page or the default gene page or any pages we want</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5a39c89" class="outline-3">
+<h3 id="org5a39c89">End to End testing</h3>
+<div class="outline-text-3" id="text-org5a39c89">
+<ul class="org-ul">
+<li>manual QA sessions into this category</li>
+<li>other manually written tests</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org3e7f5db" class="outline-3">
+<h3 id="org3e7f5db">Regression tests</h3>
+<div class="outline-text-3" id="text-org3e7f5db">
+<ul class="org-ul">
+<li>JUnit or TestNG</li>
+<li>Page Object Model (separate out the code which navigates the page from the tests)</li>
+
+<li>Selenium can use HTMLUnit driver (headless browser) and integrated into Jenkins;
+<ul class="org-ul">
+<li>No Javascript when headless</li>
+</ul></li>
+<li>End to End Testing possible with Chrome/Firefox drivers</li>
+<li>Selenium IDE is a chrome/firefox plugin which records browser interaction</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgcb534e5" class="outline-3">
+<h3 id="orgcb534e5">SQL Performance Testing</h3>
+<div class="outline-text-3" id="text-orgcb534e5">
+<ul class="org-ul">
+<li>SQL performance (can we capture consistent gets for queries we write?)</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org0007a80" class="outline-3">
+<h3 id="org0007a80">Unit Tests for new code where appropriate</h3>
+<div class="outline-text-3" id="text-org0007a80">
+<ul class="org-ul">
+<li>ebi2gus would have been a good candidate</li>
+<li>installGUS and apidb schema into Empty instance</li>
+<li>JohnI has this already in Jenkins i believe</li>
+<li>run a min workflow to create a sandbox instance</li>
+<li>MarkH has done this</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org5e6b583" class="outline-2">
+<h2 id="org5e6b583">Implementation</h2>
+<div class="outline-text-2" id="text-org5e6b583">
+</div>
+<div id="outline-container-org0604159" class="outline-3">
+<h3 id="org0604159">HTMLUnit</h3>
+<div class="outline-text-3" id="text-org0604159">
+<ul class="org-ul">
+<li>Test response code</li>
+<li>json or xml pages</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org60546ee" class="outline-3">
+<h3 id="org60546ee">Selenium / TestNG</h3>
+<div class="outline-text-3" id="text-org60546ee">
+</div>
+<div id="outline-container-org1ac17c4" class="outline-4">
+<h4 id="org1ac17c4"><span class="todo TODO">TODO</span> Headless built into Jenkins</h4>
+</div>
+<div id="outline-container-org015e50f" class="outline-4">
+<h4 id="org015e50f">Standalone with eclipse with browser of your choice (Chrome,Firefix,&#x2026;)</h4>
+<div class="outline-text-4" id="text-org015e50f">
+<ul class="org-ul">
+<li>Start by running tests for reporting from eclipse</li>
+<li>we don&rsquo;t want the integration/qa sites breaking all the time.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org16f72fe" class="outline-2">
+<h2 id="org16f72fe">Which tests, how often for TestPlan</h2>
+<div class="outline-text-2" id="text-org16f72fe">
+</div>
+<div id="outline-container-orgbf0a82e" class="outline-3">
+<h3 id="orgbf0a82e">Smoke Tests</h3>
+<div class="outline-text-3" id="text-orgbf0a82e">
+</div>
+<div id="outline-container-org73f9d4e" class="outline-4">
+<h4 id="org73f9d4e">Home Page</h4>
+</div>
+<div id="outline-container-orgb7eb31e" class="outline-4">
+<h4 id="orgb7eb31e">SiteSearch</h4>
+</div>
+<div id="outline-container-orgbbc5add" class="outline-4">
+<h4 id="orgbbc5add">Help Form</h4>
+</div>
+<div id="outline-container-orgc558df3" class="outline-4">
+<h4 id="orgc558df3">Model</h4>
+<div class="outline-text-4" id="text-orgc558df3">
+</div>
+<div id="outline-container-orgfa3bbff" class="outline-5">
+<h5 id="orgfa3bbff">All Search Forms</h5>
+</div>
+<div id="outline-container-org9557cdc" class="outline-5">
+<h5 id="org9557cdc">Default Record Pages (Gene,SNP,)</h5>
+</div>
+<div id="outline-container-org977b033" class="outline-5">
+<h5 id="org977b033">Organism Record Results (DataSummary and Gene Metrics)</h5>
+</div>
+</div>
+<div id="outline-container-org807ef4d" class="outline-4">
+<h4 id="org807ef4d">WDK</h4>
+<div class="outline-text-4" id="text-org807ef4d">
+</div>
+<div id="outline-container-org362fe3c" class="outline-5">
+<h5 id="org362fe3c">Public Strategies</h5>
+</div>
+<div id="outline-container-orgb7d8d90" class="outline-5">
+<h5 id="orgb7d8d90">Basket</h5>
+</div>
+<div id="outline-container-orge2ce3b2" class="outline-5">
+<h5 id="orge2ce3b2">Favorites</h5>
+</div>
+<div id="outline-container-orgc5da353" class="outline-5">
+<h5 id="orgc5da353">My Datasets?? Require Login?</h5>
+</div>
+</div>
+<div id="outline-container-orgd2d230c" class="outline-4">
+<h4 id="orgd2d230c">Data Files</h4>
+<div class="outline-text-4" id="text-orgd2d230c">
+</div>
+<div id="outline-container-orga9f9145" class="outline-5">
+<h5 id="orga9f9145">Download Files</h5>
+</div>
+<div id="outline-container-org423cfa9" class="outline-5">
+<h5 id="org423cfa9">User Uploaded Files</h5>
+</div>
+</div>
+<div id="outline-container-org3203008" class="outline-4">
+<h4 id="org3203008">Static Content</h4>
+<div class="outline-text-4" id="text-org3203008">
+</div>
+<div id="outline-container-orgf276aa6" class="outline-5">
+<h5 id="orgf276aa6">Community</h5>
+<div class="outline-text-5" id="text-orgf276aa6">
+<ul class="org-ul">
+<li>News</li>
+<li>Workshops and training</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org4395c45" class="outline-5">
+<h5 id="org4395c45">Publications</h5>
+<div class="outline-text-5" id="text-org4395c45">
+<ul class="org-ul">
+<li>Publications on VEuPathDB sites</li>
+<li>Publications that use our resources</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgfa9478c" class="outline-5">
+<h5 id="orgfa9478c">Submit data</h5>
+<div class="outline-text-5" id="text-orgfa9478c">
+<ul class="org-ul">
+<li>How to submit data to us</li>
+<li>Data submission and release policies</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0e69538" class="outline-5">
+<h5 id="org0e69538">Usage and citation</h5>
+<div class="outline-text-5" id="text-org0e69538">
+<ul class="org-ul">
+<li>Citing VEuPathDB in Publications and Presentations</li>
+<li>Data access policy</li>
+<li>Website privacy policy</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org5866828" class="outline-5">
+<h5 id="org5866828">Who we are</h5>
+<div class="outline-text-5" id="text-org5866828">
+<ul class="org-ul">
+<li>Personnel</li>
+<li>Acknowledgements</li>
+<li>Funding</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgdfa2947" class="outline-5">
+<h5 id="orgdfa2947">Technical information</h5>
+<div class="outline-text-5" id="text-orgdfa2947">
+<ul class="org-ul">
+<li>Accessibility VPAT</li>
+<li>Infrastructure</li>
+<li>Website usage statistics</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4d6af6c" class="outline-4">
+<h4 id="org4d6af6c">Tools</h4>
+<div class="outline-text-4" id="text-org4d6af6c">
+</div>
+<div id="outline-container-org30f2d5a" class="outline-5">
+<h5 id="org30f2d5a">SRT</h5>
+</div>
+<div id="outline-container-org0967d00" class="outline-5">
+<h5 id="org0967d00">Galaxy</h5>
+</div>
+<div id="outline-container-org2e6b3f2" class="outline-5">
+<h5 id="org2e6b3f2">JBrowse</h5>
+<div class="outline-text-5" id="text-org2e6b3f2">
+<ul class="org-ul">
+<li>Default organism</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org03e0e82" class="outline-5">
+<h5 id="org03e0e82">Apollo</h5>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org18c9bb0" class="outline-3">
+<h3 id="org18c9bb0">End To End</h3>
+<div class="outline-text-3" id="text-org18c9bb0">
+</div>
+<div id="outline-container-org030353e" class="outline-4">
+<h4 id="org030353e">Each release we will list out new datasets and which manual tests were performed</h4>
+</div>
+</div>
+</section>
+<section id="outline-container-orgbef3184" class="outline-2">
+<h2 id="orgbef3184">Specific Things to Test</h2>
+<div class="outline-text-2" id="text-orgbef3184">
+</div>
+<div id="outline-container-org1ede336" class="outline-3">
+<h3 id="org1ede336">Front End</h3>
+<div class="outline-text-3" id="text-org1ede336">
+</div>
+<div id="outline-container-org2dec034" class="outline-4">
+<h4 id="org2dec034"><span class="done DONE">DONE</span> Test Static Content</h4>
+</div>
+
+<div id="outline-container-orgb1d4de2" class="outline-4">
+<h4 id="orgb1d4de2"><span class="todo TODO">TODO</span> dataset wdkreference match the model</h4>
+<div class="outline-text-4" id="text-orgb1d4de2">
+<p>
+replace existing dataset tests which are slow
+</p>
+
+<p>
+<a href="https://qa.plasmodb.org/a/service/record-types?format=expanded">https://qa.plasmodb.org/a/service/record-types?format=expanded</a>
+</p>
+
+
+<p>
+&ldquo;fullName&rdquo;: &ldquo;GeneQuestions.GenesByRNASeqcparIowaII_Widmer_ExtraCellular_Stages_ebi_rnaSeq_RSRCSenseAntisense&rdquo;,
+HashMap allSearches = new HashMap&lt;String, boolean??&gt;();
+</p>
+
+<p>
+<a href="https://qa.plasmodb.org/plasmo.b50/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B%22attributes%22%3A%5B%22primary_key%22%5D%2C%22tables%22%3A%5B%22References%22%5D%7D">https://qa.plasmodb.org/plasmo.b50/service/record-types/dataset/searches/AllDatasets/reports/standard?reportConfig=%7B%22attributes%22%3A%5B%22primary_key%22%5D%2C%22tables%22%3A%5B%22References%22%5D%7D</a>
+</p>
+
+<p>
+We only care about the &ldquo;References&rdquo; which have &ldquo;target_type&rdquo; == &rsquo;question&rsquo;
+&ldquo;target_name&rdquo;: &ldquo;GeneQuestions.GenesByRNASeqcparIowaII_Widmer_ExtraCellular_Stages_ebi_rnaSeq_RSRCSenseAntisense&rdquo;,
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org344e554" class="outline-4">
+<h4 id="org344e554"><span class="todo TODO">TODO</span> rnaseq default organism rnaseq (make sure all keys are unique)</h4>
+</div>
+
+
+
+<div id="outline-container-org429f4df" class="outline-4">
+<h4 id="org429f4df"><span class="todo TODO">TODO</span> site search matches record count</h4>
+<div class="outline-text-4" id="text-org429f4df">
+<p>
+need wdk search with returns all records
+</p>
+</div>
+</div>
+
+<div id="outline-container-org264f63f" class="outline-4">
+<h4 id="org264f63f"><span class="todo TODO">TODO</span> test links on dataset page</h4>
+</div>
+</div>
+
+
+<div id="outline-container-org019e27a" class="outline-3">
+<h3 id="org019e27a">Back End</h3>
+<div class="outline-text-3" id="text-org019e27a">
+</div>
+<div id="outline-container-org14b9074" class="outline-4">
+<h4 id="org14b9074"><span class="todo TODO">TODO</span> Strand specific RNASeq should test the average coverage of sense/antisense</h4>
+</div>
+
+
+<div id="outline-container-org78ea4e4" class="outline-4">
+<h4 id="org78ea4e4"><span class="todo TODO">TODO</span> Datset IDs from previous releases are handled</h4>
+</div>
+
+<div id="outline-container-org655ed52" class="outline-4">
+<h4 id="org655ed52"><span class="todo TODO">TODO</span> Regression test for GUS schema install</h4>
+</div>
+<div id="outline-container-org44bef21" class="outline-4">
+<h4 id="org44bef21"><span class="todo TODO">TODO</span> Changes to RNASeq regression tests so they can be run on a single db each release&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span></span></h4>
+</div>
+</div>
+
+<div id="outline-container-orga65a1d4" class="outline-3">
+<h3 id="orga65a1d4">Automation</h3>
+<div class="outline-text-3" id="text-orga65a1d4">
+</div>
+<div id="outline-container-orge2c738e" class="outline-4">
+<h4 id="orge2c738e"><span class="todo TODO">TODO</span> Selenium in jenkins!</h4>
+<div class="outline-text-4" id="text-orge2c738e">
+<p>
+container for browser??
+</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

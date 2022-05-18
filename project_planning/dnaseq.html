@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DNASeq</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="DNASeq" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">DNASeq</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orga3b6177">B53 and B54</a>
+<ul>
+<li><a href="#org5488520">UniDB</a></li>
+</ul>
+</li>
+<li><a href="#org445ad9e"><span class="todo IN_PROGRESS">IN_PROGRESS</span> DNASeq Nextflow workflow</a>
+<ul>
+<li><a href="#org1c9a82f">Input Data</a></li>
+<li><a href="#orgce880d8">SNP Calling</a></li>
+<li><a href="#orgc5c9b4c">Down Sampling</a></li>
+<li><a href="#org7846157">CNV</a></li>
+<li><a href="#org99503f1">Indels</a></li>
+<li><a href="#orgb75a781">Consensus Sequence</a></li>
+</ul>
+</li>
+<li><a href="#org3e0829e">Test Oracle Database</a></li>
+<li><a href="#org69fbef8"><span class="todo TODO">TODO</span> DNASeq Reflow Workflow</a>
+<ul>
+<li><a href="#orga95edfb">Indels</a></li>
+<li><a href="#org58c9fa9">Process Sequence Variations Step</a></li>
+<li><a href="#orgdd44ec1">Additional Tables and upgrade to ApiDB.SNP</a></li>
+<li><a href="#org6dd876b">VCFs</a></li>
+<li><a href="#org84f505c">HSSS WS Files</a></li>
+<li><a href="#org6c430b2">Sample Details</a></li>
+</ul>
+</li>
+<li><a href="#org4a904a9">Model</a>
+<ul>
+<li><a href="#orgfc8c4df">Improvements to Variation Page</a></li>
+<li><a href="#org48b9f5f">Searches</a></li>
+<li><a href="#orgee51c53">Results</a></li>
+<li><a href="#orgcfc8c3d">JBrowse</a></li>
+</ul>
+</li>
+<li><a href="#orgac6c306">Consensus Sequence</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-orga3b6177" class="outline-2">
+<h2 id="orga3b6177">B53 and B54</h2>
+<div class="outline-text-2" id="text-orga3b6177">
+</div>
+<div id="outline-container-org5488520" class="outline-3">
+<h3 id="org5488520"><a href="https://jbrestel.github.io/org-docs/project_planning/unidb.org">UniDB</a></h3>
+</div>
+</section>
+<section id="outline-container-org445ad9e" class="outline-2">
+<h2 id="org445ad9e"><span class="todo IN_PROGRESS">IN_PROGRESS</span> DNASeq Nextflow workflow</h2>
+<div class="outline-text-2" id="text-org445ad9e">
+</div>
+<div id="outline-container-org1c9a82f" class="outline-3">
+<h3 id="org1c9a82f">Input Data</h3>
+<div class="outline-text-3" id="text-org1c9a82f">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Can be fastq files or BAM files</li>
+<li class="on"><input type='checkbox' checked='checked' /> All data from SRA will be aligned by EBI and given as bam</li>
+<li class="on"><input type='checkbox' checked='checked' /> The nextflow workflow will operate on an experiment. not a single sample</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgce880d8" class="outline-3">
+<h3 id="orgce880d8">SNP Calling</h3>
+<div class="outline-text-3" id="text-orgce880d8">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> move over varscan steps into nextflow workflow</li>
+<li class="on"><input type='checkbox' checked='checked' /> Do not use Strain name in VCF file. how do we uniquely identify a strain</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc5c9b4c" class="outline-3">
+<h3 id="orgc5c9b4c">Down Sampling</h3>
+<div class="outline-text-3" id="text-orgc5c9b4c">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> filter reads if too many;  add configuration option for setting max</li>
+<li class="on"><input type='checkbox' checked='checked' /> recalcuate mapping stats after down sampling</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org7846157" class="outline-3">
+<h3 id="org7846157">CNV</h3>
+<div class="outline-text-3" id="text-org7846157">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> move over DJob/DistribJobTasks/bin/runCNVTasks.pl</li>
+<li class="on"><input type='checkbox' checked='checked' /> LOH data for plot</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org99503f1" class="outline-3">
+<h3 id="org99503f1">Indels</h3>
+<div class="outline-text-3" id="text-org99503f1">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Include Indels in VCF File</li>
+<li class="off"><input type='checkbox' /> Publish indel vcf file</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb75a781" class="outline-3">
+<h3 id="orgb75a781">Consensus Sequence</h3>
+<div class="outline-text-3" id="text-orgb75a781">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> use additional characters in consensus seq for ambiguous bases</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org3e0829e" class="outline-2">
+<h2 id="org3e0829e">Test Oracle Database</h2>
+<div class="outline-text-2" id="text-org3e0829e">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> load subset of genome</li>
+<li class="on"><input type='checkbox' checked='checked' /> rm43647</li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-org69fbef8" class="outline-2">
+<h2 id="org69fbef8"><span class="todo TODO">TODO</span> DNASeq Reflow Workflow</h2>
+<div class="outline-text-2" id="text-org69fbef8">
+<p>
+No longer have GFF files per sample;  We have VCF file per Experiment;  Need to merge experiment vcf into a Per Organism VCF
+</p>
+</div>
+
+<div id="outline-container-orga95edfb" class="outline-3">
+<h3 id="orga95edfb">Indels</h3>
+<div class="outline-text-3" id="text-orga95edfb">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Store indels in database table</li>
+<li class="off"><input type='checkbox' /> New Feature table for Indel</li>
+<li class="off"><input type='checkbox' /> These are stored in Ref Seq coords</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org58c9fa9" class="outline-3">
+<h3 id="org58c9fa9">Process Sequence Variations Step</h3>
+<div class="outline-text-3" id="text-org58c9fa9">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> read indels so we can calculate products better</li>
+<li class="off"><input type='checkbox' /> load indels so we can show consensus sequence better</li>
+<li class="off"><input type='checkbox' /> use IUPAC (R=A or G) characteres in consensus sequence&#x2026;  but BioPerl does not handle these correctly when translating codon to aa/product</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgdd44ec1" class="outline-3">
+<h3 id="orgdd44ec1">Additional Tables and upgrade to ApiDB.SNP</h3>
+<div class="outline-text-3" id="text-orgdd44ec1">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> ApiDB.SNPAlleleSummary</li>
+<li class="off"><input type='checkbox' /> ApiDB.SNPProductSummary</li>
+<li class="off"><input type='checkbox' /> new fields to ApiDB.SNP
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> REF_CODON</li>
+<li class="off"><input type='checkbox' /> POSITION_IN_CODON</li>
+<li class="off"><input type='checkbox' /> ALLELE_TOTAL</li>
+<li class="off"><input type='checkbox' /> HAS_STOP_CODON</li>
+<li class="off"><input type='checkbox' /> for minor allele should use the second most abundant allele only</li>
+<li class="off"><input type='checkbox' /> incorporate variations somehow (JSON Array? or VCF clob?)</li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6dd876b" class="outline-3">
+<h3 id="org6dd876b">VCFs</h3>
+<div class="outline-text-3" id="text-org6dd876b">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Merge a VCF file per organism</li>
+<li class="off"><input type='checkbox' /> Run SNPEff (or VEP)</li>
+<li class="off"><input type='checkbox' /> copy VCF file to apiSiteFiles</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org84f505c" class="outline-3">
+<h3 id="org84f505c">HSSS WS Files</h3>
+<div class="outline-text-3" id="text-org84f505c">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Regenerate these from VCF</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6c430b2" class="outline-3">
+<h3 id="org6c430b2">Sample Details</h3>
+<div class="outline-text-3" id="text-org6c430b2">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> loader for eda schema (entity graph)</li>
+<li class="off"><input type='checkbox' /> will we use the eda or filter params?</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org4a904a9" class="outline-2">
+<h2 id="org4a904a9">Model</h2>
+<div class="outline-text-2" id="text-org4a904a9">
+</div>
+<div id="outline-container-orgfc8c4df" class="outline-3">
+<h3 id="orgfc8c4df">Improvements to Variation Page</h3>
+<div class="outline-text-3" id="text-orgfc8c4df">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Incorporate new tables</li>
+<li class="off"><input type='checkbox' /> Better show sample details (not just &ldquo;Country&rdquo; table&#x2026; should be able to show all sample details</li>
+<li class="off"><input type='checkbox' /> EDA?</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org48b9f5f" class="outline-3">
+<h3 id="org48b9f5f">Searches</h3>
+<div class="outline-text-3" id="text-org48b9f5f">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> new dynamic columns for High Speed SNP Searches?</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgee51c53" class="outline-3">
+<h3 id="orgee51c53">Results</h3>
+<div class="outline-text-3" id="text-orgee51c53">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Send results to JBrowse as Track;  Requires filtering the VCF;  Does this impact Loading???</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgcfc8c3d" class="outline-3">
+<h3 id="orgcfc8c3d">JBrowse</h3>
+<div class="outline-text-3" id="text-orgcfc8c3d">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> VCF track</li>
+<li class="off"><input type='checkbox' /> SNPEff Track</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgac6c306" class="outline-2">
+<h2 id="orgac6c306">Consensus Sequence</h2>
+<div class="outline-text-2" id="text-orgac6c306">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Alignment tool on frontend needs to incorporate indels;
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> need a count of all insertions and all deletions</li>
+<li class="off"><input type='checkbox' /> Indels are stored in &ldquo;Reference Space&rdquo;</li>
+</ul></li>
+</ul>
+</div>
+</section>
+</main>
+</body>
+</html>

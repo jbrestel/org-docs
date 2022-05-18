@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NCBI Taxonomy Update</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="NCBI Taxonomy Update" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">NCBI Taxonomy Update</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org166055b">wget NCBI Taxonomy</a></li>
+<li><a href="#orgfb6cba0">Environment</a></li>
+<li><a href="#org0dbee27">GUS::Supported::Plugin::LoadTaxon</a></li>
+<li><a href="#org07b75ed">Apply Patches</a>
+<ul>
+<li><a href="#orgd4c8f7f">GiardiaDB</a></li>
+<li><a href="#orgcf56e64">FungiDB</a></li>
+<li><a href="#orgdc3a5a6">CryptoDB</a></li>
+<li><a href="#org92dc8bf">MicrosporidiaDB</a></li>
+<li><a href="#org4af2a5a">PlasmoDB</a></li>
+<li><a href="#orgffef91a">TriTrypDB</a></li>
+<li><a href="#orgc8ca95f">VectorBase</a></li>
+</ul>
+</li>
+<li><a href="#orgc7bd1fa">Run Tuning Manager https://tm.apidb.org</a></li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-org166055b" class="outline-2">
+<h2 id="org166055b">wget NCBI Taxonomy</h2>
+<div class="outline-text-2" id="text-org166055b">
+<p>
+get and unpack ncbi taxonomy files in temporary directory
+</p>
+<div class="org-src-container">
+<pre class="src src-example">wget --directory-prefix=$PWD \\
+     --output-file=wget.log \\
+     --tries=5 \\
+     --mirror \\
+     --no-parent \\
+     --no-directories \\
+     --no-host-directories \\
+     --cut-dirs=2 \\
+     --include list \\
+     --accept=taxdump.tar.gz "ftp://ftp.ncbi.nih.gov/pub/taxonomy/"
+tar -xzf taxdump.tar.gz 
+</pre>
+</div>
+</div>
+</section>
+<section id="outline-container-orgfb6cba0" class="outline-2">
+<h2 id="orgfb6cba0">Environment</h2>
+<div class="outline-text-2" id="text-orgfb6cba0">
+<p>
+The plugin uses GUS Model objects to update rows in SRes.Taxon, SRes.TaxonName and SRes.GeneticCode.  To update a GUSRow object, you must either be the owner of the row, same group as the owner, or the row must have other_write=1.
+</p>
+
+<p>
+The safest option is to update these 3 tables and set other_write=1
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> sres.taxon <span class="org-keyword">set</span> other_write = 1;
+<span class="org-keyword">update</span> sres.taxonname <span class="org-keyword">set</span> other_write = 1;
+<span class="org-keyword">update</span> sres.geneticcode <span class="org-keyword">set</span> other_write = 1;
+<span class="org-keyword">commit</span>;
+</pre>
+</div>
+
+<p>
+If you don&rsquo;t set the other_write=1 you must either a) ensure there is only one &ldquo;group&rdquo; for these tables AND check that your user is linked to the group AND this group is set as the group in gus.config
+</p>
+<div class="org-src-container">
+<pre class="src src-sql">  <span class="org-comment">-- ensure there is only one "group" for these tables</span>
+  <span class="org-keyword">select</span> <span class="org-keyword">name</span> <span class="org-keyword">from</span> core.groupinfo gi <span class="org-keyword">where</span> group_id <span class="org-keyword">in</span> (
+   <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> row_group_id <span class="org-keyword">from</span> sres.taxon
+   <span class="org-keyword">union</span>
+   <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> row_group_id <span class="org-keyword">from</span> sres.taxonname
+   <span class="org-keyword">union</span>
+   <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> row_group_id <span class="org-keyword">from</span> sres.geneticcode);
+
+ <span class="org-comment">-- ensure your user is linked to the same group </span>
+   <span class="org-keyword">select</span> gi.<span class="org-keyword">name</span>
+  <span class="org-keyword">from</span> core.groupinfo gi, core.userinfo ui, core.usergroup ug
+  <span class="org-keyword">where</span> ui.login = <span class="org-string">'jbrestel'</span>
+  <span class="org-keyword">and</span> ui.user_id = ug.user_id
+  <span class="org-keyword">and</span> ug.group_id = gi.group_id
+
+<span class="org-comment">-- Make sure that this group is set in your gus.config</span>
+</pre>
+</div>
+
+<p>
+OR b) ensure that your user is the ONLY owner of the rows in these 3 tables
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> login <span class="org-keyword">from</span> core.userinfo gi <span class="org-keyword">where</span> user_id <span class="org-keyword">in</span> (
+ <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> row_user_id <span class="org-keyword">from</span> sres.taxon
+ <span class="org-keyword">union</span>
+ <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> row_user_id <span class="org-keyword">from</span> sres.taxonname
+ <span class="org-keyword">union</span>
+ <span class="org-keyword">select</span> <span class="org-keyword">distinct</span> row_user_id <span class="org-keyword">from</span> sres.geneticcode)
+</pre>
+</div>
+</div>
+</section>
+
+
+<section id="outline-container-org0dbee27" class="outline-2">
+<h2 id="org0dbee27">GUS::Supported::Plugin::LoadTaxon</h2>
+<div class="outline-text-2" id="text-org0dbee27">
+<div class="org-src-container">
+<pre class="src src-example">ga GUS::Supported::Plugin::LoadTaxon \\
+  --names $PWD/names.dmp \\
+  --nodes $PWD/nodes.dmp \\
+  --gencode $PWD/gencode.dmp \\
+  --merged $PWD/merged.dmp \\
+  --verbose \\
+  --commit
+</pre>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org07b75ed" class="outline-2">
+<h2 id="org07b75ed">Apply Patches</h2>
+<div class="outline-text-2" id="text-org07b75ed">
+</div>
+<div id="outline-container-orgd4c8f7f" class="outline-3">
+<h3 id="orgd4c8f7f">GiardiaDB</h3>
+<div class="outline-text-3" id="text-orgd4c8f7f">
+<p>
+In sql developer run the following sql command:
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-comment">--Check for temporary ncbi tax ids</span>
+<span class="org-keyword">select</span> * 
+<span class="org-keyword">from</span> sres.taxon 
+<span class="org-keyword">where</span> ncbi_tax_id <span class="org-keyword">in</span> (9100000002,9100000003);
+</pre>
+</div>
+
+<p>
+Load the temporary rows if the 2 above do not exist
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 <span class="org-string">\\</span>
+                                                   --parentRank genus <span class="org-string">\\</span>
+                                                   --ncbiTaxId 9100000002 <span class="org-string">\\</span>
+                                                   --rank <span class="org-string">'species'</span> <span class="org-string">\\</span>
+                                                   --name <span class="org-string">'Giardia Assemblage B'</span> <span class="org-string">\\</span>
+                                                   --nameClass <span class="org-string">'scientific name'</span> <span class="org-string">\\</span>
+                                                   --geneticCodeId 2 <span class="org-string">\\</span>
+                                                   --mitochondrialGeneticCodeId 1 <span class="org-string">\\</span>
+                                                   --commit &gt;&gt; error.log 2&gt;&amp;1 &amp;
+
+ga GUS::Supported::Plugin::InsertTaxonAndTaxonName --parentNcbiTaxId 5740 <span class="org-string">\\</span>
+                                                   --parentRank genus <span class="org-string">\\</span>
+                                                   --ncbiTaxId 9100000003 <span class="org-string">\\</span>
+                                                   --rank <span class="org-string">'species'</span> <span class="org-string">\\</span>
+                                                   --name <span class="org-string">'Giardia Assemblage E'</span> <span class="org-string">\\</span>
+                                                   --nameClass <span class="org-string">'scientific name'</span> <span class="org-string">\\</span>
+                                                   --geneticCodeId 2 <span class="org-string">\\</span>
+                                                   --mitochondrialGeneticCodeId 1 <span class="org-string">\\</span>
+                                                   --commit &gt;&gt; error.log 2&gt;&amp;1
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> sres.taxonname 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia Assemblage A isolate WB'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia lamblia ATCC 50803'</span> 
+<span class="org-keyword">and</span> name_class = <span class="org-string">'scientific name'</span>;
+
+<span class="org-keyword">update</span> sres.taxonname 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia Assemblage B isolate GS'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia intestinalis ATCC 50581'</span> 
+<span class="org-keyword">and</span> name_class = <span class="org-string">'scientific name'</span>;
+
+<span class="org-keyword">update</span> sres.taxonname 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia Assemblage E isolate P15'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia lamblia P15'</span> 
+<span class="org-keyword">and</span> name_class = <span class="org-string">'scientific name'</span>;
+
+<span class="org-keyword">update</span> sres.taxonname 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia Assemblage A'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia intestinalis'</span> 
+<span class="org-keyword">and</span> name_class = <span class="org-string">'scientific name'</span>;
+
+<span class="org-keyword">update</span> sres.taxon
+<span class="org-keyword">set</span> rank = <span class="org-string">'strain'</span>
+<span class="org-keyword">where</span> ncbi_tax_id <span class="org-keyword">in</span> (184922,598745,658858);
+
+
+<span class="org-keyword">update</span> sres.taxon 
+<span class="org-keyword">set</span> parent_id=(<span class="org-keyword">select</span> taxon_id 
+               <span class="org-keyword">from</span> sres.taxonname 
+               <span class="org-keyword">where</span> name_class=<span class="org-string">'scientific name'</span> 
+               <span class="org-keyword">and</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia Assemblage B'</span>) 
+<span class="org-keyword">where</span> ncbi_tax_id=598745;
+
+<span class="org-keyword">update</span> sres.taxon 
+<span class="org-keyword">set</span> parent_id=(<span class="org-keyword">select</span> taxon_id 
+               <span class="org-keyword">from</span> sres.taxonname 
+               <span class="org-keyword">where</span> name_class=<span class="org-string">'scientific name'</span> 
+               <span class="org-keyword">and</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia Assemblage E'</span>) 
+<span class="org-keyword">where</span> ncbi_tax_id=658858;
+
+<span class="org-keyword">update</span> sres.TaxonName 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span>=<span class="org-string">'Giardia intestinalis'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span>=<span class="org-string">'Lamblia intestinalis'</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgcf56e64" class="outline-3">
+<h3 id="orgcf56e64">FungiDB</h3>
+<div class="outline-text-3" id="text-orgcf56e64">
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> SRES.TAXONNAME 
+<span class="org-keyword">set</span> name_class=<span class="org-string">'synonym'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">NAME</span>=<span class="org-string">'[Candida] glabrata CBS 138'</span>;
+
+<span class="org-keyword">update</span> SRES.TAXONNAME 
+<span class="org-keyword">set</span> name_class=<span class="org-string">'scientific name'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">NAME</span>=<span class="org-string">'Candida glabrata CBS 138'</span>;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdc3a5a6" class="outline-3">
+<h3 id="orgdc3a5a6">CryptoDB</h3>
+<div class="outline-text-3" id="text-orgdc3a5a6">
+<p>
+In NCBI taxonomy, &rsquo;Cryptosporidium sp. chipmunk LX-2015&rsquo; is a species now, 
+and it&rsquo;s parent is &rsquo;unclassified Cryptosporidium&rsquo;, which is not what we loaded before.
+<a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi">https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi</a>
+</p>
+
+<p>
+Actually &rsquo;chipmunk LX-2015&rsquo; is a strain, NCBI taxonomy puts it as species name.
+<a href="https://gold.jgi.doe.gov/organism?id=Go0113979">https://gold.jgi.doe.gov/organism?id=Go0113979</a>
+</p>
+
+<p>
+Based on what discussed with Omar in slack, 
+re-set the rank of &rsquo;Cryptosporidium sp. chipmunk LX-2015&rsquo; as strain
+re-set the parent of it as &rsquo;Cryptosporidium sp.&rsquo;, not &rsquo;unclassified Cryptosporidium&rsquo;
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> sres.taxon 
+<span class="org-keyword">set</span> rank = <span class="org-string">'strain'</span> 
+<span class="org-keyword">where</span> NCBI_TAX_ID=1603071;
+
+<span class="org-keyword">update</span> sres.taxon 
+<span class="org-keyword">set</span> parent_id=(<span class="org-keyword">select</span> taxon_id 
+               <span class="org-keyword">from</span> sres.taxonname 
+               <span class="org-keyword">where</span> name_class=<span class="org-string">'scientific name'</span> 
+               <span class="org-keyword">and</span> <span class="org-keyword">name</span>=<span class="org-string">'Cryptosporidium sp.'</span>) 
+<span class="org-keyword">where</span> NCBI_TAX_ID=1603071;
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org92dc8bf" class="outline-3">
+<h3 id="org92dc8bf">MicrosporidiaDB</h3>
+<div class="outline-text-3" id="text-org92dc8bf">
+<p>
+patch micr-rbld to set &ldquo;Amphiamblys sp. WSBS2006&rdquo; as strain (rank=&rsquo;no rank&rsquo;), 
+and its parent &ldquo;unclassified Amphiamblys&rdquo; as species (rank=&rsquo;species&rsquo;)
+To be consistent, also set &ldquo;Amphiamblys sp. WSBS2011&rdquo; as strain
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> sres.taxon <span class="org-keyword">set</span> rank = <span class="org-string">'no rank'</span> <span class="org-keyword">where</span> NCBI_TAX_ID=1866961;
+<span class="org-keyword">update</span> sres.taxon <span class="org-keyword">set</span> rank = <span class="org-string">'species'</span> <span class="org-keyword">where</span> NCBI_TAX_ID=2641285;
+<span class="org-keyword">update</span> sres.taxon <span class="org-keyword">set</span> rank = <span class="org-string">'no rank'</span> <span class="org-keyword">where</span> NCBI_TAX_ID=1892499;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4af2a5a" class="outline-3">
+<h3 id="org4af2a5a">PlasmoDB</h3>
+<div class="outline-text-3" id="text-org4af2a5a">
+<p>
+&#x2013; these are wrong
+  LaveraniaOrganismNames:
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> SRES.TAXONNAME 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span> =<span class="org-string">'Plasmodium praefalciparum'</span> 
+<span class="org-keyword">where</span> TAXON_ID= (<span class="org-keyword">select</span> taxon_id 
+                 <span class="org-keyword">from</span> sres.taxon 
+                 <span class="org-keyword">where</span> ncbi_tax_id = 880534) 
+<span class="org-keyword">and</span> NAME_CLASS=<span class="org-string">'scientific name'</span>;                                                                                     
+
+<span class="org-keyword">update</span> SRES.TAXONNAME 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span> =<span class="org-string">'Plasmodium blacklocki'</span> 
+<span class="org-keyword">where</span> TAXON_ID= (<span class="org-keyword">select</span> taxon_id 
+                 <span class="org-keyword">from</span> sres.taxon 
+                 <span class="org-keyword">where</span> ncbi_tax_id = 880536) 
+<span class="org-keyword">and</span> NAME_CLASS=<span class="org-string">'scientific name'</span>; 
+
+<span class="org-keyword">update</span> SRES.TAXONNAME 
+<span class="org-keyword">set</span> <span class="org-keyword">name</span> =<span class="org-string">'Plasmodium adleri'</span> 
+<span class="org-keyword">where</span> TAXON_ID= (<span class="org-keyword">select</span> taxon_id 
+                 <span class="org-keyword">from</span> sres.taxon 
+                 <span class="org-keyword">where</span> ncbi_tax_id = 880535) 
+<span class="org-keyword">and</span> NAME_CLASS=<span class="org-string">'scientific name'</span>; 
+
+<span class="org-keyword">update</span> sres.taxonname 
+<span class="org-keyword">set</span> NAME_CLASS= <span class="org-string">'synonym'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'Plasmodium sp. DRC-Itaito'</span>;                                                                                                  
+
+<span class="org-keyword">update</span> sres.taxonname 
+<span class="org-keyword">set</span> NAME_CLASS= <span class="org-string">'scientific name'</span> 
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'Plasmodium billcollinsi'</span>;
+
+<span class="org-comment">--Povale</span>
+<span class="org-keyword">update</span> SRES.TAXON 
+<span class="org-keyword">set</span> rank = <span class="org-string">'species'</span> 
+<span class="org-keyword">where</span> NCBI_TAX_ID=864141;
+
+<span class="org-keyword">update</span> SRES.TAXON 
+<span class="org-keyword">set</span> rank = <span class="org-string">'no rank'</span> 
+<span class="org-keyword">where</span> NCBI_TAX_ID=36330;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgffef91a" class="outline-3">
+<h3 id="orgffef91a">TriTrypDB</h3>
+<div class="outline-text-3" id="text-orgffef91a">
+<p>
+taxonName4tcruDm28c2014:
+reset scientific name of &ldquo;Trypanosoma cruzi Dm28c&rdquo; to &ldquo;Trypanosoma cruzi Dm28c 2014&rdquo;, 
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> SRES.TAXONNAME
+<span class="org-keyword">set</span> <span class="org-keyword">name</span>=<span class="org-string">'Trypanosoma cruzi Dm28c 2014'</span>
+<span class="org-keyword">where</span> TAXON_ID=(<span class="org-keyword">select</span> TAXON_ID
+                <span class="org-keyword">from</span> sres.taxon
+                <span class="org-keyword">where</span> NCBI_TAX_ID=1416333)
+<span class="org-keyword">and</span> name_class = <span class="org-string">'scientific_name'</span>
+</pre>
+</div>
+
+<p>
+taxonName4lspMARLEM2494:
+reconstructure ncbi Taxonomy tree,
+Leishmania sp. MAR LEM2494 =&gt; no rank
+unclassified Leishmania =&gt; species
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> SRES.TAXON <span class="org-keyword">set</span> rank=<span class="org-string">'no rank'</span> <span class="org-keyword">where</span> NCBI_TAX_ID=1303197;
+<span class="org-keyword">update</span> SRES.TAXON <span class="org-keyword">set</span> rank=<span class="org-string">'species'</span> <span class="org-keyword">where</span> NCBI_TAX_ID=40283;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc8ca95f" class="outline-3">
+<h3 id="orgc8ca95f">VectorBase</h3>
+<div class="outline-text-3" id="text-orgc8ca95f">
+<p>
+organismFullNameChange4aalbFPA_and_csonPIR-s-3:
+</p>
+<ol class="org-ol">
+<li>change organismFullName from &rsquo;Culicoides sonorensis strain PIR-s-3&rsquo; to &rsquo;Culicoides sonorensis strain PIR-s-3&rsquo;</li>
+<li>change organismFullName from &rsquo;Aedes albopictus isolate FPA&rsquo; to &rsquo;Aedes albopictus Foshan FPA&rsquo;</li>
+<li>organismFullNameChange4agamPEST</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> SRES.TAXONNAME
+<span class="org-keyword">set</span> <span class="org-keyword">name</span> = <span class="org-string">'Culicoides sonorensis PIR-s-3'</span>
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'Culicoides sonorensis strain PIR-s-3'</span>
+<span class="org-keyword">and</span> name_class = <span class="org-string">'scientific name'</span>;
+
+<span class="org-keyword">update</span> SRES.TAXONNAME
+<span class="org-keyword">set</span> <span class="org-keyword">name</span> = <span class="org-string">'Aedes albopictus Foshan FPA'</span>
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'Aedes albopictus isolate FPA'</span>;
+
+<span class="org-keyword">update</span> sres.taxonname
+<span class="org-keyword">set</span> NAME_CLASS=<span class="org-string">'synonym'</span>
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'Anopheles gambiae str. PEST'</span>;
+
+<span class="org-keyword">update</span> sres.taxonname
+<span class="org-keyword">set</span> NAME_CLASS=<span class="org-string">'scientific name'</span>
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'Anopheles gambiae PEST'</span>;
+</pre>
+</div>
+</div>
+</div>
+</section>
+
+
+
+<section id="outline-container-orgc7bd1fa" class="outline-2">
+<h2 id="orgc7bd1fa">Run Tuning Manager <a href="https://tm.apidb.org">https://tm.apidb.org</a></h2>
+</section>
+</main>
+</body>
+</html>

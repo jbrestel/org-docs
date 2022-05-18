@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Network Analysis</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Network Analysis" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Network Analysis</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org392e6e1">wgcna</a>
+<ul>
+<li><a href="#org4caf688">Use Cases for Single Dataset</a></li>
+<li><a href="#org9c3c8a8">How to Choose Datasets</a></li>
+<li><a href="#orgc526b7a">How To Find candidate datasets in GUS</a></li>
+<li><a href="#org8262f80">Workflow</a></li>
+</ul>
+</li>
+<li><a href="#org6cc1b46">MBClusterSeq (R package)</a></li>
+<li><a href="#org2463fbb">protein-protein Interaction</a>
+<ul>
+<li><a href="#orgda68f2f">Y2H</a></li>
+</ul>
+</li>
+<li><a href="#org74849fa">Host Pathogen</a>
+<ul>
+<li><a href="#org02b0762">Leverage Meta Data</a></li>
+<li><a href="#orgfd7fbce">Cluster analysis</a></li>
+<li><a href="#org54cccdd">Profile Similarity Search</a></li>
+<li><a href="#org1deaf13"><span class="todo IN_PROGRESS">IN PROGRESS</span> wgcna</a></li>
+<li><a href="#orge7fd691"><span class="todo IN_PROGRESS">IN PROGRESS</span> Gene Set Enrichment</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org392e6e1" class="outline-2">
+<h2 id="org392e6e1">wgcna</h2>
+<div class="outline-text-2" id="text-org392e6e1">
+</div>
+<div id="outline-container-org4caf688" class="outline-3">
+<h3 id="org4caf688">Use Cases for Single Dataset</h3>
+<div class="outline-text-3" id="text-org4caf688">
+<ul class="org-ul">
+<li>given a gene source_id &amp;&amp; experiment &amp;&amp; correlation, return the other genes in that same module</li>
+<li>Plot gene of interest and all other genes in the module</li>
+<li>on gene page, transcriptomics section add a link to the search to find other genes in the same module</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9c3c8a8" class="outline-3">
+<h3 id="org9c3c8a8">How to Choose Datasets</h3>
+<div class="outline-text-3" id="text-org9c3c8a8">
+<ul class="org-ul">
+<li><a href="https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html">wgcna faq</a></li>
+<li>15 samples (20 is better)</li>
+<li>microarray and RNASeq are ok</li>
+<li>filter by expression or variance (do not filter by differential expression)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc526b7a" class="outline-3">
+<h3 id="orgc526b7a">How To Find candidate datasets in GUS</h3>
+<div class="outline-text-3" id="text-orgc526b7a">
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> <span class="org-keyword">distinct</span>  dataset_name <span class="org-keyword">from</span> (
+      <span class="org-keyword">select</span> dataset_name
+       , study_name
+       , <span class="org-builtin">count</span>(*) <span class="org-keyword">as</span> sample_count
+       <span class="org-keyword">from</span> apidbtuning.profilesamples
+       <span class="org-keyword">where</span> profile_type = <span class="org-string">'values'</span>
+       <span class="org-keyword">and</span> dataset_subtype <span class="org-keyword">in</span> (<span class="org-string">'array'</span>, <span class="org-string">'rnaseq'</span>)
+       <span class="org-keyword">and</span> study_name <span class="org-keyword">not</span> <span class="org-keyword">like</span> <span class="org-string">'% - nonunique%'</span>
+       <span class="org-keyword">and</span> study_name <span class="org-keyword">not</span> <span class="org-keyword">like</span> <span class="org-string">'%secondstrand%'</span>
+       <span class="org-keyword">group</span> <span class="org-keyword">by</span> dataset_name, study_name
+       <span class="org-keyword">having</span> <span class="org-builtin">count</span>(*) &gt;= 15
+   )
+<span class="org-keyword">order</span> <span class="org-keyword">by</span> dataset_name;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8262f80" class="outline-3">
+<h3 id="org8262f80">Workflow</h3>
+<div class="outline-text-3" id="text-org8262f80">
+<ul class="org-ul">
+<li>Choosing a &ldquo;softThresholdPower&rdquo; is a manual step that needs to be done for each dataset
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> review wgcna paper and/or documentation for instructions on how to set</li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-org84cc5e4" class="outline-4">
+<h4 id="org84cc5e4">Manual Delivery</h4>
+<div class="outline-text-4" id="text-org84cc5e4">
+<ul class="org-ul">
+<li><p>
+power calculation.  need to manually set in analysisConfig.xml
+</p>
+<ul class="org-ul">
+<li>@MANUAL_DELIVERY@/PlasmoDB/pfal3D7/rnaSeq/Lee_Gambian/2018_07_04/final/analysisConfig.xml</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-xml"><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">step</span> <span class="org-nxml-attribute-local-name">class</span>=<span class="org-string">"ApiCommonData::Load::IterativeWGCNAResults"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"profileSetName"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"WGCNA Dual transcriptomes of malaria-infected Gambian children firststrand"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"inputFile"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"profiles.genes.htseq-union.firststrand.tpm"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"strandness"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"firststrand"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"genetype"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"protein coding"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"softThresholdPower"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"10"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"organism"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"Plasmodium falciparum 3D7"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"inputSuffixMM"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"[module - membership - firststrand - tpm - unique]"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"inputSuffixME"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"[module - eigengene - firststrand - tpm - unique]"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"technologyType"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"RNASeq"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">step</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org4d5a96e" class="outline-4">
+<h4 id="org4d5a96e"><span class="todo IN_PROGRESS">IN PROGRESS</span> Analysis&#xa0;&#xa0;&#xa0;<span class="tag"><span class="AnnB">AnnB</span></span></h4>
+<div class="outline-text-4" id="text-org4d5a96e">
+<ul class="org-ul">
+<li><p>
+command line
+</p>
+<pre class="example" id="org22cad98">
+doTranscriptExpression.pl --xml_file &lt;XML&gt; --main_directory &lt;DIR&gt;
+</pre>
+<ul class="org-ul">
+<li>the main_directory has the rnaseq tpm files</li>
+<li>the xml_file is the analysisConfig.xml from manualdelivery</li>
+</ul></li>
+<li><a href="https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/lib/perl/IterativeWGCNAResults.pm">IterativeWGCNAResults.pm</a>
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Filter by expression level in addition to removing pseudogenes</li>
+</ul></li>
+<li><a href="https://github.com/cstoeckert/iterativeWGCNA">iterative wgcna github</a> 
+<ul class="org-ul">
+<li>the repo above contains a Dockerfile but it is not being built or stored in dockerhub.  i created a fork and setup a build <a href="https://hub.docker.com/r/jbrestel/iterative-wgcna">jbrestel/iterative-wgcna</a>.</li>
+<li class="on"><input type='checkbox' checked='checked' /> build the container in jenkins so it is not tied to jbrestel github</li>
+</ul></li>
+<li>plugin (insert results into oracle instance)
+<ul class="org-ul">
+<li><a href="https://github.com/VEuPathDB/ApiCommonData/blob/master/Load/plugin/perl/InsertStudyResults.pm">InsertStudyResults.pm</a></li>
+</ul></li>
+<li><p>
+Result Tables
+</p>
+<table>
+<caption class="t-above"><span class="table-number">Table 1:</span> ApiDB.NAfeatureWGCNAResults</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Field</th>
+<th scope="col" class="org-left">Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">WGCNA_RESULT_ID</td>
+<td class="org-left">primary key</td>
+</tr>
+
+<tr>
+<td class="org-left">NA_FEATURE_ID</td>
+<td class="org-left">foreign key to genefeature</td>
+</tr>
+
+<tr>
+<td class="org-left">CORRELATION_COEFFICIENT</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">PROTOCOL_APP_NODE_ID</td>
+<td class="org-left">foreign key to &ldquo;sample&rdquo; / protocolappnode</td>
+</tr>
+</tbody>
+</table>
+<p>
+#+end_table
+</p>
+
+<table>
+<caption class="t-above"><span class="table-number">Table 2:</span> ApiDB.EigengeneWGCNAResults</caption>
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Field</th>
+<th scope="col" class="org-left">Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">WGCNA_EIGENE_RESULT_ID</td>
+<td class="org-left">primary key</td>
+</tr>
+
+<tr>
+<td class="org-left">MODULE_NAME</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">EIGENEGENVALUE</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">PROTOCOL_APP_NODE_ID</td>
+<td class="org-left">foreign key to&ldquo;sample&rdquo;</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org6cc1b46" class="outline-2">
+<h2 id="org6cc1b46">MBClusterSeq (R package)</h2>
+<div class="outline-text-2" id="text-org6cc1b46">
+<p>
+from Kathryn &ldquo;quite good for model-based clustering - and I also like this method, which implements some of the robust methods that WGCNA uses for tree building and cutting without the requirement for large numbers of samples to fit the scale-free topology model. I have an R notebook I can share which implements this if that helps, but the GitHub link above is fairly self-explanatory anyway.&rdquo;
+<a href="https://github.com/iscb-dc-rsg/2016-summer-workshop/blob/master/3B-Hughitt-RNASeq-Coex-Network-Analysis/tutorial/README.md#co-expression-network-construction">https://github.com/iscb-dc-rsg/2016-summer-workshop/blob/master/3B-Hughitt-RNASeq-Coex-Network-Analysis/tutorial/README.md#co-expression-network-construction</a>
+</p>
+</div>
+</section>
+<section id="outline-container-org2463fbb" class="outline-2">
+<h2 id="org2463fbb">protein-protein Interaction</h2>
+<div class="outline-text-2" id="text-org2463fbb">
+</div>
+<div id="outline-container-orgda68f2f" class="outline-3">
+<h3 id="orgda68f2f">Y2H</h3>
+<div class="outline-text-3" id="text-orgda68f2f">
+<p>
+We can make nice Directed graphs from the data we already have loaded.  This seems like pretty low hanging fruit.
+</p>
+<ul class="org-ul">
+<li>Current Datasets
+<ul class="org-ul">
+<li>PlasmoDB/pfal3D7_interaction_LaCount_y2h_RSRC</li>
+<li>FungiDB/scerS288c_interaction_SGD_RSRC</li>
+</ul></li>
+<li>Current table is ApiDB.GeneInteraction  (why not ProteinInteraction? or Y2HProteinInteraction?)</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="outline-container-org74849fa" class="outline-2">
+<h2 id="org74849fa">Host Pathogen</h2>
+<div class="outline-text-2" id="text-org74849fa">
+</div>
+<div id="outline-container-org02b0762" class="outline-3">
+<h3 id="org02b0762">Leverage Meta Data</h3>
+<div class="outline-text-3" id="text-org02b0762">
+<ul class="org-ul">
+<li>for experiments like MAPIC</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgfd7fbce" class="outline-3">
+<h3 id="orgfd7fbce">Cluster analysis</h3>
+</div>
+
+
+<div id="outline-container-org54cccdd" class="outline-3">
+<h3 id="org54cccdd">Profile Similarity Search</h3>
+<div class="outline-text-3" id="text-org54cccdd">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Extend Protein Similarity Search To Return Host and Pathogen genes</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org1deaf13" class="outline-3">
+<h3 id="org1deaf13"><span class="todo IN_PROGRESS">IN PROGRESS</span> wgcna</h3>
+<div class="outline-text-3" id="text-org1deaf13">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> For datasets with both Host and Pathogen RNASeq &#x2026;  find related modules</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge7fd691" class="outline-3">
+<h3 id="orge7fd691"><span class="todo IN_PROGRESS">IN PROGRESS</span> Gene Set Enrichment</h3>
+<div class="outline-text-3" id="text-orge7fd691">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Upgrade Code to use clusterProfiler software</li>
+<li class="off"><input type='checkbox' /> single sample gsea</li>
+<li>We have several types of  <a href="https://jbrestel.github.io/org-docs/project_planning/geneLists.html">Gene Lists</a></li>
+<li>Host Pathogen will benefit from new Study / Dataset Records
+<ul class="org-ul">
+<li><a href="https://jbrestel.github.io/org-docs/project_planning/dataset.html">Dataset Record Phase 3</a></li>
+<li><a href="https://jbrestel.github.io/org-docs/project_planning/projectPages.html">project pages working group</a></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

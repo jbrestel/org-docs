@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dataset Record</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Dataset Record" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Dataset Record</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7ca58cc">Phase 1 (cleanup)</a></li>
+<li><a href="#org4afe710">Phase 2 (organism vs dataset; genomic sites)</a></li>
+<li><a href="#org03b1a7d">Phase 3 (how does a dataset relate to study/investigation?)</a></li>
+<li><a href="#orgba4b615">PDB Example</a></li>
+<li><a href="#orgb88929b">Queries for genome sequence / annotation</a></li>
+<li><a href="#orgf113475">Dataset Identifiers</a>
+<ul>
+<li><a href="#org1ce21bf">Use alias query in dataset record to automatically forward if someone has saved links with previous ids</a></li>
+<li><a href="#orgc05404c">Regression test to ensure all previous dataset ids map to a current record page</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<p>
+See also <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/projectPages.org">https://github.com/jbrestel/org-docs/tree/main/project_planning/projectPages.org</a>
+</p>
+
+<section id="outline-container-org7ca58cc" class="outline-2">
+<h2 id="org7ca58cc">Phase 1 (cleanup)</h2>
+<div class="outline-text-2" id="text-org7ca58cc">
+<ul class="org-ul">
+<li><p>
+ontology based categorization of attributes and tables
+</p>
+<ul class="org-ul">
+<li>Clinepi puts most everything under Data Provenance (should probably do the same for mbio and genomics)</li>
+<li><a href="https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/wdk/ontology/commonIndividuals.txt">Individuals File For Datasets</a></li>
+</ul>
+<p>
+[X] Noted in an early meeting that we are already organizing attributes and tables this way.
+</p></li>
+<li><p>
+Provider version table should be removed from Datset Record page
+</p>
+<ul class="org-ul">
+<li>set scope=record_internal in individuals.txt to hide</li>
+</ul>
+<p>
+[X] Fixed wtih EbrcModelCommon <a href="https://github.com/VEuPathDB/EbrcModelCommon/commit/7b78b72d2e85be8fb7a8d63c6fd61c7cbf7a5cb1#diff-4f17aa4ebc0e1bc949f01be4c328ffce03b1356bcd404b3336ff10907cd5c99d">commit</a>.
+</p></li>
+<li><p>
+hide datasets which have many organisms (example: Pubmed from ncbi;  linkouts)
+</p>
+<ul class="org-ul">
+<li>keep the DatasetPresenter xml element for the linkouts because the display_name is used by gene record page</li>
+<li><p>
+could do this by modifying the query &ldquo;AllDatasets&rdquo; in <a href="https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/wdk/model/questions/queries/datasetQueries.xml">datasetQueries.xml</a> ;  could simply exclude &rsquo;Link out&rsquo; or come up with better way of figuring out which datasets we want to exclude
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> dataset_presenter_id <span class="org-keyword">as</span> dataset_id
+<span class="org-keyword">from</span> apidbTuning.DatasetPresenter
+<span class="org-keyword">where</span> category != <span class="org-string">'Link out'</span>
+</pre>
+</div></li>
+</ul>
+<p>
+[X] See commits <a href="https://github.com/VEuPathDB/EbrcModelCommon/commit/7036f05a65a3aac1c227a316833341010260d4a0#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf">1</a>, <a href="https://github.com/VEuPathDB/EbrcModelCommon/commit/1be55f20506fa5564af4d094d941a120b4c07b80#diff-555172edd4681d4e3065a9b67f4de7570ccb80df512ae1f21420dbab00764faf">2</a>.
+</p></li>
+<li>pfal3D7_Hagai_ECAssociations_RSRC why is the category &ldquo;Function Prediction&rdquo; and not &ldquo;Link outs&rdquo;</li>
+<li>bug on mbio sample record page.  &ldquo;Description&rdquo; attribute was showing up at bottom of page.
+[X] See <a href="https://github.com/VEuPathDB/MicrobiomeModel/commit/698f5d0260034f95ab5fa52a8b8f460b1ecbf97e">commit</a></li>
+<li><p>
+JohnI clean up &ldquo;HyperLinks&rdquo; v &ldquo;HyperLink&rdquo;.
+</p>
+<ul class="org-ul">
+<li>rename &ldquo;HyperLinks&rdquo; to &ldquo;GenomicsHyperLink&rdquo; and provide an additional field to indicate whether the row is internal (based on macro) or external.</li>
+</ul>
+<p>
+[X] See <a href="https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/tuningManager/apiTuningManager.xml">commit</a>
+</p></li>
+<li><p>
+Why is the type/category for &ldquo;%primary_genome%&rdquo; datasets  &ldquo;Annotation, curation and identifiers&rdquo;
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> <span class="org-keyword">distinct</span> category
+<span class="org-keyword">from</span> apidbtuning.datasetpresenter
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> <span class="org-keyword">like</span> <span class="org-string">'%primary_genome%'</span>;
+</pre>
+</div></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-org4afe710" class="outline-2">
+<h2 id="org4afe710">Phase 2 (organism vs dataset; genomic sites)</h2>
+<div class="outline-text-2" id="text-org4afe710">
+<ul class="org-ul">
+<li><p>
+Existing Organism Record
+</p>
+<ul class="org-ul">
+<li>take interesting things from organism page (Gene/Transcript Types and Sequence Types Tables) and move those to the dataset record page</li>
+</ul>
+<p>
+[X] Both tables moved.
+[X] Additional attributes in progress. So far moved: Gene type (count) table. Also should move
+  [X] Megabase Pairs to Summary
+  [X] Genes annotation (total count of genes)
+</p>
+<ul class="org-ul">
+<li>Note could also incorporate this table into DatasetDisplayName since we&rsquo;re doing the same join?</li>
+</ul>
+<ul class="org-ul">
+<li>organism results summary page should not link to organism record.  should link to the dataset record page</li>
+</ul>
+<p>
+[ ] See below
+</p></li>
+<li><p>
+Dataset Record
+</p>
+<ul class="org-ul">
+<li><p>
+Need a mechanism to show/hide attributes and tables based on the category/type of page
+</p>
+<ul class="org-ul">
+<li>We do something like this already on the GeneRecord page.  The gene page only shows attributes and tables which are appropriate for the organism</li>
+<li>May not need something so fancy.  May be able to modify the Dataset jsx</li>
+<li>&ldquo;Example Graphs&rdquo; table should only show up on RNASeq, Microarray, Phenotype dataset pages</li>
+</ul>
+<p>
+[X] Pruning tree mechanism implemented. Example Graphs confirmed showing on RNASeq, Microarray, but not genome dataset pages.
+</p></li>
+<li><p>
+Genome Datasets
+</p>
+<ul class="org-ul">
+<li>Better display name (currenlty they are all called &ldquo;Genome Sequence and Annotation&rdquo;).  need to include the strain name</li>
+</ul>
+<p>
+[X] Done.
+</p>
+<ul class="org-ul">
+<li>Update primary_genome category?</li>
+</ul>
+<p>
+[X] Done. Changed to &ldquo;Genomics&rdquo;
+</p>
+<ul class="org-ul">
+<li>&ldquo;Source Version&rdquo; and &ldquo;Dataset Version&rdquo; attributes are meaningless for genome datasets.  should not show these attributes for genome datasets</li>
+</ul>
+<p>
+[X] Source Version and Dataset Version removed in Record.js
+</p>
+<ul class="org-ul">
+<li>create attributes for current genome version and current structural annotation version and functional annotation version</li>
+</ul>
+<p>
+[-] Are we happy with them in the Dataset history table?
+</p>
+<ul class="org-ul">
+<li>The current DatasetHistory Table has version fields specific for genomes.  this table should continue to be shown for genome datasets as is</li>
+</ul>
+<p>
+[X] Made two tables, one for genomes and one for non-genomes. The non-genome one is called DatasetHistory and could possibly simply replace History table.
+</p>
+<ul class="org-ul">
+<li>Add &ldquo;Gene Types&rdquo; and &ldquo;Sequence Types&rdquo; Tables currently shown on Organism Record page</li>
+</ul>
+<p>
+[X] Added.
+</p>
+<ul class="org-ul">
+<li>Add XRefs Table.  We want to show which xref datasets are available for this organism dataset.</li>
+<li>Additional modifications after initial meeting with Omar and Susanne:
+[X] Move Category to page summary.
+[X] Remove organism page reference from References table.
+[X] Remove self reference in Additional data types&#x2026; table. Note since all the data im seeing only has one ref to &ldquo;Annotation, curation and identifiers&rdquo;, i&rsquo;m assuming that is itself and im removing it. This will have to be changed when we change the category name.
+[X] Changed name of table to &ldquo;Additional kinds of data associated with this genome&rdquo;
+[X] Remove Feature type from Sequence Type table
+<ul class="org-ul">
+<li>union of xrefs from ebi core database AND xrefs from reflow datasets</li>
+</ul></li>
+</ul></li>
+<li>Hyperlinks
+<ul class="org-ul">
+<li><p>
+Current table called &ldquo;Relevant pages at PlasmoDB and external resources&rdquo;
+</p>
+<ul class="org-ul">
+<li>Change display name to &ldquo;External Resources&rdquo;</li>
+<li>For Genomic Sites modify sql to show only hyperlink rows which do not contain Macro</li>
+<li>use renamed table for Genomics Sites (should have a field indicating whether the row &ldquo;is_internal&rdquo;</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">SELECT</span> dataset_id, text, url, description
+<span class="org-keyword">FROM</span> ApidbTuning.GenomicsDatasetHyperLink
+<span class="org-keyword">WHERE</span> is_internal  = 0
+</pre>
+</div></li>
+<li>Current table called &ldquo;Explore this dataset&rdquo; currently only shows the wdk Searches for this dataset
+<ul class="org-ul">
+<li>Change this to UNION searches and internal hyperlinks</li>
+<li>The Datset jsx does something fancy for the searches to get the display name for the search from the wdk.</li>
+<li><a href="https://github.com/VEuPathDB/EbrcWebsiteCommon/blob/master/Client/src/components/records/DatasetRecordClasses.DatasetRecordClass.jsx">DatasetRecordClasses.DatasetRecordClass.jsx</a></li>
+</ul></li>
+</ul></li>
+</ul>
+<p>
+[X] See EbrcModelCommon <a href="https://github.com/VEuPathDB/EbrcModelCommon/pull/5">PR</a> and EbrcWebsiteCommon <a href="https://github.com/VEuPathDB/EbrcWebsiteCommon/pull/55">PR</a>, <a href="https://github.com/VEuPathDB/EbrcWebsiteCommon/commit/88661d882c3176c713dc0882024282cdcfc4174c">commit</a> for all Hyperlinks, Reference table updates.
+</p></li>
+<li>Additional modeifications after UX 07.07.21 meeting
+[ ] Site search for organisms
+[X] Display name should be &rsquo;organism name Genome Sequence and Annotation&rsquo;. NOTE long term we will correct the presenters file.
+[X] Source version for genomes should be a list of most recent versions (functional, structural, etc.). Pull from history table.
+[X] Dataset version for non-genomes should be in summary only (1) and be incorporated into DatasetHistory table (2).
+[X] Change instance of previous genomes page category (Annotation&#x2026;) to new category (Genomics) in datasetRecords.xml
+[X] External Databases Associated table: Rename table, and incorporate links (requires testing)
+[X] Explore Other Categories of Data table: hotlink number instead of category name.
+[ ] Explore Other Categories: also remove &ldquo;Link outs&rdquo;
+[X] Reorganize page summary for genomic datasets. Organism, Category, Source Version(s), Release, Summary
+[X] References table: Try to add column for link type (search, jbrowse, record, download). For now reordered by text so download is (mostly) at the top. Will try a fancier jsx solution later.</li>
+
+<li>Bugs seen in QA
+[X] References table in mbio gives server error - fix stashed on EbrcModelCommon
+[X] Data Context section header shows when section is empty. Fixed by removing `genecount` from pages.
+[-] VeuPathDB AllDatasets query not working. Maybe fixed? Now showing No Datasets instead of breaking - so maybe done?
+[X] LatestVerstion table needs outer join to datasetpresenter table (see plasmo DS_20c45d8ed1) (BG)
+[ ] Explore other Categories of Data links throw errors (SW)
+[X] ExternalDatabases links should open a new window (SW)
+[-] Jbrowse view peptides link opens jbrowse with annotation, not proteomics tracks (SW) I think Bindu is working on this?
+[ ] &ldquo;Sequence types for highest assembled sequence&rdquo;. &ldquo;Contigs highest assembeled sequence&rdquo;. If we need the other columns we have a table called 
+select * from apidb.agppiece. &ldquo;Highest level assembled contigs&rdquo;
+[X] DatasetAlias query returning errors for mbio, clinepi? Maybe just needs an extra exclude? Solved with dummy query</li>
+</ul>
+</div>
+</section>
+
+
+<section id="outline-container-org03b1a7d" class="outline-2">
+<h2 id="org03b1a7d">Phase 3 (how does a dataset relate to study/investigation?)</h2>
+<div class="outline-text-2" id="text-org03b1a7d">
+<ul class="org-ul">
+<li>currenlty in mbio and clinepi we are only showing datasets which are studies (there may be other datasets taxonomy, ontologies, who standards)</li>
+<li>How to find related studies/datasets;  need some mechanism for grouping datasets</li>
+<li>Think about how to tell the user when samples are used in multiple assays (could be cross component mbio/clinepi clinepi/plasmodb)</li>
+<li>How does this relate to the EDA?
+<ul class="org-ul">
+<li>The Dataset Record will link to the EDA page / study</li>
+<li>A dataset can be either a study or investigation (multiple related studies)</li>
+</ul></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgba4b615" class="outline-2">
+<h2 id="orgba4b615">PDB Example</h2>
+<div class="outline-text-2" id="text-orgba4b615">
+<ul class="org-ul">
+<li>There are 2 kinds of datasets for PDB Sequences
+<dl class="org-dl">
+<dt>PDBProteinSequences</dt><dd>sequences downloaded and loaded into tables; our proteins are aligned to these
+<ul class="org-ul">
+<li>should continue to provide dataset page for pdb sequences</li>
+</ul></dd>
+<dt>_dbxref_pdb_from_annotation_RSRC</dt><dd>xrefs included in genome annotation
+<ul class="org-ul">
+<li>hide dbxref / Link out datasets from dataset list.</li>
+<li>Create new table which lists all xrefs per organism for display on the Genome Dataset Page</li>
+</ul></dd>
+</dl></li>
+<li>Each dataset is configured in dataset xml files.  For Genomic sites these files are found in <a href="https://github.com/VEuPathDB/ApiCommonDatasets/tree/master/Datasets/lib/xml/datasets">ApiCommonDatasts/Datasets/lib/xml/datasets</a>
+<ul class="org-ul">
+<li>PDBProteinSequences dataset is in &ldquo;global.xml&rdquo;</li>
+<li>datasets conform to a dataset Class found in <a href="https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/xml/datasetClass/classes.xml">classes.xml</a></li>
+</ul></li>
+<li><p>
+Each dataset is required to be handled in Presenter xml Files (either visible datasetPresenter elements or hidden internalDataset elements).  For Genomic Sites the presenter files are found in <a href="https://github.com/VEuPathDB/ApiCommonPresenters/tree/master/Model/lib/xml/datasetPresenters">ApiCommonPresenters/Model/lib/xml/datasetPresenters</a> and <a href="https://github.com/VEuPathDB/ApiCommonModel/blob/master/Model/lib/xml/datasetPresenters/global.xml">ApiCommonModel/Model/lib/xml/datasetPresenters/global.xml</a>
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> *
+<span class="org-keyword">from</span> apidbtuning.datasetpresenter
+<span class="org-keyword">where</span> <span class="org-keyword">name</span> = <span class="org-string">'PDBProteinSequences_RSRC'</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgb88929b" class="outline-2">
+<h2 id="orgb88929b">Queries for genome sequence / annotation</h2>
+<div class="outline-text-2" id="text-orgb88929b">
+<ul class="org-ul">
+<li><p>
+Transcript Type Counts
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> dsp.dataset_presenter_id <span class="org-keyword">as</span> dataset_id
+           , ta.gene_type
+      , ta.transcript_type
+      , <span class="org-builtin">count</span>(*) <span class="org-keyword">as</span> transcript_count
+ <span class="org-keyword">from</span> apidbtuning.organismattributes oa
+    , apidbtuning.transcriptattributes ta
+    , apidbtuning.datasetpresenter dsp
+    , apidbtuning.datasetnametaxon dnt
+ <span class="org-keyword">where</span> oa.component_taxon_id = ta.taxon_id
+ <span class="org-keyword">and</span> oa.project_id = ta.project_id
+ <span class="org-keyword">and</span> oa.component_taxon_id = dnt.taxon_id
+ <span class="org-keyword">and</span> dnt.dataset_presenter_id = dsp.dataset_presenter_id
+ <span class="org-keyword">and</span> dsp.<span class="org-keyword">type</span> = <span class="org-string">'genome'</span>
+ <span class="org-keyword">and</span> dsp.dataset_presenter_id = <span class="org-string">'DS_b08fa4ba88'</span>
+ <span class="org-keyword">group</span> <span class="org-keyword">by</span> oa.project_id, dsp.dataset_presenter_id, ta.gene_type, ta.transcript_type
+ <span class="org-keyword">order</span> <span class="org-keyword">by</span> <span class="org-builtin">count</span>(*) <span class="org-keyword">desc</span>
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">protein coding</td>
+<td class="org-left">gene</td>
+<td class="org-right">mRNA</td>
+<td class="org-right">13344</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">tRNA</td>
+<td class="org-right">305</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">pre_miRNA</td>
+<td class="org-right">67</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">snRNA</td>
+<td class="org-right">36</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">rRNA</td>
+<td class="org-right">9</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">SRP_RNA</td>
+<td class="org-right">3</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">lnc_RNA</td>
+<td class="org-right">2</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">snoRNA</td>
+<td class="org-right">2</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">ncRNA</td>
+<td class="org-right">2</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">RNase_MRP_RNA</td>
+<td class="org-right">1</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">ncRNA gene</td>
+<td class="org-left">RNase_P_RNA</td>
+<td class="org-right">1</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+Sequence Type Counts
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> dsp.dataset_presenter_id, sa.sequence_type, fl.feature_type, <span class="org-builtin">count</span>(*) <span class="org-keyword">as</span> feature_count
+     <span class="org-keyword">from</span> apidbtuning.organismattributes oa
+   , ApidbTuning.GenomicSeqAttributes sa
+   , apidb.featurelocation fl
+   , apidbtuning.datasetpresenter dsp
+   , apidbtuning.datasetnametaxon dnt
+<span class="org-keyword">where</span> oa.component_taxon_id = sa.taxon_id
+<span class="org-keyword">and</span> oa.project_id = sa.project_id
+<span class="org-keyword">and</span> sa.na_sequence_id = fl.na_sequence_id
+<span class="org-keyword">and</span> oa.component_taxon_id = dnt.taxon_id
+<span class="org-keyword">and</span> dnt.dataset_presenter_id = dsp.dataset_presenter_id
+<span class="org-keyword">and</span> dsp.<span class="org-keyword">type</span> = <span class="org-string">'genome'</span>
+<span class="org-keyword">and</span> dsp.dataset_presenter_id = <span class="org-string">'DS_b08fa4ba88'</span>
+<span class="org-keyword">group</span> <span class="org-keyword">by</span> dsp.dataset_presenter_id, sa.sequence_type, fl.feature_type
+<span class="org-keyword">order</span> <span class="org-keyword">by</span> <span class="org-builtin">count</span>(*) <span class="org-keyword">desc</span>
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">LowComplexityNAFeature</td>
+<td class="org-right">439121</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">Repeats</td>
+<td class="org-right">155973</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">TandemRepeatFeature</td>
+<td class="org-right">102066</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">TransposableElement</td>
+<td class="org-right">61046</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">ExonFeature</td>
+<td class="org-right">55917</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">CDS</td>
+<td class="org-right">54114</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">Intron</td>
+<td class="org-right">43480</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">UTR</td>
+<td class="org-right">18081</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">Transcript</td>
+<td class="org-right">13772</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">GeneFeature</td>
+<td class="org-right">13578</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">ScaffoldGapFeature</td>
+<td class="org-right">11084</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">supercontig</td>
+<td class="org-left">RNAFeature</td>
+<td class="org-right">353</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+Other Data Associated with this Genome
+</p>
+<div class="org-src-container">
+<pre class="src src-sql">
+    <span class="org-keyword">select</span> dsp.dataset_presenter_id, o_dsp.category, <span class="org-builtin">count</span>(*) <span class="org-keyword">as</span> dataset_count
+      <span class="org-keyword">from</span> apidbtuning.organismattributes oa
+         , apidbtuning.datasetpresenter o_dsp
+         , apidbtuning.datasetnametaxon o_dnt
+         , apidbtuning.datasetnametaxon dnt
+         , apidbtuning.datasetpresenter dsp
+      <span class="org-keyword">where</span> oa.component_taxon_id = o_dnt.taxon_id
+      <span class="org-keyword">and</span> o_dnt.dataset_presenter_id = o_dsp.dataset_presenter_id
+      <span class="org-keyword">and</span> oa.component_taxon_id = dnt.taxon_id
+      <span class="org-keyword">and</span> dnt.dataset_presenter_id = dsp.dataset_presenter_id
+      <span class="org-keyword">and</span> dsp.<span class="org-keyword">type</span> = <span class="org-string">'genome'</span>
+<span class="org-keyword">and</span> dsp.dataset_presenter_id = <span class="org-string">'DS_b08fa4ba88'</span>
+      <span class="org-keyword">group</span> <span class="org-keyword">by</span> dsp.dataset_presenter_id, o_dsp.category
+<span class="org-keyword">order</span> <span class="org-keyword">by</span> <span class="org-builtin">count</span>(*) <span class="org-keyword">desc</span>
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">RNASeq</td>
+<td class="org-right">5</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Link outs</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Genetic variation</td>
+<td class="org-right">2</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Immunology</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Transcriptomics</td>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Annotation, curation and identifiers</td>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table></li>
+
+<li><p>
+External Databases/Resources
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> dsp.dataset_presenter_id
+     , ext.dataset <span class="org-keyword">as</span> <span class="org-keyword">name</span>
+<span class="org-keyword">from</span> apidbtuning.datasetnametaxon dnt, apidbtuning.datasetpresenter dsp,
+
+(<span class="org-keyword">select</span> <span class="org-keyword">distinct</span> * <span class="org-keyword">from</span> (
+<span class="org-keyword">SELECT</span> 
+  edd.dataset_presenter_display_name <span class="org-keyword">AS</span> dataset
+  ,ga.taxon_id
+<span class="org-keyword">FROM</span>
+   sres.dbref db
+, DOTS.dbrefnafeature dbna
+, apidbtuning.ExternalDbDatasetPresenter edd
+, sres.externaldatabaserelease edr
+, ApidbTuning.geneAttributes ga
+<span class="org-keyword">WHERE</span>
+  db.external_database_release_id = edd.external_database_release_id
+  <span class="org-keyword">AND</span> edr.external_database_release_id = edd.external_database_release_id
+  <span class="org-keyword">AND</span> dbna.db_ref_id = db.db_ref_id
+  <span class="org-keyword">AND</span> ga.na_feature_id = dbna.na_feature_id
+  <span class="org-keyword">UNION</span>
+<span class="org-keyword">SELECT</span> 
+  edd.dataset_presenter_display_name <span class="org-keyword">AS</span> dataset
+  , ta.taxon_id
+<span class="org-keyword">FROM</span>
+   sres.dbref db
+, DOTS.dbrefnafeature dbna
+, apidbtuning.ExternalDbDatasetPresenter edd
+, sres.externaldatabaserelease edr
+, ApidbTuning.transcriptAttributes ta
+<span class="org-keyword">WHERE</span>
+  db.external_database_release_id = edd.external_database_release_id
+  <span class="org-keyword">AND</span> edr.external_database_release_id = edd.external_database_release_id
+  <span class="org-keyword">AND</span> dbna.db_ref_id = db.db_ref_id
+  <span class="org-keyword">AND</span> ta.na_feature_id = dbna.na_feature_id
+  <span class="org-keyword">UNION</span>
+<span class="org-keyword">SELECT</span> d.<span class="org-keyword">name</span> <span class="org-keyword">as</span> dataset
+, ga.taxon_id
+<span class="org-keyword">FROM</span>
+   sres.dbref dbr
+, DOTS.dbrefnafeature dbrf
+, sres.externaldatabaserelease r
+, sres.externaldatabase d
+, ApidbTuning.geneAttributes ga
+, APIDB.EXTERNALRESOURCEURL eru
+<span class="org-keyword">WHERE</span> dbr.external_database_release_id = r.external_database_release_id
+<span class="org-keyword">and</span> r.external_database_id = d.external_database_id
+<span class="org-keyword">and</span> dbr.db_ref_id = dbrf.db_ref_id
+<span class="org-keyword">and</span> dbrf.na_feature_id = ga.na_feature_id
+<span class="org-keyword">and</span> <span class="org-builtin">upper</span>(d.<span class="org-keyword">name</span>) = eru.database_name
+<span class="org-keyword">UNION</span>
+<span class="org-keyword">SELECT</span> d.<span class="org-keyword">name</span> <span class="org-keyword">as</span> dataset
+, ta.taxon_id
+<span class="org-keyword">FROM</span>
+   sres.dbref dbr
+, DOTS.dbrefaafeature dbrf
+, Dots.aafeature aaf
+, sres.externaldatabaserelease r
+, sres.externaldatabase d
+, ApidbTuning.transcriptAttributes ta
+, APIDB.EXTERNALRESOURCEURL eru
+<span class="org-keyword">WHERE</span> dbr.external_database_release_id = r.external_database_release_id
+<span class="org-keyword">and</span> r.external_database_id = d.external_database_id
+<span class="org-keyword">and</span> dbr.db_ref_id = dbrf.db_ref_id
+<span class="org-keyword">and</span> dbrf.aa_feature_id = aaf.aa_feature_id
+<span class="org-keyword">and</span> aaf.aa_sequence_id = ta.aa_sequence_id
+<span class="org-keyword">and</span> <span class="org-builtin">upper</span>(d.<span class="org-keyword">name</span>) = eru.database_name
+)
+) ext
+<span class="org-keyword">where</span> ext.taxon_id = dnt.taxon_id
+<span class="org-keyword">and</span> dnt.dataset_presenter_id = dsp.dataset_presenter_id
+<span class="org-keyword">and</span> dsp.<span class="org-keyword">type</span> = <span class="org-string">'genome'</span>
+<span class="org-keyword">and</span> dsp.dataset_presenter_id = <span class="org-string">'DS_b08fa4ba88'</span>
+<span class="org-keyword">order</span> <span class="org-keyword">by</span> ext.dataset
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">EMBL</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">HAMAP</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">KEGG_Enzyme</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">PFAM</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">PIRSF</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">PRINTS</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">RFAM</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">SMART</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">SUPERFAMILY</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">TIGRFAM</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">UniParc</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Uniprot/SPTREMBL</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">Uniprot/SWISSPROT</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b08fa4ba88</td>
+<td class="org-left">protein_id</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+
+
+<ul class="org-ul">
+<li><p>
+EBI Dataset Mappings (some dataset names were updated because EBI data load.  those should still be searchable)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> dataset_presenter_id, <span class="org-keyword">name</span>
+     , <span class="org-string">'DS_'</span> || <span class="org-builtin">lower</span>(substr(standard_hash(replace(<span class="org-keyword">name</span>, <span class="org-string">'_ebi_'</span>, <span class="org-string">'_'</span>), <span class="org-string">'SHA1'</span>), 0, 10))  <span class="org-keyword">as</span> previous_dataset_id
+     , replace(<span class="org-keyword">name</span>, <span class="org-string">'_ebi_'</span>, <span class="org-string">'_'</span>) <span class="org-keyword">as</span> previous_name
+<span class="org-keyword">from</span> apidbtuning.datasetpresenter <span class="org-keyword">where</span> <span class="org-keyword">name</span> <span class="org-keyword">like</span> <span class="org-string">'%_ebi_%'</span>
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">DS_aae60e6bf7</td>
+<td class="org-left">pfal3D7_Tonkin_Hill_Malaria_ebi_rnaSeq_RSRC</td>
+<td class="org-left">DS_601b15d9f7</td>
+<td class="org-left">pfal3D7_Tonkin_Hill_Malaria_rnaSeq_RSRC</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_9c91e450ac</td>
+<td class="org-left">pfal3D7_Josling_Schizont_Transcriptomes_ebi_rnaSeq_RSRC</td>
+<td class="org-left">DS_044c11419a</td>
+<td class="org-left">pfal3D7_Josling_Schizont_Transcriptomes_rnaSeq_RSRC</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_b9eaf20251</td>
+<td class="org-left">pyoeyoelii17X_Kappe_ebi_rnaSeq_RSRC</td>
+<td class="org-left">DS_998f7032ed</td>
+<td class="org-left">pyoeyoelii17X_Kappe_rnaSeq_RSRC</td>
+</tr>
+
+<tr>
+<td class="org-left">DS_a239464cb4</td>
+<td class="org-left">pfal3D7_Stunnenberg_ebi_rnaSeq_RSRC</td>
+<td class="org-left">DS_d57671ced8</td>
+<td class="org-left">pfal3D7_Stunnenberg_rnaSeq_RSRC</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+</div>
+</section>
+
+<section id="outline-container-orgf113475" class="outline-2">
+<h2 id="orgf113475">Dataset Identifiers</h2>
+<div class="outline-text-2" id="text-orgf113475">
+<p>
+Internal Dataset names (workflow) can be changed by data load team.  For example when the data is aligned to a new reference genome.  Also if there is a new workflow graph for the same dataset, this may modify the existing name.   Website dataset ids (DS_XXXX) are derived from the internal name
+</p>
+</div>
+<div id="outline-container-org1ce21bf" class="outline-3">
+<h3 id="org1ce21bf">Use alias query in dataset record to automatically forward if someone has saved links with previous ids</h3>
+<div class="outline-text-3" id="text-org1ce21bf">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> alias lookup so the user&rsquo;s previous bookmarks/links will still work for ebi.</li>
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/46776">https://redmine.apidb.org/issues/46776</a> generalize this using some new attribute in the dataset presenter xml for &ldquo;previous datasets&rdquo;</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc05404c" class="outline-3">
+<h3 id="orgc05404c">Regression test to ensure all previous dataset ids map to a current record page</h3>
+<div class="outline-text-3" id="text-orgc05404c">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/46775">https://redmine.apidb.org/issues/46775</a></li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

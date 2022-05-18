@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Projects</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="DataDev Projects" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/bigblow_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/bigblow_theme/css/bigblow.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/bigblow_theme/css/hideshow.css"/>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/jquery-ui-1.10.2.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/jquery.localscroll-min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/jquery.scrollTo-1.4.3.1-min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/jquery.zclip.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/bigblow.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/bigblow_theme/js/hideshow.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://jbrestel.github.io/org-docs/css/index.css" />
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Projects</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgee21da0">Data Loading, preprocessing and workflows</a>
+<ul>
+<li><a href="#orgbcce49e">Genomics Workflow</a>
+<ul>
+<li><a href="#orgc2c2c3b"><span class="todo BLOCKED">BLOCKED</span> UniDB</a></li>
+<li><a href="#orge9f8f35"><span class="todo THEM">THEM</span> JBrowse Migration</a></li>
+<li><a href="#org811d449"><span class="todo QA">QA</span> DNASeq Workflow (nextflow)</a></li>
+<li><a href="#org897102f"><span class="todo THEM">THEM</span> Long Read RNASeq</a></li>
+<li><a href="#org1cb587c">Misc Data Loading</a>
+<ul>
+<li><a href="#orga0d8af0"><span class="todo TODO">TODO</span> ESTs</a></li>
+<li><a href="#orgc33a609"><span class="todo TODO">TODO</span> GPIAnchor and MitoProt</a></li>
+<li><a href="#org49f8cee"><span class="done DONE">DONE</span> Intron Junctions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org0fecbfb">EDA</a>
+<ul>
+<li><a href="#orgff01e17"><span class="todo IN_PROGRESS">IN_PROGRESS</span> EDA DataLoad</a>
+<ul>
+<li><a href="#org87e086d"><span class="todo IN_PROGRESS">IN_PROGRESS</span> MapVEu and Mbio (Mega Study)</a></li>
+<li><a href="#orgf72aa55"><span class="todo IN_PROGRESS">IN_PROGRESS</span> DIY</a></li>
+<li><a href="#org9bdc3d7"><span class="todo THEM">THEM</span> MicrobiomeDB Reflow Workflow</a></li>
+<li><a href="#org4656b6a"><span class="todo THEM">THEM</span> Collections</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org0eb4a31">Microbiome</a>
+<ul>
+<li><a href="#orgedeb98e"><span class="done DONE">DONE</span> Eukaryotic Detection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org05f348c">Front End Applications</a>
+<ul>
+<li><a href="#org392138c">WDK</a>
+<ul>
+<li><a href="#orgb6cdd34">Genomics</a>
+<ul>
+<li><a href="#orgbd18b0b"><span class="todo BLOCKED">BLOCKED</span> UniDB Performance and App Specific Databases</a></li>
+<li><a href="#org053b65c">Network Analysis and Host Pathogen</a></li>
+<li><a href="#org69a4703">Gene Lists</a></li>
+<li><a href="#orge1117c2">Dataset and Project Record</a></li>
+<li><a href="#org838229d"><span class="todo THEM">THEM</span> Organism Preferences</a></li>
+<li><a href="#orge4a5f05"><span class="todo THEM">THEM</span> Selenium Tests</a></li>
+<li><a href="#org71845bf"><span class="todo THEM">THEM</span> Download File Record</a></li>
+</ul>
+</li>
+<li><a href="#org3369257">OrthoMCL</a>
+<ul>
+<li><a href="#org80481ed"><span class="todo BLOCKED">BLOCKED</span> Phylogenetic Pattern WS improve performance</a></li>
+<li><a href="#org1ddf6f3"><span class="todo BLOCKED">BLOCKED</span> Additional content (keywords) on genomics gene pages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org36e97a3">EDA</a>
+<ul>
+<li><a href="#orgd80ec9e"><span class="todo THEM">THEM</span> Dataviz Foothills</a></li>
+<li><a href="#orgd64fde2"><span class="todo THEM">THEM</span> MicrobiomeDB</a></li>
+</ul>
+</li>
+<li><a href="#orgd4ddfe1"><span class="todo THEM">THEM</span> MapVEu</a></li>
+<li><a href="#org0a5d107">Genome Browser</a>
+<ul>
+<li><a href="#org297d960"><span class="todo THEM">THEM</span> Apollo</a></li>
+</ul>
+</li>
+<li><a href="#orgbe71048">Galaxy / Globus</a></li>
+<li><a href="#org65317be">Site Search</a>
+<ul>
+<li><a href="#org2c5ad11"><span class="done DONE">DONE</span> EDA Site Search for ClinEpi</a></li>
+</ul>
+</li>
+<li><a href="#orgf909054">Documentation</a>
+<ul>
+<li><a href="#org70fd029">SOPs for Existing Datatypes</a></li>
+<li><a href="#org441031e">How to change Database Schema</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-orgee21da0" class="outline-2">
+<h2 id="orgee21da0">Data Loading, preprocessing and workflows</h2>
+<div class="outline-text-2" id="text-orgee21da0">
+</div>
+<div id="outline-container-orgbcce49e" class="outline-3">
+<h3 id="orgbcce49e">Genomics Workflow</h3>
+<div class="outline-text-3" id="text-orgbcce49e">
+</div>
+<div id="outline-container-orgc2c2c3b" class="outline-4">
+<h4 id="orgc2c2c3b"><span class="todo BLOCKED">BLOCKED</span> UniDB&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h4>
+<div class="outline-text-4" id="text-orgc2c2c3b">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/unidb.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/unidb.org">org</a> | <a href="https://redmine.apidb.org/projects/jbdqh">redmine</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orge9f8f35" class="outline-4">
+<h4 id="orge9f8f35"><span class="todo THEM">THEM</span> JBrowse Migration&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnI">JohnI</span></span></h4>
+<div class="outline-text-4" id="text-orge9f8f35">
+<p>
+<a href="https://jbrestel.github.io/org-docs/SOPs/jbrowseFlatFileMigration.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/SOPs/jbrowseFlatFileMigration.org">org</a>
+</p>
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> QA Test new files</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org811d449" class="outline-4">
+<h4 id="org811d449"><span class="todo QA">QA</span> DNASeq Workflow (nextflow)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="KathrynC">KathrynC</span>&#xa0;<span class="JohnB">JohnB</span></span></h4>
+<div class="outline-text-4" id="text-org811d449">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/dnaseq.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/dnaseq.org">org</a> | <a href="https://redmine.apidb.org/projects/p30029">redmine</a>
+</p>
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> YMAP (mark/kathryn/david)</li>
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/42258">https://redmine.apidb.org/issues/42258</a> reflow workflow / database</li>
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/32649">https://redmine.apidb.org/issues/32649</a> and <a href="https://redmine.apidb.org/issues/42259">https://redmine.apidb.org/issues/42259</a> variation front end</li>
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/32307">https://redmine.apidb.org/issues/32307</a> user workspace / exporters</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org897102f" class="outline-4">
+<h4 id="org897102f"><span class="todo THEM">THEM</span> Long Read RNASeq&#xa0;&#xa0;&#xa0;<span class="tag"><span class="KathrynC">KathrynC</span></span></h4>
+<div class="outline-text-4" id="text-org897102f">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/32125">https://redmine.apidb.org/issues/32125</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1cb587c" class="outline-4">
+<h4 id="org1cb587c">Misc Data Loading</h4>
+<div class="outline-text-4" id="text-org1cb587c">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/dataLoad.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/dataLoad.org">org</a>
+</p>
+</div>
+<div id="outline-container-orga0d8af0" class="outline-5">
+<h5 id="orga0d8af0"><span class="todo TODO">TODO</span> ESTs&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JayH">JayH</span></span></h5>
+</div>
+<div id="outline-container-orgc33a609" class="outline-5">
+<h5 id="orgc33a609"><span class="todo TODO">TODO</span> GPIAnchor and MitoProt&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h5>
+</div>
+<div id="outline-container-org49f8cee" class="outline-5">
+<h5 id="org49f8cee"><span class="done DONE">DONE</span> Intron Junctions&#xa0;&#xa0;&#xa0;<span class="tag"><span class="BrianB">BrianB</span>&#xa0;<span class="JohnI">JohnI</span></span></h5>
+</div>
+</div>
+</div>
+<div id="outline-container-org0fecbfb" class="outline-3">
+<h3 id="org0fecbfb">EDA</h3>
+<div class="outline-text-3" id="text-org0fecbfb">
+</div>
+<div id="outline-container-orgff01e17" class="outline-4">
+<h4 id="orgff01e17"><span class="todo IN_PROGRESS">IN_PROGRESS</span> EDA DataLoad&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JayH">JayH</span>&#xa0;<span class="JohnB">JohnB</span>&#xa0;<span class="WojtekB">WojtekB</span></span></h4>
+<div class="outline-text-4" id="text-orgff01e17">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/eda.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/eda.org">org</a>
+</p>
+</div>
+<div id="outline-container-org87e086d" class="outline-5">
+<h5 id="org87e086d"><span class="todo IN_PROGRESS">IN_PROGRESS</span> MapVEu and Mbio (Mega Study)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h5>
+</div>
+<div id="outline-container-orgf72aa55" class="outline-5">
+<h5 id="orgf72aa55"><span class="todo IN_PROGRESS">IN_PROGRESS</span> DIY&#xa0;&#xa0;&#xa0;<span class="tag"><span class="WojtekB">WojtekB</span>&#xa0;<span class="JayH">JayH</span>&#xa0;<span class="JohnB">JohnB</span></span></h5>
+<div class="outline-text-5" id="text-orgf72aa55">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/eda_diy.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/eda_diy.org">org</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org9bdc3d7" class="outline-5">
+<h5 id="org9bdc3d7"><span class="todo THEM">THEM</span> MicrobiomeDB Reflow Workflow&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Wojtek">Wojtek</span></span></h5>
+<div class="outline-text-5" id="text-org9bdc3d7">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> dataset record and eda study needs to be associated</li>
+<li class="on"><input type='checkbox' checked='checked' /> tuning job to make dataset presenter table and &ldquo;StudyDataset&rdquo; Table</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org4656b6a" class="outline-5">
+<h5 id="org4656b6a"><span class="todo THEM">THEM</span> Collections&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Wojtek">Wojtek</span>&#xa0;<span class="JayH">JayH</span></span></h5>
+</div>
+</div>
+</div>
+<div id="outline-container-org0eb4a31" class="outline-3">
+<h3 id="org0eb4a31">Microbiome</h3>
+<div class="outline-text-3" id="text-org0eb4a31">
+</div>
+<div id="outline-container-orgedeb98e" class="outline-4">
+<h4 id="orgedeb98e"><span class="done DONE">DONE</span> Eukaryotic Detection&#xa0;&#xa0;&#xa0;<span class="tag"><span class="WojtekB">WojtekB</span></span></h4>
+</div>
+</div>
+</section>
+<section id="outline-container-org05f348c" class="outline-2">
+<h2 id="org05f348c">Front End Applications</h2>
+<div class="outline-text-2" id="text-org05f348c">
+</div>
+<div id="outline-container-org392138c" class="outline-3">
+<h3 id="org392138c">WDK</h3>
+<div class="outline-text-3" id="text-org392138c">
+</div>
+<div id="outline-container-orgb6cdd34" class="outline-4">
+<h4 id="orgb6cdd34">Genomics</h4>
+<div class="outline-text-4" id="text-orgb6cdd34">
+</div>
+<div id="outline-container-orgbd18b0b" class="outline-5">
+<h5 id="orgbd18b0b"><span class="todo BLOCKED">BLOCKED</span> UniDB Performance and App Specific Databases&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span>&#xa0;<span class="MarkH">MarkH</span>&#xa0;<span class="JohnI">JohnI</span></span></h5>
+<div class="outline-text-5" id="text-orgbd18b0b">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/appDb.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/appDb.org">org</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org053b65c" class="outline-5">
+<h5 id="org053b65c">Network Analysis and Host Pathogen&#xa0;&#xa0;&#xa0;<span class="tag"><span class="AnnB">AnnB</span></span></h5>
+<div class="outline-text-5" id="text-org053b65c">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/networkAnalysis.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/networkAnalysis.org">org</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org69a4703" class="outline-5">
+<h5 id="org69a4703">Gene Lists&#xa0;&#xa0;&#xa0;<span class="tag"><span class="HaimingW">HaimingW</span>&#xa0;<span class="OmarH">OmarH</span>&#xa0;<span class="CristinaA">CristinaA</span>&#xa0;<span class="AnnB">AnnB</span></span></h5>
+<div class="outline-text-5" id="text-org69a4703">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/geneLists.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/geneLists.org">org</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orge1117c2" class="outline-5">
+<h5 id="orge1117c2">Dataset and Project Record&#xa0;&#xa0;&#xa0;<span class="tag"><span class="AnnB">AnnB</span></span></h5>
+<div class="outline-text-5" id="text-orge1117c2">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/dataset.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/dataset.org">org</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org838229d" class="outline-5">
+<h5 id="org838229d"><span class="todo THEM">THEM</span> Organism Preferences&#xa0;&#xa0;&#xa0;<span class="tag"><span class="BinduG">BinduG</span></span></h5>
+<div class="outline-text-5" id="text-org838229d">
+<p>
+<a href="https://redmine.apidb.org/issues/47221">https://redmine.apidb.org/issues/47221</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orge4a5f05" class="outline-5">
+<h5 id="orge4a5f05"><span class="todo THEM">THEM</span> Selenium Tests&#xa0;&#xa0;&#xa0;<span class="tag"><span class="RichD">RichD</span></span></h5>
+<div class="outline-text-5" id="text-orge4a5f05">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/selenium.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/selenium.org">org</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org71845bf" class="outline-5">
+<h5 id="org71845bf"><span class="todo THEM">THEM</span> Download File Record&#xa0;&#xa0;&#xa0;<span class="tag"><span class="BinduG">BinduG</span></span></h5>
+</div>
+</div>
+<div id="outline-container-org3369257" class="outline-4">
+<h4 id="org3369257">OrthoMCL</h4>
+<div class="outline-text-4" id="text-org3369257">
+</div>
+<div id="outline-container-org80481ed" class="outline-5">
+<h5 id="org80481ed"><span class="todo BLOCKED">BLOCKED</span> Phylogenetic Pattern WS improve performance&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span></span></h5>
+<div class="outline-text-5" id="text-org80481ed">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> limit to reference organisms on OrthoMCL Site
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> component sites show all strains</li>
+<li class="off"><input type='checkbox' /> some mechanism to hide organisms from orthomcl?</li>
+</ul></li>
+<li class="off"><input type='checkbox' /> tree in ortho to use ncbi taxonomy</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1ddf6f3" class="outline-5">
+<h5 id="org1ddf6f3"><span class="todo BLOCKED">BLOCKED</span> Additional content (keywords) on genomics gene pages</h5>
+<div class="outline-text-5" id="text-org1ddf6f3">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> <a href="https://redmine.apidb.org/issues/24852">https://redmine.apidb.org/issues/24852</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org36e97a3" class="outline-3">
+<h3 id="org36e97a3">EDA</h3>
+<div class="outline-text-3" id="text-org36e97a3">
+</div>
+<div id="outline-container-orgd80ec9e" class="outline-4">
+<h4 id="orgd80ec9e"><span class="todo THEM">THEM</span> Dataviz Foothills&#xa0;&#xa0;&#xa0;<span class="tag"><span class="DanielleC">DanielleC</span></span></h4>
+<div class="outline-text-4" id="text-orgd80ec9e">
+<p>
+<a href="https://www.notion.so/dataviz-foothills-27d25be09e5740b7a279385fa9e0d390">notion</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgd64fde2" class="outline-4">
+<h4 id="orgd64fde2"><span class="todo THEM">THEM</span> MicrobiomeDB&#xa0;&#xa0;&#xa0;<span class="tag"><span class="WojtekB">WojtekB</span>&#xa0;<span class="AnnB">AnnB</span></span></h4>
+<div class="outline-text-4" id="text-orgd64fde2">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Remove Sample WDK Records (need a new branch of MbioModel?)
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> comment sample records in MicrobiomeModel/Model/lib/wdk/microbiomeModel.xml</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> first release no compute service</li>
+<li></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd4ddfe1" class="outline-3">
+<h3 id="orgd4ddfe1"><span class="todo THEM">THEM</span> MapVEu&#xa0;&#xa0;&#xa0;<span class="tag"><span class="BobM">BobM</span></span></h3>
+<div class="outline-text-3" id="text-orgd4ddfe1">
+<p>
+<a href="https://redmine.apidb.org/projects/maprefad/issues?set_filter=0">redmine</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org0a5d107" class="outline-3">
+<h3 id="org0a5d107">Genome Browser</h3>
+<div class="outline-text-3" id="text-org0a5d107">
+<p>
+<a href="https://redmine.apidb.org/projects/p110">redmine</a>
+</p>
+</div>
+<div id="outline-container-org297d960" class="outline-4">
+<h4 id="org297d960"><span class="todo THEM">THEM</span> Apollo&#xa0;&#xa0;&#xa0;<span class="tag"><span class="PaulW">PaulW</span></span></h4>
+<div class="outline-text-4" id="text-org297d960">
+<p>
+<a href="https://jbrestel.github.io/org-docs/project_planning/apollo.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/apollo.org">org</a>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgbe71048" class="outline-3">
+<h3 id="orgbe71048">Galaxy / Globus&#xa0;&#xa0;&#xa0;<span class="tag"><span class="OmarH">OmarH</span></span></h3>
+<div class="outline-text-3" id="text-orgbe71048">
+<p>
+<a href="https://onedrive.live.com/edit.aspx?resid=A33886B8E9920EF7!8142&amp;ithint=file%2cxlsx&amp;authkey=!AEhTv4bcB6N8NZs">onedrive</a> :MarkH:
+</p>
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> strand specific UD error</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org65317be" class="outline-3">
+<h3 id="org65317be">Site Search</h3>
+<div class="outline-text-3" id="text-org65317be">
+</div>
+<div id="outline-container-org2c5ad11" class="outline-4">
+<h4 id="org2c5ad11"><span class="done DONE">DONE</span> EDA Site Search for ClinEpi&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnI">JohnI</span>&#xa0;<span class="YikunD">YikunD</span>&#xa0;<span class="SteveF">SteveF</span></span></h4>
+</div>
+</div>
+<div id="outline-container-orgf909054" class="outline-3">
+<h3 id="orgf909054">Documentation</h3>
+<div class="outline-text-3" id="text-orgf909054">
+</div>
+<div id="outline-container-org70fd029" class="outline-4">
+<h4 id="org70fd029">SOPs for Existing Datatypes</h4>
+<div class="outline-text-4" id="text-org70fd029">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> RNASeq  <a href="https://jbrestel.github.io/org-docs/SOPs/rnaseq.html">html</a> | <a href="https://github.com/jbrestel/org-docs/tree/main/SOPs/rnaseq.org">org</a></li>
+<li class="off"><input type='checkbox' /> Microarray</li>
+<li class="off"><input type='checkbox' /> Phenotype</li>
+<li class="off"><input type='checkbox' /> Chip Chip</li>
+<li class="off"><input type='checkbox' /> Chip Seq</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org441031e" class="outline-4">
+<h4 id="org441031e">How to change Database Schema</h4>
+<div class="outline-text-4" id="text-org441031e">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Alter Table</li>
+<li class="off"><input type='checkbox' /> New Table</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

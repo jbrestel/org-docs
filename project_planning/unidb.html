@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UniDB</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="UniDB" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">UniDB</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org90e82d7">B53</a>
+<ul>
+<li><a href="#org570581f"><span class="done DONE">DONE</span> Site Configuration</a></li>
+<li><a href="#org529c4b1"><span class="done DONE">DONE</span> Workflow Changes</a></li>
+<li><a href="#orgadc5361"><span class="done DONE">DONE</span> Schema Changes</a></li>
+<li><a href="#org838a49c"><span class="done DONE">DONE</span> ApiCommonDatasts</a></li>
+<li><a href="#orgbc820c2"><span class="done DONE">DONE</span> Plugin Changes for Sequence Variations</a></li>
+<li><a href="#orge104b6a"><span class="done DONE">DONE</span> Tuning Manager</a></li>
+<li><a href="#org75f54a9"><span class="done DONE">DONE</span> Model</a></li>
+<li><a href="#org55270a5"><span class="done DONE">DONE</span> FeatureLocation Patch</a></li>
+<li><a href="#orgff9a23d"><span class="done DONE">DONE</span> MassSpecFeature Patch</a></li>
+<li><a href="#org98ebdaa">Punt</a></li>
+</ul>
+</li>
+<li><a href="#org7cdc4b4">B54</a>
+<ul>
+<li><a href="#org6379634"><span class="done DONE">DONE</span> Genomics Workflow Changes</a></li>
+<li><a href="#org2f51c24"><span class="done DONE">DONE</span> Bulk Loader for SNP / Seqvars</a></li>
+<li><a href="#org2a46de9"><span class="done DONE">DONE</span> Add Mass Spec profile (Llinas) redmine:45318</a></li>
+<li><a href="#org6075e7d"><span class="done DONE">DONE</span> Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy</a></li>
+<li><a href="#orgb487704"><span class="done DONE">DONE</span> Undo unidbcomponents</a></li>
+<li><a href="#org4696329"><span class="done DONE">DONE</span> Patch ids for other tables ( uni-inc, uni054n )</a></li>
+</ul>
+</li>
+<li><a href="#orgdd1435b">Beta Release</a>
+<ul>
+<li><a href="#orgbf1914a">Automated QA Process</a></li>
+<li><a href="#org6acd342">Performance Tests</a></li>
+</ul>
+</li>
+<li><a href="#orgb0725ae">Future Releases</a>
+<ul>
+<li><a href="#orgb275df2"><span class="todo TODO">TODO</span> Schema Changes</a></li>
+<li><a href="#orgbb1e3cb">Plugin Changes for DatabaseMapping fields</a></li>
+<li><a href="#org512a0d8">Tuning Manager</a></li>
+<li><a href="#org7d26bb3">Model (JBrowse, WDK, WS Plugins, &#x2026;)</a></li>
+<li><a href="#org43932e3">wgcna (host /pathogen)</a></li>
+</ul>
+</li>
+<li><a href="#org5df38a4">SOP for schema changes</a></li>
+<li><a href="#org9ee9c32">Use Cases For Unified Database</a>
+<ul>
+<li><a href="#org7772408">ebi2GUS</a></li>
+</ul>
+</li>
+<li><a href="#orgdcdcd2e">Other Documentation</a></li>
+<li><a href="#org45341d7">Table Reader(s)</a></li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org90e82d7" class="outline-2">
+<h2 id="org90e82d7">B53&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h2>
+<div class="outline-text-2" id="text-org90e82d7">
+</div>
+<div id="outline-container-org570581f" class="outline-3">
+<h3 id="org570581f"><span class="done DONE">DONE</span> Site Configuration</h3>
+<div class="outline-text-3" id="text-org570581f">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> (CristinaA) confiugre beta and qa sites to use &ldquo;uni-build-53&rdquo; and uni053n</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org529c4b1" class="outline-3">
+<h3 id="org529c4b1"><span class="done DONE">DONE</span> Workflow Changes</h3>
+<div class="outline-text-3" id="text-org529c4b1">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Remove step copy to webservices and download files</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgadc5361" class="outline-3">
+<h3 id="orgadc5361"><span class="done DONE">DONE</span> Schema Changes</h3>
+<div class="outline-text-3" id="text-orgadc5361">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> study.study study_id and investigation_id need to be number(8)</li>
+<li class="on"><input type='checkbox' checked='checked' /> Add &ldquo;database_orig&rdquo; and &ldquo;primary_key_orig&rdquo; fields to every table in &ldquo;Core.TableInfo&rdquo;</li>
+<li class="on"><input type='checkbox' checked='checked' /> Add Index on each table for 3 fields (pk, pk_orig, db_orig)</li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+new script to add fields after apidbschema has been made.  last script when creating apidb schema
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">BEGIN</span>
+<span class="org-keyword">FOR</span> item <span class="org-keyword">in</span> (<span class="org-keyword">select</span> di.<span class="org-keyword">name</span> || <span class="org-string">'.'</span> || di.<span class="org-keyword">name</span> <span class="org-keyword">as</span> <span class="org-keyword">table_name</span>
+                  , ti.primary_key_column
+                  , di.<span class="org-keyword">name</span> || <span class="org-string">'_'</span> || di.<span class="org-keyword">name</span> || <span class="org-string">'_map'</span> <span class="org-keyword">as</span> index_name
+                  <span class="org-keyword">from</span> (<span class="org-comment">-- everything but version and userdataset schemas</span>
+                  <span class="org-keyword">select</span>  t.*
+                  <span class="org-keyword">from</span> core.tableinfo t, core.databaseinfo d
+                  <span class="org-keyword">where</span> <span class="org-builtin">lower</span>(t.table_type) != <span class="org-string">'version'</span>
+                  <span class="org-keyword">and</span> t.DATABASE_ID = d.DATABASE_ID
+                  <span class="org-keyword">and</span> d.<span class="org-keyword">name</span> <span class="org-keyword">not</span> <span class="org-keyword">in</span> (<span class="org-string">'UserDatasets'</span>, <span class="org-string">'ApidbUserDatasets'</span>, <span class="org-string">'chEBI'</span>, <span class="org-string">'hmdb'</span>)
+                  <span class="org-keyword">and</span> t.<span class="org-keyword">name</span> <span class="org-keyword">not</span> <span class="org-keyword">in</span> (<span class="org-string">'AlgorithmParam'</span>,<span class="org-string">'GlobalNaturalKey'</span>,<span class="org-string">'DatabaseTableMapping'</span>,<span class="org-string">'SnpLinkage'</span>, <span class="org-string">'CompoundPeaksChebi'</span>)
+                  minus
+                  <span class="org-comment">-- minus Views on tables</span>
+                  <span class="org-keyword">select</span> * <span class="org-keyword">from</span> core.tableinfo <span class="org-keyword">where</span> view_on_table_id <span class="org-keyword">is</span> <span class="org-keyword">not</span> <span class="org-keyword">null</span>
+                  ) ti, core.databaseinfo di
+                  <span class="org-keyword">where</span> ti.database_id = di.database_id   )
+LOOP
+ <span class="org-keyword">ALTER</span> <span class="org-keyword">table</span> item.<span class="org-keyword">table_name</span> <span class="org-keyword">add</span> database_orig varchar2(30), primary_key_orig <span class="org-keyword">number</span>(20);
+ <span class="org-keyword">CREATE</span> INDEX index_name <span class="org-keyword">ON</span> item.<span class="org-keyword">table_name</span> (database_orig, primary_key_orig, item.primary_key_column) tablespace indx; 
+<span class="org-keyword">END</span> LOOP;
+<span class="org-keyword">END</span>;
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org838a49c" class="outline-3">
+<h3 id="org838a49c"><span class="done DONE">DONE</span> ApiCommonDatasts</h3>
+<div class="outline-text-3" id="text-org838a49c">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> configure only dbs which have been exported for b53</li>
+<li class="on"><input type='checkbox' checked='checked' /> bld ApiCommonDatasts and generateFromDatasets</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbc820c2" class="outline-3">
+<h3 id="orgbc820c2"><span class="done DONE">DONE</span> Plugin Changes for Sequence Variations</h3>
+<div class="outline-text-3" id="text-orgbc820c2">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Skip ApiDB.SequenceVariation
+<ul class="org-ul">
+<li><p>
+~ 58 hours to load 633 mil rows from Plasmo (fungi has &gt; 1.3 billion rows)
+</p>
+<pre class="example" id="orgb011aef">
+Sun Apr  4 18:22:17 2021	Begin ID Lookup for ApiDB::SequenceVariation from database plas051n
+Sun Apr  4 18:24:35 2021	Finished ID Lookup for ApiDB::SequenceVariation from database plas051n
+Sun Apr  4 18:29:19 2021	Processed 100000 from ApiDB::SequenceVariation
+Sun Apr  4 18:29:55 2021	Processed 200000 from ApiDB::SequenceVariation
+....
+Wed Apr  7 05:30:14 2021	Processed 633000000 from ApiDB::SequenceVariation
+Wed Apr  7 05:30:44 2021	Processed 633100000 from ApiDB::SequenceVariation
+Wed Apr  7 05:30:48 2021	Finished Reading data from ApiDB::SequenceVariation
+Wed Apr  7 05:30:48 2021	Finished Loading 633110728 Rows into table ApiDB::SequenceVariation from database plas051n
+</pre></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge104b6a" class="outline-3">
+<h3 id="orge104b6a"><span class="done DONE">DONE</span> Tuning Manager&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h3>
+<div class="outline-text-3" id="text-orge104b6a">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> SNPAttributes (ok for b53 but will be missing some fields)</li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+SNPStrains (update sql so it doesn&rsquo;t use SequenceVariation)
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> * <span class="org-keyword">from</span> study.protocolappnode <span class="org-keyword">where</span> <span class="org-keyword">name</span> <span class="org-keyword">like</span> <span class="org-string">'% (Sequence Variation)'</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org75f54a9" class="outline-3">
+<h3 id="org75f54a9"><span class="done DONE">DONE</span> Model&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span></span></h3>
+<div class="outline-text-3" id="text-org75f54a9">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Using include/exclude projects make the snpattributes which are missing internal for b53</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org55270a5" class="outline-3">
+<h3 id="org55270a5"><span class="done DONE">DONE</span> FeatureLocation Patch</h3>
+<div class="outline-text-3" id="text-org55270a5">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+Truncate apidb.featurelocation
+</p>
+<div class="org-src-container">
+<pre class="src src-sql">truncate <span class="org-keyword">table</span> apidb.featurelocation;
+</pre>
+</div></li>
+<li class="on"><input type='checkbox' checked='checked' /> remove orf code from GUSTableLoader</li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+make new Temporary apidb.databasetablemapping (decode inc-&gt;053n) and make indexe and delete rows from apidb.databasetablemapping for featurelocation
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">apidb.databasetablemappingPatch</span> <span class="org-keyword">as</span> 
+<span class="org-keyword">select</span> database_table_mapping_id
+     , decode(database_orig, <span class="org-string">'cryp-inc'</span>, <span class="org-string">'cryp053n'</span>,
+                             <span class="org-string">'giar-inc'</span>, <span class="org-string">'giar053n'</span>,
+                             <span class="org-string">'ameb-inc'</span>, <span class="org-string">'ameb053n'</span>,
+                             <span class="org-string">'piro-inc'</span>, <span class="org-string">'piro053n'</span>,
+                             <span class="org-string">'toxo-inc'</span>, <span class="org-string">'toxo053n'</span>,
+                             <span class="org-string">'vect-inc'</span>, <span class="org-string">'vect053n'</span>,
+                             <span class="org-string">'host-inc'</span>, <span class="org-string">'host053n'</span>,
+                             <span class="org-string">'tryp-inc'</span>, <span class="org-string">'tryp053n'</span>,
+                             <span class="org-string">'tvag-inc'</span>, <span class="org-string">'tvag053n'</span>,
+                             <span class="org-string">'fung-inc'</span>, <span class="org-string">'fung053n'</span>,
+                             <span class="org-string">'plas-inc'</span>, <span class="org-string">'plas053n'</span>,
+                             <span class="org-string">'micr-inc'</span>, <span class="org-string">'micr053n'</span>, <span class="org-string">'ERROR'</span>) <span class="org-keyword">as</span> database_orig
+     , <span class="org-keyword">table_name</span>
+     , primary_key_orig
+     , primary_key
+     , modification_date
+     , user_read
+     , user_write
+     , group_read
+     , group_write
+     , other_read
+     , other_write
+     , row_user_id
+     , row_group_id
+     , row_project_id
+     , row_alg_invocation_id
+<span class="org-keyword">from</span> apidb.databasetablemapping
+<span class="org-keyword">where</span> <span class="org-keyword">table_name</span> !=  <span class="org-string">'ApiDB::FeatureLocation'</span>;
+</pre>
+</div></li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+rename table (log in as apidb user)
+</p>
+<div class="org-src-container">
+<pre class="src src-sql">rename databasetablemapping <span class="org-keyword">to</span> databasetablemapping_old
+rename databasetablemappingpatch <span class="org-keyword">to</span> databasetablemapping
+</pre>
+</div></li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+add indexes
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">GRANT</span> <span class="org-keyword">INSERT</span>, <span class="org-keyword">SELECT</span>, <span class="org-keyword">UPDATE</span>, <span class="org-keyword">DELETE</span> <span class="org-keyword">ON</span> ApiDB.DatabaseTableMapping <span class="org-keyword">TO</span> gus_w;
+<span class="org-keyword">GRANT</span> <span class="org-keyword">SELECT</span> <span class="org-keyword">ON</span> ApiDB.DatabaseTableMapping <span class="org-keyword">TO</span> gus_r;
+<span class="org-keyword">ALTER</span> <span class="org-keyword">TABLE</span> <span class="org-function-name">ApiDB.DatabaseTableMapping</span> <span class="org-keyword">ADD</span> <span class="org-keyword">CONSTRAINT</span> database_map_tab2_pk <span class="org-keyword">PRIMARY</span> <span class="org-keyword">KEY</span> (database_table_mapping_id);
+<span class="org-keyword">CREATE</span> INDEX apidb.db_tbl_map_tab2_idx <span class="org-keyword">ON</span> ApiDB.DatabaseTableMapping (database_orig, <span class="org-keyword">table_name</span>, primary_key_orig, primary_key) tablespace indx;
+</pre>
+</div></li>
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+Run plugin manually for FeatureLocation (can we use direct path mode?)
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">ga ApiCommonData::Load::Plugin::InsertUniDB --database piro053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/piro --mode load --commit ;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database ameb053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/ameb --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database cryp053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/cryp --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database giar053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/giar --mode load --commit ;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database host053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/host --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database micr053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/micr --mode load --commit ;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database plas053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/plas --mode load --commit ;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database toxo053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/toxo --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database tvag053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/tvag --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database tryp053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/tryp --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database fung053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/fung --mode load --commit;
+ga ApiCommonData::Load::Plugin::InsertUniDB --database vect053n --table_reader <span class="org-string">'ApiCommonData::Load::GUSTableReader'</span> --logDir /home/jbrestel/tmp/featureLocationPatch/vect --mode load --commit;
+</pre>
+</div></li>
+<li class="on"><input type='checkbox' checked='checked' /> decode 053n -&gt; inc</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgff9a23d" class="outline-3">
+<h3 id="orgff9a23d"><span class="done DONE">DONE</span> MassSpecFeature Patch</h3>
+<div class="outline-text-3" id="text-orgff9a23d">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> <p>
+update string6 to source_id to retain orig source_id 
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> dots.aafeatureimp 
+<span class="org-keyword">set</span> string6 = source_id
+<span class="org-keyword">where</span> subclass_view = <span class="org-string">'MassSpecFeature'</span>;;
+</pre>
+</div></li>
+<li class="on"><input type='checkbox' checked='checked' /> use mapping table to update source_id:  yew:~/patches/patchMassSpecFeature.pl</li>
+<li class="on"><input type='checkbox' checked='checked' /> Patch uni-inc</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org98ebdaa" class="outline-3">
+<h3 id="org98ebdaa">Punt</h3>
+<div class="outline-text-3" id="text-org98ebdaa">
+<ol class="org-ol">
+<li>SequenceVariations were not loaded;
+<ul class="org-ul">
+<li>tables on snp record page</li>
+<li>one or two snp attributes</li>
+</ul></li>
+<li>Intron Junctions
+<ul class="org-ul">
+<li>jbrowse track (turn off)</li>
+</ul></li>
+<li>User Datasets (installed into one app db only)</li>
+<li>Llinas Mass Spec Profiles</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="outline-container-org7cdc4b4" class="outline-2">
+<h2 id="org7cdc4b4">B54&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span>&#xa0;<span class="WeiL">WeiL</span></span></h2>
+<div class="outline-text-2" id="text-org7cdc4b4">
+</div>
+<div id="outline-container-org6379634" class="outline-3">
+<h3 id="org6379634"><span class="done DONE">DONE</span> Genomics Workflow Changes</h3>
+<div class="outline-text-3" id="text-org6379634">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Add other 2 SNP Attributes which are being added by tuning manager</li>
+<li class="on"><input type='checkbox' checked='checked' /> Required rebuild for all snp datasets</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2f51c24" class="outline-3">
+<h3 id="org2f51c24"><span class="done DONE">DONE</span> Bulk Loader for SNP / Seqvars</h3>
+</div>
+<div id="outline-container-org2a46de9" class="outline-3">
+<h3 id="org2a46de9"><span class="done DONE">DONE</span> Add Mass Spec profile (Llinas) <a href="https://redmine.apidb.org/issues/45318">redmine:45318</a></h3>
+</div>
+<div id="outline-container-org6075e7d" class="outline-3">
+<h3 id="org6075e7d"><span class="done DONE">DONE</span> Update SRes.Taxon and SRes.TaxonName with most recent  version of NCBI Taxonomy</h3>
+<div class="outline-text-3" id="text-org6075e7d">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Update NCBI Taxonomy</li>
+<li class="on"><input type='checkbox' checked='checked' /> Test Taxonomy Update</li>
+<li class="on"><input type='checkbox' checked='checked' /> Run Tuning manager</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb487704" class="outline-3">
+<h3 id="orgb487704"><span class="done DONE">DONE</span> Undo unidbcomponents</h3>
+</div>
+<div id="outline-container-org4696329" class="outline-3">
+<h3 id="org4696329"><span class="done DONE">DONE</span> Patch ids for other tables ( uni-inc, uni054n )</h3>
+<div class="outline-text-3" id="text-org4696329">
+<ul class="org-ul">
+<li><p>
+ApiDB.AGPPiece
+</p>
+<ul class="org-ul">
+<li>external_database_release_id</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 27173 <span class="org-keyword">where</span> external_database_release_id = 401 <span class="org-keyword">and</span> row_project_id = 42;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32430 <span class="org-keyword">where</span> external_database_release_id = 718 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32431 <span class="org-keyword">where</span> external_database_release_id = 729 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32337 <span class="org-keyword">where</span> external_database_release_id = 747 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32591 <span class="org-keyword">where</span> external_database_release_id = 720 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32248 <span class="org-keyword">where</span> external_database_release_id = 722 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32155 <span class="org-keyword">where</span> external_database_release_id = 745 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32532 <span class="org-keyword">where</span> external_database_release_id = 749 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32596 <span class="org-keyword">where</span> external_database_release_id = 758 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32247 <span class="org-keyword">where</span> external_database_release_id = 717 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32249 <span class="org-keyword">where</span> external_database_release_id = 727 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32335 <span class="org-keyword">where</span> external_database_release_id = 732 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32434 <span class="org-keyword">where</span> external_database_release_id = 744 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32254 <span class="org-keyword">where</span> external_database_release_id = 752 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32338 <span class="org-keyword">where</span> external_database_release_id = 753 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32085 <span class="org-keyword">where</span> external_database_release_id = 755 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32086 <span class="org-keyword">where</span> external_database_release_id = 759 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 28137 <span class="org-keyword">where</span> external_database_release_id = 1142 <span class="org-keyword">and</span> row_project_id = 43;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32082 <span class="org-keyword">where</span> external_database_release_id = 736 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32252 <span class="org-keyword">where</span> external_database_release_id = 742 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32435 <span class="org-keyword">where</span> external_database_release_id = 750 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32595 <span class="org-keyword">where</span> external_database_release_id = 754 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32436 <span class="org-keyword">where</span> external_database_release_id = 756 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32529 <span class="org-keyword">where</span> external_database_release_id = 723 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32080 <span class="org-keyword">where</span> external_database_release_id = 725 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32251 <span class="org-keyword">where</span> external_database_release_id = 737 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32432 <span class="org-keyword">where</span> external_database_release_id = 739 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32084 <span class="org-keyword">where</span> external_database_release_id = 751 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 28066 <span class="org-keyword">where</span> external_database_release_id = 1143 <span class="org-keyword">and</span> row_project_id = 43;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 27647 <span class="org-keyword">where</span> external_database_release_id = 1144 <span class="org-keyword">and</span> row_project_id = 43;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32250 <span class="org-keyword">where</span> external_database_release_id = 730 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32530 <span class="org-keyword">where</span> external_database_release_id = 733 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32154 <span class="org-keyword">where</span> external_database_release_id = 734 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32593 <span class="org-keyword">where</span> external_database_release_id = 735 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32257 <span class="org-keyword">where</span> external_database_release_id = 797 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 27961 <span class="org-keyword">where</span> external_database_release_id = 1141 <span class="org-keyword">and</span> row_project_id = 43;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 38633 <span class="org-keyword">where</span> external_database_release_id = 3883 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32333 <span class="org-keyword">where</span> external_database_release_id = 719 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32699 <span class="org-keyword">where</span> external_database_release_id = 724 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32334 <span class="org-keyword">where</span> external_database_release_id = 728 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32081 <span class="org-keyword">where</span> external_database_release_id = 731 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32336 <span class="org-keyword">where</span> external_database_release_id = 738 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32083 <span class="org-keyword">where</span> external_database_release_id = 740 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32594 <span class="org-keyword">where</span> external_database_release_id = 746 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 27658 <span class="org-keyword">where</span> external_database_release_id = 1145 <span class="org-keyword">and</span> row_project_id = 43;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32153 <span class="org-keyword">where</span> external_database_release_id = 721 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32592 <span class="org-keyword">where</span> external_database_release_id = 726 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32433 <span class="org-keyword">where</span> external_database_release_id = 741 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32531 <span class="org-keyword">where</span> external_database_release_id = 743 <span class="org-keyword">and</span> row_project_id = 46;
+       <span class="org-keyword">update</span> apidb.agppiece <span class="org-keyword">set</span> external_database_release_id = 32700 <span class="org-keyword">where</span> external_database_release_id = 757 <span class="org-keyword">and</span> row_project_id = 46;
+</pre>
+</div>
+<ul class="org-ul">
+<li><p>
+ApiDB.GOSubset
+</p>
+<ul class="org-ul">
+<li>external_database_release_id</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 425 <span class="org-keyword">where</span> external_database_release_id = 47 <span class="org-keyword">and</span> row_project_id = 48;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 2467 <span class="org-keyword">where</span> external_database_release_id = 22 <span class="org-keyword">and</span> row_project_id = 43;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 206 <span class="org-keyword">where</span> external_database_release_id = 48 <span class="org-keyword">and</span> row_project_id = 45;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 2467 <span class="org-keyword">where</span> external_database_release_id = 10 <span class="org-keyword">and</span> row_project_id = 42;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 425 <span class="org-keyword">where</span> external_database_release_id = 46 <span class="org-keyword">and</span> row_project_id = 4;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 425 <span class="org-keyword">where</span> external_database_release_id = 45 <span class="org-keyword">and</span> row_project_id = 22;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 425 <span class="org-keyword">where</span> external_database_release_id = 25 <span class="org-keyword">and</span> row_project_id = 5;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 4910 <span class="org-keyword">where</span> external_database_release_id = 46 <span class="org-keyword">and</span> row_project_id = 41;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 206 <span class="org-keyword">where</span> external_database_release_id = 46 <span class="org-keyword">and</span> row_project_id = 3;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 2467 <span class="org-keyword">where</span> external_database_release_id = 45 <span class="org-keyword">and</span> row_project_id = 46;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 2467 <span class="org-keyword">where</span> external_database_release_id = 19 <span class="org-keyword">and</span> row_project_id = 21;
+<span class="org-keyword">update</span> apidb.gosubset <span class="org-keyword">set</span> external_database_release_id = 425 <span class="org-keyword">where</span> external_database_release_id = 112 <span class="org-keyword">and</span> row_project_id = 47;
+</pre>
+</div></li>
+</ul></li>
+<li><p>
+ApiDB.IntronJunction
+</p>
+<ul class="org-ul">
+<li>na_sequence_id</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">projectIdDatabase</span> <span class="org-keyword">as</span>
+<span class="org-keyword">select</span> project_id
+     , decode(<span class="org-builtin">lower</span>(substr(<span class="org-keyword">name</span>, 1,4)),
+                    <span class="org-string">'tric'</span>, <span class="org-string">'tvag'</span>,
+                    <span class="org-string">'amoe'</span>, <span class="org-string">'ameb'</span>,
+                    <span class="org-string">'trit'</span>, <span class="org-string">'tryp'</span>,
+                    <span class="org-builtin">lower</span>(substr(<span class="org-keyword">name</span>, 1,4))) || <span class="org-string">'-inc'</span> <span class="org-keyword">as</span> database_orig
+ <span class="org-keyword">from</span> core.projectinfo
+ <span class="org-keyword">where</span> project_id <span class="org-keyword">in</span> (43,42,41,44,45,21,4,48,3,22,46,47,5);
+
+ <span class="org-keyword">create</span> <span class="org-keyword">table</span> <span class="org-function-name">apidb.intronjunction_tmp</span> <span class="org-keyword">as</span> 
+ <span class="org-keyword">select</span> j.intron_junction_id
+ , j.protocol_app_node_id
+ , s_map.primary_key <span class="org-keyword">as</span> na_sequence_id
+ ,j.segment_start
+ ,j.segment_end
+ , j.is_reversed
+ , j.unique_reads
+ , j.nu_reads
+ , j.modification_date
+ , j.user_read
+ , j.user_write
+ , j.group_read
+ , j.group_write
+ , j.other_read
+ , j.other_write
+ , j.row_user_id
+ , j.row_group_id
+ , j.row_project_id
+ , j.row_alg_invocation_id
+ <span class="org-keyword">from</span> apidb.intronjunction j
+ , projectiddatabase pd
+ , (<span class="org-keyword">select</span> * <span class="org-keyword">from</span> apidb.databasetablemapping <span class="org-keyword">where</span> <span class="org-keyword">table_name</span> = <span class="org-string">'DoTS::NASequenceImp'</span>) s_map
+ <span class="org-keyword">where</span> j.row_project_id = pd.project_id
+ <span class="org-keyword">and</span> pd.DATABASE_ORIG = s_map.database_orig
+ <span class="org-keyword">and</span> j.na_sequence_id = s_map.primary_key_orig;
+
+
+ rename intronjunction <span class="org-keyword">to</span> intronjunction_old;
+ rename intronjunction_tmp <span class="org-keyword">to</span> intronjunction;
+
+ <span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">apidb.intronjunction</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> injunc_pk <span class="org-keyword">primary</span> <span class="org-keyword">key</span> (intron_junction_id);
+ <span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">apidb.intronjunction</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> injunc_pan <span class="org-keyword">foreign</span> <span class="org-keyword">key</span> (protocol_app_node_id) <span class="org-keyword">references</span> study.protocolappnode;;
+ <span class="org-keyword">alter</span> <span class="org-keyword">table</span> <span class="org-function-name">apidb.intronjunction</span> <span class="org-keyword">add</span> <span class="org-keyword">constraint</span> injunc_seq <span class="org-keyword">foreign</span> <span class="org-keyword">key</span> (na_sequence_id) <span class="org-keyword">references</span> dots.nasequenceimp;
+
+
+ <span class="org-keyword">GRANT</span> <span class="org-keyword">insert</span>, <span class="org-keyword">select</span>, <span class="org-keyword">update</span>, <span class="org-keyword">delete</span> <span class="org-keyword">ON</span> apidb.IntronJunction <span class="org-keyword">TO</span> gus_w;                                                                             
+ <span class="org-keyword">GRANT</span> <span class="org-keyword">select</span> <span class="org-keyword">ON</span> apidb.IntronJunction <span class="org-keyword">TO</span> gus_r;                                                                                                     
+
+ <span class="org-keyword">CREATE</span> INDEX apidb.IntJunc_loc2_ix                                                                                                                  
+ <span class="org-keyword">ON</span> apidb.IntronJunction                                                                                                                            
+   (na_sequence_id, segment_start, segment_end, is_reversed)                                                                                       
+   TABLESPACE indx;                                                                                                                                
+ <span class="org-keyword">CREATE</span> INDEX apidb.injun_rev2_ix0 <span class="org-keyword">ON</span> apidb.IntronJunction (protocol_app_node_id, intron_junction_id) TABLESPACE indx; 
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgdd1435b" class="outline-2">
+<h2 id="orgdd1435b">Beta Release&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span>&#xa0;<span class="JohnI">JohnI</span>&#xa0;<span class="JohnB">JohnB</span>&#xa0;<span class="BinduG">BinduG</span></span></h2>
+<div class="outline-text-2" id="text-orgdd1435b">
+</div>
+<div id="outline-container-orgbf1914a" class="outline-3">
+<h3 id="orgbf1914a">Automated QA Process</h3>
+<div class="outline-text-3" id="text-orgbf1914a">
+</div>
+<div id="outline-container-org87c7e02" class="outline-4">
+<h4 id="org87c7e02">compare list of wdk Searches, Attributes, and Tables in UniDB to union of all component projects&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h4>
+<div class="outline-text-4" id="text-org87c7e02">
+<div class="org-src-container">
+<pre class="src src-example">perl includedWdkElements.pl --check_params --unidb_website beta.veupathdb.org
+</pre>
+</div>
+<ul class="org-ul">
+<li>this test can also run param queries and compare values (use &#x2013;check_params flag)</li>
+<li><a href="https://github.com/VEuPathDB/FunctionalTests/blob/main/bin/includedWdkElements.pl">https://github.com/VEuPathDB/FunctionalTests/blob/main/bin/includedWdkElements.pl</a></li>
+<li class="on"><input type='checkbox' checked='checked' /> Record expected and Actual Results</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc8e8c46" class="outline-4">
+<h4 id="orgc8e8c46">Selenium Tests for Search Pages&#xa0;&#xa0;&#xa0;<span class="tag"><span class="BinduG">BinduG</span></span></h4>
+</div>
+<div id="outline-container-orgb2713f6" class="outline-4">
+<h4 id="orgb2713f6">Compare attribute tables&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnI">JohnI</span></span></h4>
+<div class="outline-text-4" id="text-orgb2713f6">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> using sql minus operation, compare production attribute tables in eupa database to production uni database (example eupa054n to uni054n)</li>
+<li class="on"><input type='checkbox' checked='checked' /> Record expected and Actual Results</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0a52929" class="outline-4">
+<h4 id="org0a52929">Test Record page tables against component databases&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnB">JohnB</span></span></h4>
+<div class="outline-text-4" id="text-org0a52929">
+<div class="org-src-container">
+<pre class="src src-example">perl regresssionTestForRecordQueries.pl --dir /home/jbrestel/unidb/record_queries_output --instance_suffix 054n &gt;rq.err 2&gt;&amp;1
+</pre>
+</div>
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> foreach record table, run the sql and compare counts (union for all components)</li>
+<li class="off"><input type='checkbox' /> address faiures</li>
+<li class="on"><input type='checkbox' checked='checked' /> Record expected and Actual Results</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org6acd342" class="outline-3">
+<h3 id="org6acd342">Performance Tests&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span>&#xa0;<span class="SteveF">SteveF</span>&#xa0;<span class="CristinaA">CristinaA</span></span></h3>
+<div class="outline-text-3" id="text-org6acd342">
+</div>
+<div id="outline-container-org234e5bd" class="outline-4">
+<h4 id="org234e5bd">Webserive queries for Performance Tests&#xa0;&#xa0;&#xa0;<span class="tag"><span class="MarkH">MarkH</span></span></h4>
+<div class="outline-text-4" id="text-org234e5bd">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> compare plasmodb.org (b52) to feature.veupathdb.org</li>
+<li class="on"><input type='checkbox' checked='checked' /> Record expected and Actual Results</li>
+<li>ApicommonModel/Model/bin/performanceTestSearchesUniDb script</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="outline-container-orgb0725ae" class="outline-2">
+<h2 id="orgb0725ae">Future Releases&#xa0;&#xa0;&#xa0;<span class="tag"><span class="JohnI">JohnI</span>&#xa0;<span class="JohnB">JohnB</span>&#xa0;<span class="MarkH">MarkH</span>&#xa0;<span class="BinduG">BinduG</span></span></h2>
+<div class="outline-text-2" id="text-orgb0725ae">
+</div>
+<div id="outline-container-orgb275df2" class="outline-3">
+<h3 id="orgb275df2"><span class="todo TODO">TODO</span> Schema Changes</h3>
+<div class="outline-text-3" id="text-orgb275df2">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> use perl script to automatically add &ldquo;database_orig&rdquo; and &ldquo;primary_key_orig&rdquo; in installer</li>
+<li class="on"><input type='checkbox' checked='checked' /> add 3 new fields to SRes.OntologySynonym</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbb1e3cb" class="outline-3">
+<h3 id="orgbb1e3cb">Plugin Changes for DatabaseMapping fields</h3>
+<div class="outline-text-3" id="text-orgbb1e3cb">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Database Mapping Table
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Global Rows still need to populate existing Database Mapping Table</li>
+<li class="off"><input type='checkbox' /> Component Specific Rows should populate the 2 new fields in the primary table</li>
+<li class="off"><input type='checkbox' /> Undo needs to work BOTH ways because of legacy data in genomics sites</li>
+<li class="off"><input type='checkbox' /> Existing queries using databasemapping table need to be union of both ways because of legacy data in genomics sites</li>
+</ul></li>
+<li class="off"><input type='checkbox' /> Address cleanup steps for failures
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Database Specific / Non Global we get for free as there is no clean up needed after above change</li>
+<li class="off"><input type='checkbox' /> <p>
+For Global Rows, we must delete the apidb.databasetablemapping rows for this table + alg_invocation
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">delete</span> apidb.databasetablemapping <span class="org-keyword">where</span> database_orig = ? <span class="org-keyword">and</span> <span class="org-keyword">table_name</span> = ? <span class="org-keyword">and</span> row_alg_invocation_id = ?
+</pre>
+</div></li>
+<li class="off"><input type='checkbox' /> <p>
+update how we find unidb aware tables
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> ti.<span class="org-keyword">name</span> <span class="org-keyword">as</span> <span class="org-keyword">table_name</span>
+     , di.<span class="org-keyword">name</span> <span class="org-keyword">as</span> database_name
+     , ti.primary_key_column
+<span class="org-keyword">from</span> core.tableinfo ti, core.databaseinfo di,
+     (<span class="org-keyword">select</span> owner, <span class="org-keyword">table_name</span>
+     <span class="org-keyword">from</span> all_tab_columns 
+     <span class="org-keyword">where</span> <span class="org-keyword">column_name</span> <span class="org-keyword">in</span> (<span class="org-string">'DATABASE_ORIG'</span>, <span class="org-string">'PRIMARY_KEY_ORIG'</span>)
+     <span class="org-keyword">and</span> owner != <span class="org-string">'EDA'</span> <span class="org-comment">-- TEMPORARY</span>
+     <span class="org-keyword">group</span> <span class="org-keyword">by</span> owner, <span class="org-keyword">table_name</span>
+     <span class="org-keyword">having</span> <span class="org-builtin">count</span>(*) = 2) wit
+<span class="org-keyword">where</span> ti.database_id = di.database_id
+<span class="org-keyword">and</span> <span class="org-builtin">upper</span>(wit.owner) = <span class="org-builtin">upper</span>(di.<span class="org-keyword">name</span>)
+<span class="org-keyword">and</span> <span class="org-builtin">upper</span>(wit.<span class="org-keyword">table_name</span>) = <span class="org-builtin">upper</span>(ti.<span class="org-keyword">name</span>)
+<span class="org-keyword">and</span> ti.VIEW_ON_TABLE_ID <span class="org-keyword">is</span> <span class="org-keyword">null</span>
+</pre>
+</div></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org512a0d8" class="outline-3">
+<h3 id="org512a0d8">Tuning Manager</h3>
+<div class="outline-text-3" id="text-org512a0d8">
+</div>
+<div id="outline-container-org16e34cc" class="outline-4">
+<h4 id="org16e34cc">Why so many dependencies on DatasetPresenter?</h4>
+</div>
+<div id="outline-container-org1323682" class="outline-4">
+<h4 id="org1323682">Intron Junctions <a href="https://redmine.apidb.org/issues/45717">redmine:45717</a></h4>
+</div>
+<div id="outline-container-org74b8522" class="outline-4">
+<h4 id="org74b8522">Move Organism Specific to workflow</h4>
+</div>
+<div id="outline-container-org04dc324" class="outline-4">
+<h4 id="org04dc324">Comparative Genomics ???</h4>
+</div>
+</div>
+<div id="outline-container-org7d26bb3" class="outline-3">
+<h3 id="org7d26bb3">Model (JBrowse, WDK, WS Plugins, &#x2026;)</h3>
+<div class="outline-text-3" id="text-org7d26bb3">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Profile Similarity (Inject this instead of hard coding)</li>
+<li class="off"><input type='checkbox' /> Phenotype (Injection)</li>
+<li class="off"><input type='checkbox' /> Cellular Location (TriTyp, Giardia?) (Injection)</li>
+<li class="off"><input type='checkbox' /> MassSpec
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Change tuning manager and model to use mass_spec_summary_id in place of source_id (grep dots.massspecfeature)</li>
+<li class="off"><input type='checkbox' /> Confirm with data loaders (update ApiCommonData)</li>
+</ul></li>
+<li class="off"><input type='checkbox' /> remove project_id from webservice queries (once we remove federated portal)</li>
+<li class="off"><input type='checkbox' /> Text Searches (will site search fix these?)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org43932e3" class="outline-3">
+<h3 id="org43932e3">wgcna (host /pathogen)</h3>
+</div>
+</section>
+<section id="outline-container-org5df38a4" class="outline-2">
+<h2 id="org5df38a4">SOP for schema changes</h2>
+<div class="outline-text-2" id="text-org5df38a4">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> How to handle schema changes?
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> add columns</li>
+<li class="off"><input type='checkbox' /> add tables</li>
+<li class="off"><input type='checkbox' /> alter size of columns</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-org9ee9c32" class="outline-2">
+<h2 id="org9ee9c32">Use Cases For Unified Database</h2>
+<div class="outline-text-2" id="text-org9ee9c32">
+<ul class="org-ul">
+<li>fully functional portal (veupathdb.org)</li>
+<li>host / pathogen / vector</li>
+<li>user defined organism preferences</li>
+<li>Fewer prod db instances</li>
+</ul>
+</div>
+<div id="outline-container-org7772408" class="outline-3">
+<h3 id="org7772408">ebi2GUS</h3>
+<div class="outline-text-3" id="text-org7772408">
+<ul class="org-ul">
+<li>given mysql dump (init.sql), the container will fire up mariadb server, run the init.sql, will run dumpGUS.pl which creates a set of files (one file per GUS Table)</li>
+<li>new branch needed
+<ul class="org-ul">
+<li>change to GUS schema ( ~ 40 tables for &ldquo;core genome&rdquo;)</li>
+<li>changes to input schema</li>
+<li>changes to the perl api</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+
+
+
+
+
+<section id="outline-container-orgdcdcd2e" class="outline-2">
+<h2 id="orgdcdcd2e">Other Documentation</h2>
+<div class="outline-text-2" id="text-orgdcdcd2e">
+<ul class="org-ul">
+<li><a href="https://docs.google.com/document/d/1K3ckE6hwN9r-Dp1Av_zDH5Jcr7ApbBjQ-7yJM1zk0bQ/edit">UniDB Design Document December 2019</a></li>
+<li><a href="https://wiki.apidb.org/index.php/UniDB%20Workflow">Wiki / Technical info about running workflow</a></li>
+</ul>
+</div>
+</section>
+<section id="outline-container-org45341d7" class="outline-2">
+<h2 id="org45341d7">Table Reader(s)</h2>
+<div class="outline-text-2" id="text-org45341d7">
+<ul class="org-ul">
+<li><a href="file:///github/home/project_home/ApiCommonData/Load/lib/perl/UniDBTableReader.pm">UniDB Table Reader</a>
+<ul class="org-ul">
+<li>initial thinking was that sql queries would map input-&gt;output</li>
+</ul></li>
+<li><a href="file:///github/home/project_home/ApiCommonData/Load/lib/perl/GUSTableReader.pm">GUSTableReader</a>
+<ul class="org-ul">
+<li>inpput is a GUS oracle instance</li>
+<li>queries here are like &ldquo;select * from $table&rdquo;</li>
+</ul></li>
+<li><a href="file:///github/home/project_home/ApiCommonData/Load/lib/perl/EBITableReader.pm">EBI Table Reader</a>
+<ul class="org-ul">
+<li>input is flat files</li>
+<li>no queries.  the translation from chado/mysql-&gt;GUS is done via <a href="https://github.com/VEuPathDB/ebi2gus/">ebi2gus</a> and uses the E! perl API
+<ul class="org-ul">
+<li><a href="file:///github/home/project_home/ebi2gus/Dockerfile">file:///github/home/project_home/ebi2gus/Dockerfile</a></li>
+<li><a href="file:///github/home/project_home/ebi2gus/lib/perl/EBIParser.pm">file:///github/home/project_home/ebi2gus/lib/perl/EBIParser.pm</a></li>
+<li><a href="file:///github/home/project_home/ebi2gus/lib/perl/GUS/DoTS/GeneFeature.pm">file:///github/home/project_home/ebi2gus/lib/perl/GUS/DoTS/GeneFeature.pm</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</section>
+</main>
+</body>
+</html>

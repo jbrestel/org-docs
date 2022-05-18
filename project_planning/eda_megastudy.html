@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Eda Megastudy</title>
+<meta name="author" content="John E. Brestelli Jr." />
+<meta name="generator" content="Org Mode" />
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Eda Megastudy</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7e6e240">Use cases / Requirements</a>
+<ul>
+<li><a href="#org5455b0a">MapVeu</a></li>
+<li><a href="#org73d009b">MicrobiomeDB</a></li>
+<li><a href="#org7321462">ClinEpiDB</a></li>
+<li><a href="#org3425ca1">Cross project</a></li>
+</ul>
+</li>
+<li><a href="#org053caa8">Advantages of Mega Dataset Workflow</a></li>
+<li><a href="#org0e3a431">Object Diagrams</a>
+<ul>
+<li><a href="#org1d4e32d">Example 1:  Fully Consistent Entity Types</a></li>
+<li><a href="#org5364138">Example 2:  &ldquo;Missing&rdquo; Entity Types (Same Entity Type Graph)</a></li>
+<li><a href="#org15a1bbe">Example 3:  Union of Datasets with Alternate &ldquo;Paths&rdquo;</a>
+<ul>
+<li><a href="#org01b9e6d">Repeated Measures</a></li>
+<li><a href="#org8a50dda">Source</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+
+
+<section id="outline-container-org7e6e240" class="outline-2">
+<h2 id="org7e6e240">Use cases / Requirements</h2>
+<div class="outline-text-2" id="text-org7e6e240">
+</div>
+<div id="outline-container-org5455b0a" class="outline-3">
+<h3 id="org5455b0a">MapVeu</h3>
+<div class="outline-text-3" id="text-org5455b0a">
+<ul class="org-ul">
+<li>Requires Study Node and Study Variables</li>
+<li>Protocols (edges) as Variables.  (Will be handled in primary dataset load)</li>
+<li>Species reconciliation  (Will be handled in primary dataset load)</li>
+<li>Large number of existing datasets with consistent entity type graph.</li>
+<li>Consistent Ontology (owl) for attribute graph / variables</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org73d009b" class="outline-3">
+<h3 id="org73d009b">MicrobiomeDB</h3>
+<div class="outline-text-3" id="text-org73d009b">
+<ul class="org-ul">
+<li>Recreate existing functionality from production mbio site which has the cross study comparison.</li>
+<li>Biom/Habitat/Host specific mega studies (as downstream variables are very different)</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7321462" class="outline-3">
+<h3 id="org7321462">ClinEpiDB</h3>
+<div class="outline-text-3" id="text-org7321462">
+<p>
+The ontology team puts a great deal of effort into harmonizing variables in studies.  Our reason for putting so much effort into this is to first have consistent organization of variables but also with the intention of integrating data across multiple studies.  This was brought up several times in early meetings.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3425ca1" class="outline-3">
+<h3 id="org3425ca1">Cross project</h3>
+<div class="outline-text-3" id="text-org3425ca1">
+<ul class="org-ul">
+<li>Handle when the same primary data is loaded for MBio and ClinEpi.  There will be extra data nodes for mio that we would want to graft onto clinepi metadata</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org053caa8" class="outline-2">
+<h2 id="org053caa8">Advantages of Mega Dataset Workflow</h2>
+<div class="outline-text-2" id="text-org053caa8">
+<ol class="org-ol">
+<li>Enables us to load 0 or more mega studies for a project.
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> configurable per project or by list of studies</li>
+<li class="on"><input type='checkbox' checked='checked' /> Allows us to load biom/habitat specific and all studies within project</li>
+</ul></li>
+
+<li><p>
+The Display Names for the Entity Type Graph are handled in same way as primary dataset load
+</p>
+
+<p>
+This is important otherwise how would we choose which names to show?  Entity Type names chosen for primary data will often not be appropriate for mega study.  for example we may have chosen &ldquo;Child&rdquo; as the display name as an override for &ldquo;Participant&rdquo;.  We need to ensure those custom display names do not end up in the mega study entity type graph.
+</p>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> use the same ontology workflow step as primary dataset load</li>
+<li class="on"><input type='checkbox' checked='checked' /> load dedicated entity type rows for each mega study so it can be handled the same way as primary data</li>
+</ul></li>
+
+<li><p>
+The Display Names and other annotation properties are handled in same way as primary dataset load
+</p>
+
+<p>
+This is important otherwise how would we choose which names to show?  Variable names chosen for primary data will often not be appropriate for mega study (see above).  We certainly cannot choose only one variable as a representative because there are dataset specific annotation properties (like variable names from codebook).  We either need to include all original variable names (union) or ignore for the mega study
+</p>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> use the same ontology worklfow step as primary dataset load</li>
+<li class="on"><input type='checkbox' checked='checked' /> the mega dataset will be associated with a dedicated owl file, same as primary data</li>
+</ul></li>
+
+<li><p>
+Unit Conversion
+</p>
+
+<p>
+We cannot enforce at data load time that variables are stored in consistent units.  It is important that primary datasets can use units appropriate to them.
+</p>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Unit conversion enforced at mega study load time</li>
+<li class="on"><input type='checkbox' checked='checked' /> Rows in EDA.AttributeValue table (a very tall table) are reused when units are consistent</li>
+<li>I had considered always loading primary data in a base unit and tracking the appropriate unit for the primary dataset.  I considered this to be a bad option as it would require us to immediately provide mapping conversions for all study variables.  this is not something i want to take on right now.  My solution was to enforce consistently and map units to base when there was a need.</li>
+</ul></li>
+
+<li>Default ranges and bin widths are recomputed
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> use the same plugin to calculate variable stats after unit conversion</li>
+<li class="on"><input type='checkbox' checked='checked' /> other default annotation properties are applied (see above)</li>
+</ul></li>
+
+<li>Study nodes and characteristics
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> add study node to primary dataset root nodes</li>
+<li class="on"><input type='checkbox' checked='checked' /> add study variables from existing studycharacteristics table</li>
+<li class="on"><input type='checkbox' checked='checked' /> Study nodes are only available for mega study.  will not impact primary data</li>
+</ul></li>
+
+<li>Reuse Database rows
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Priary EDA.Entity (node) and EDA.Process (Edge) rows are reused</li>
+<li class="on"><input type='checkbox' checked='checked' /> Primary &ldquo;dataset specific&rdquo; tables are optional. MapVeu does will not need these so why make them?</li>
+<li class="on"><input type='checkbox' checked='checked' /> EDA.AttributeValue rows are reused when units are consistent</li>
+</ul></li>
+
+<li>Enable Union of Entity Graphs AND Reuse / Mapping of Entities (Nodes) which are shared
+
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> For a participant which is the same in mbio study as clinepi, we can do the apporopate mapping</li>
+</ul></li>
+
+<li>Allow Union or Intersection of variables
+
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> only show variables which are common.  Would need at least one variable for each entity type</li>
+</ul></li>
+</ol>
+</div>
+</section>
+
+
+<section id="outline-container-org0e3a431" class="outline-2">
+<h2 id="org0e3a431">Object Diagrams</h2>
+<div class="outline-text-2" id="text-org0e3a431">
+</div>
+<div id="outline-container-org1d4e32d" class="outline-3">
+<h3 id="org1d4e32d">Example 1:  Fully Consistent Entity Types</h3>
+<div class="outline-text-3" id="text-org1d4e32d">
+
+<figure id="org87229f4">
+<img src="images/mega_entity_types_cet.png" alt="mega_entity_types_cet.png">
+
+</figure>
+
+
+<p>
+From above we derive the Simplified Entity Type Graph we show to users.  In this case it looks identical to any individual entity graph.
+</p>
+
+
+<figure id="org34c6849">
+<img src="images/mega_entity_type_graph_cet.png" alt="mega_entity_type_graph_cet.png">
+
+</figure>
+</div>
+</div>
+
+
+<div id="outline-container-org5364138" class="outline-3">
+<h3 id="org5364138">Example 2:  &ldquo;Missing&rdquo; Entity Types (Same Entity Type Graph)</h3>
+<div class="outline-text-3" id="text-org5364138">
+<p>
+Within a study OR cross study&#x2026; sometimes nodes are missing.  For example, we may not have data for all participants
+</p>
+
+
+<figure id="org71bb86f">
+<img src="images/mega_entity_types_met.png" alt="mega_entity_types_met.png">
+
+</figure>
+
+<p>
+Because we infer the EntityTypeGraph From distinct set of Connections of nodes ..  In this case it looks <b>identical</b> to the one above.  We may already have cases like this
+</p>
+
+
+<figure id="org6d5397e">
+<img src="images/mega_entity_type_graph3_cet.png" alt="mega_entity_type_graph3_cet.png">
+
+</figure>
+</div>
+</div>
+
+
+
+<div id="outline-container-org15a1bbe" class="outline-3">
+<h3 id="org15a1bbe">Example 3:  Union of Datasets with Alternate &ldquo;Paths&rdquo;</h3>
+<div class="outline-text-3" id="text-org15a1bbe">
+<p>
+Here is an example where Dataset 2 does not include repeated measures but they are included for Dataset1.  Notice that we still never have multiple parents for the same Entity.  Also if we map Entityies from MBio and ClinEpi &#x2026; we would enforce that upstream Nodes were the same.  ie. Mbio couldn&rsquo;t skip the repeated measure for the same participant if ClinEpi included it.
+</p>
+</div>
+
+
+<div id="outline-container-org01b9e6d" class="outline-4">
+<h4 id="org01b9e6d">Repeated Measures</h4>
+<div class="outline-text-4" id="text-org01b9e6d">
+
+<figure id="org0d47d4a">
+<img src="images/mega_entity_types_apd.png" alt="mega_entity_types_apd.png">
+
+</figure>
+
+<p>
+For the user in this case they would see the following Entity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
+</p>
+
+
+<figure id="org16ae33c">
+<img src="images/mega_entity_type_graph2_cet.png" alt="mega_entity_type_graph2_cet.png">
+
+</figure>
+</div>
+</div>
+
+
+
+<div id="outline-container-org8a50dda" class="outline-4">
+<h4 id="org8a50dda">Source</h4>
+<div class="outline-text-4" id="text-org8a50dda">
+<p>
+For the user in this case they would see the following Entity Type Graph.  There were Sample collections taken from a participants OR sample collections taken from a ParticipantRepeatedMeasure
+</p>
+
+<p>
+<img src="images/mega_entity_type_graph4_cet.png" alt="mega_entity_type_graph4_cet.png">
+<b>*</b>
+</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

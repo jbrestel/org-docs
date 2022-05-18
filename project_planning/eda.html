@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EDA Backend</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="EDA Backend" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">EDA Backend</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org62f5c80">Basics</a>
+<ul>
+<li><a href="#orgcb5c203">Vocabulary</a></li>
+<li><a href="#orgff61cfe">Out of scope</a></li>
+<li><a href="#org222afd9">Useful Links</a></li>
+</ul>
+</li>
+<li><a href="#orgb7c0d95">Schema / Tables</a></li>
+<li><a href="#orgd34767b">Plugins</a>
+<ul>
+<li><a href="#orge9e437a">InsertEntityGraph</a></li>
+<li><a href="#org974575d">LoadAttributesFromEntityGraph</a></li>
+<li><a href="#org0f0a588">LoadEntityTypeAndAttributeGraphs</a></li>
+<li><a href="#orgc720f5b">LoadDatasetSpecificEntityGraph</a></li>
+<li><a href="#org761e5e0">Mega Study Plugins</a></li>
+</ul>
+</li>
+<li><a href="#orgcd4474d">Ontologies and Annotation Properties</a>
+<ul>
+<li><a href="#orgee99766">Annotation Properties</a></li>
+<li><a href="#org19d182b">OWL File Organization</a></li>
+</ul>
+</li>
+<li><a href="#org72a5e29">Reflow Workflow</a>
+<ul>
+<li><a href="#org0a625ec">Phase1 / ClinEpi</a></li>
+<li><a href="#orge15e64f">ClinEpi Graphviz</a></li>
+<li><a href="#orga4c269a">Other Components</a></li>
+</ul>
+</li>
+<li><a href="#orgfdb2e2f">Loading Progress</a>
+<ul>
+<li><a href="#org90ace3d">Phase1 Production Loading</a></li>
+<li><a href="#orgd18a7bb">MapVEu</a></li>
+<li><a href="#org5382602">Cross Study Comparison / Mega Study</a></li>
+<li><a href="#org0e59f2b">DIY https://github.com/jbrestel/org-docs/tree/main/project_planning/eda_diy.org</a></li>
+<li><a href="#orgc634cde">MicrobiomeDB</a></li>
+<li><a href="#orgb54edcc">Collections</a></li>
+<li><a href="#org7eea198">Genomics</a></li>
+</ul>
+</li>
+<li><a href="#orga034bf9">Data Validation</a>
+<ul>
+<li><a href="#orgc8fdf29">Reader Interface</a></li>
+<li><a href="#orgf2737fc">Readers</a></li>
+<li><a href="#orge1a4fa2">Tests</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<section id="outline-container-org62f5c80" class="outline-2">
+<h2 id="org62f5c80">Basics</h2>
+<div class="outline-text-2" id="text-org62f5c80">
+</div>
+<div id="outline-container-orgcb5c203" class="outline-3">
+<h3 id="orgcb5c203">Vocabulary</h3>
+<div class="outline-text-3" id="text-orgcb5c203">
+<dl class="org-dl">
+<dt>Study</dt><dd>An investigation and analysis of subjects</dd>
+<dt>Entity</dt><dd>Something with distinct and independent existence</dd>
+<dt>Entity Type Graph</dt><dd>Entity Type descriptions includding parent/child (study specific)</dd>
+<dt>Attribute</dt><dd>Variable/Property/Characteristics</dd>
+<dt>Attribute Graph</dt><dd>Web display ontology descriptions including parent/child relationships (study specific)</dd>
+<dt>Process</dt><dd>Application of a Protocol</dd>
+<dt>MegaStudy</dt><dd>Union (or Intersection?) of Entities from 2 or more sub studies and the union (or intersection?) of their attribute values</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgff61cfe" class="outline-3">
+<h3 id="orgff61cfe">Out of scope</h3>
+<div class="outline-text-3" id="text-orgff61cfe">
+<ul class="org-ul">
+<li>Dependencies
+<ul class="org-ul">
+<li>Preprocessing</li>
+<li>ISA Reader (CBIL::ISA)</li>
+</ul></li>
+<li>Query Performance</li>
+<li>Data Vis and UX</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org222afd9" class="outline-3">
+<h3 id="org222afd9">Useful Links</h3>
+<div class="outline-text-3" id="text-org222afd9">
+<p>
+<a href="https://feature.clinepidb.org/ce.feature/app/eda">ClinEpi Feature Site</a>
+</p>
+
+<p>
+<a href="https://docs.google.com/document/d/1d9m6en4MagA9h0KIOI0_6Ekq7MVaq_-s5puNFm-oJBI/edit?pli=1#heading=h.olqv0wxx11uz">EDA Workspace Working Group</a>
+</p>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgb7c0d95" class="outline-2">
+<h2 id="orgb7c0d95">Schema / Tables</h2>
+<div class="outline-text-2" id="text-orgb7c0d95">
+
+<figure id="org2330f76">
+<img src="images/eda_uml.png" alt="eda_uml.png">
+
+</figure>
+
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> update schema installer to create EDA and EDA_UD schemas (replace ApiDB)</li>
+</ul>
+</div>
+</section>
+<section id="outline-container-orgd34767b" class="outline-2">
+<h2 id="orgd34767b">Plugins</h2>
+<div class="outline-text-2" id="text-orgd34767b">
+</div>
+<div id="outline-container-orge9e437a" class="outline-3">
+<h3 id="orge9e437a">InsertEntityGraph</h3>
+<div class="outline-text-3" id="text-orge9e437a">
+<ul class="org-ul">
+<li class="trans"><input type='checkbox' /> read the ISA(Tab or Simple) files and populate normalized tables representing the EntityGraph
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> EDA::Study</li>
+<li class="on" id="EDA::EntityType"><input type='checkbox' checked='checked' /> Household,Partipant, Sample &#x2026;</li>
+<li class="on" id="EDA::ProcessType"><input type='checkbox' checked='checked' /> Name of a process/protocol that connects entities</li>
+<li class="on" id="EDA::EntityAttributes"><input type='checkbox' checked='checked' /> stable id for the entity + json clob of variables and values</li>
+<li class="on" id="EDA::ProcessAttributes"><input type='checkbox' checked='checked' /> protocol/edge + json clob of variables and values</li>
+<li class="on"><input type='checkbox' checked='checked' /> EDA::AttributeUnit</li>
+<li class="off" id="EDA::AttributeScale"><input type='checkbox' /> log,ln, linear</li>
+<li class="on" id="EDA::ProcessTypeComponent"><input type='checkbox' checked='checked' /> used to encode a series of protocols</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> Add GeoHash attributes if we have Lat/Long</li>
+<li class="on"><input type='checkbox' checked='checked' /> argument for schema (eda vs eda_ud)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org974575d" class="outline-3">
+<h3 id="org974575d">LoadAttributesFromEntityGraph</h3>
+<div class="outline-text-3" id="text-org974575d">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Read the Values from the EntityGraph Tables and makes a big tall table (key/values).
+<dl class="org-dl">
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::Attribute</dt><dd>Calculate stats at this point for each variable/dataset/entityType;  THe Attribute table is for the LEAF nodes in our &ldquo;AttributeGraph&rdquo;;</dd>
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::AttributeValue</dt><dd>Tall table with a row for each value for each variable/entity</dd>
+</dl></li>
+<li class="on"><input type='checkbox' checked='checked' /> Require the owl file at this point as a sanity check</li>
+<li class="on"><input type='checkbox' checked='checked' /> Handle Units from Annotation Properties</li>
+<li class="off"><input type='checkbox' /> Handle Scale from Annotation Properties</li>
+<li class="off"><input type='checkbox' /> Check that binary inference has priority over ordinal</li>
+<li class="on"><input type='checkbox' checked='checked' /> argument for schema (edv vs eda_ud)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0f0a588" class="outline-3">
+<h3 id="org0f0a588">LoadEntityTypeAndAttributeGraphs</h3>
+<div class="outline-text-3" id="text-org0f0a588">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Populate tables for parent-child relationships (EntityTypes and Attributes); AttributeGraph also stores annotation properties from the owl file
+<dl class="org-dl">
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::AttributeGraph</dt><dd>Connect Attribute (Leaf) to parent/child relationships defined by ontology.  also stores annotation properties from the owl file</dd>
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::EntityTypeGraph</dt><dd>Infer entity type relationships from the Inputs/Outputs</dd>
+</dl></li>
+<li class="on"><input type='checkbox' checked='checked' /> argument for schema (edv vs eda_ud)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc720f5b" class="outline-3">
+<h3 id="orgc720f5b">LoadDatasetSpecificEntityGraph</h3>
+<div class="outline-text-3" id="text-orgc720f5b">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Populate Dataset Specific Tables
+<dl class="org-dl">
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::AttributeValue_\({studyId}_\){EntityTypeId}</dt><dd>Subset of the main AttributeValue Table (per dataset)</dd>
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::Ancestors_\({studyId}_\){EntityTypeId}</dt><dd>Fields for stable ids for each ancestor</dd>
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::AttributeGraph_\({studyId}_\){EntityTypeId}</dt><dd>Join Attribute Table  (LEAF) with AttributeGraph;</dd>
+<dt class="on"><input type='checkbox' checked='checked' /> EDA::EntityAttributes_\({studyId}_\){EntityTypeId}</dt><dd><p>
+Wide table with Typed Fields
+</p>
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">select</span> stable_id, data_type, is_multi_valued  <span class="org-keyword">from</span> APIDB.ATTRIBUTEGRAPH_GEMSCC0003_1_HOUSEHOLD <span class="org-keyword">where</span> has_values = 1;
+
+<span class="org-keyword">select</span> entity_attributes_id
+     , json_value(atts, <span class="org-string">'$.EUPATH_0000127[0]'</span> RETURNING VARCHAR2) string
+     , json_value(atts, <span class="org-string">'$.EUPATH_0000047[0]'</span> RETURNING <span class="org-keyword">NUMBER</span>) num
+     , json_value(atts, <span class="org-string">'$.EUPATH_0033147[0]'</span> RETURNING <span class="org-type">DATE</span>) <span class="org-type">date</span>
+     , json_query(atts, <span class="org-string">'$.EUPATH_0033147'</span>) multi
+<span class="org-keyword">from</span> apidb.entityattributes 
+<span class="org-keyword">where</span> entity_attributes_id = 10632037;
+</pre>
+</div></dd>
+</dl></li>
+<li class="on"><input type='checkbox' checked='checked' /> argument for schema (eda vs eda_ud)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org761e5e0" class="outline-3">
+<h3 id="org761e5e0">Mega Study Plugins</h3>
+<div class="outline-text-3" id="text-org761e5e0">
+</div>
+<div id="outline-container-orgc423950" class="outline-5">
+<h5 id="orgc423950">InsertMegaEntityGraph</h5>
+<div class="outline-text-5" id="text-orgc423950">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> add new row in study</li>
+<li class="on"><input type='checkbox' checked='checked' /> yaml which defines megastudy
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Union of all Studies for Project or by list of studies</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> new entitytype for &ldquo;study&rdquo;
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> one new row in entityattributes for each &ldquo;substudy&rdquo;</li>
+</ul></li>
+<li class="trans"><input type='checkbox' /> Study Characteristics in the entity graph
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> query from substudy StudyCharacteristics table and load as EntityAttributes</li>
+<li class="off"><input type='checkbox' /> display name needs to be added to the yaml for study characteristics</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> load new entitytypes for &ldquo;union&rdquo; of sub study entity types</li>
+<li class="trans"><input type='checkbox' /> Units
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> first pass assume units are consistent</li>
+<li class="off"><input type='checkbox' /> long run choose &ldquo;base unit&rdquo;</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> link sub study entityattributes to mega study entity types</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6ef15b6" class="outline-5">
+<h5 id="org6ef15b6">LoadMegaDatasetSpecificEntityGraph</h5>
+<div class="outline-text-5" id="text-org6ef15b6">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> alternative mechanism to get the list of &ldquo;entity_type_ids&rdquo; used to find other tables
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> changes to the parent class LoadDatasetSpecificEntityGraph to enable this</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgcd4474d" class="outline-2">
+<h2 id="orgcd4474d">Ontologies and Annotation Properties</h2>
+<div class="outline-text-2" id="text-orgcd4474d">
+</div>
+<div id="outline-container-orgee99766" class="outline-3">
+<h3 id="orgee99766">Annotation Properties</h3>
+<div class="outline-text-3" id="text-orgee99766">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study is loaded</li>
+<li class="on"><input type='checkbox' checked='checked' /> Which fields from annotation properties are required by EDA?  implcations for Genomics/Mbio/MapVEu</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org19d182b" class="outline-3">
+<h3 id="org19d182b">OWL File Organization</h3>
+<div class="outline-text-3" id="text-org19d182b">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> consider dataset specific webdisplay ontologies</li>
+<li class="off"><input type='checkbox' /> can we use the owl file in place of the ontologymapping.xml?</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="outline-container-org72a5e29" class="outline-2">
+<h2 id="org72a5e29">Reflow Workflow</h2>
+<div class="outline-text-2" id="text-org72a5e29">
+</div>
+<div id="outline-container-org0a625ec" class="outline-3">
+<h3 id="org0a625ec">Phase1 / ClinEpi</h3>
+<div class="outline-text-3" id="text-org0a625ec">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> finalize ReFlow Workflow
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> create download files;  use &ldquo;is_merge_key&rdquo;</li>
+<li class="on"><input type='checkbox' checked='checked' /> Unit Ontology Terms are required to be loaded into SRes.OntologyTerm before study</li>
+<li class="on"><input type='checkbox' checked='checked' /> EDA.StudyCharacteristics
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> add create table sql file &ldquo;ApiCommonData/Load/lib/sql/apidbSchema/&rdquo; and in the installApiDB script (ApiCommonData/Load/bin)</li>
+<li class="on"><input type='checkbox' checked='checked' /> study_id field in new table should point to eda.study</li>
+<li class="on"><input type='checkbox' checked='checked' /> update inc instances to create the EDA.StudyCharacteristic table (JohnI can help with this)</li>
+<li class="on"><input type='checkbox' checked='checked' /> update plugin InsertStudyCharacteristics to use &ldquo;EDA.StudyCharacteristics&rdquo;</li>
+</ul></li>
+<li>Add &ldquo;schema&rdquo; arg for InsertStudyCharacteristics so we can load into EDA schema
+<ul class="org-ul">
+<li>Needed for EDA_UD vs EDA schema</li>
+<li class="on"><input type='checkbox' checked='checked' /> ensure we are loading into eda and not apidb.</li>
+<li class="on"><input type='checkbox' checked='checked' /> the workflow step which calls the plugin needs to set the &ldquo;schema&rdquo; to &ldquo;EDA&rdquo;</li>
+<li class="on"><input type='checkbox' checked='checked' /> undoTables needs to lookup the value of &ldquo;schema&rdquo; from when the plugin was run forward and undo those tables.</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge15e64f" class="outline-3">
+<h3 id="orge15e64f">ClinEpi Graphviz</h3>
+<div class="outline-text-3" id="text-orge15e64f">
+</div>
+<div id="outline-container-org236fd43" class="outline-4">
+<h4 id="org236fd43">Input Tables</h4>
+<div class="outline-text-4" id="text-org236fd43">
+<div class="table" id="orgfc17409">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>node</b></th>
+<th scope="col" class="org-left"><b>label</b></th>
+<th scope="col" class="org-left"><b>shape</b></th>
+<th scope="col" class="org-left"><b>fillcolor</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">global_start</td>
+<td class="org-left">start</td>
+<td class="org-left">ellipse</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">global_end</td>
+<td class="org-left">end</td>
+<td class="org-left">ellipse</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">start</td>
+<td class="org-left">dataset start</td>
+<td class="org-left">octagon</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">end</td>
+<td class="org-left">dataset end</td>
+<td class="org-left">octagon</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">collections</td>
+<td class="org-left">Collections (yaml config)</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">webdisplay_ontology</td>
+<td class="org-left">Webdisplay Ontology</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">study_classifications</td>
+<td class="org-left">Study Characteristics</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">annotation_properties</td>
+<td class="org-left">Annotation Properties</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">entity_types</td>
+<td class="org-left">Entity Types</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">insert_entity_graph</td>
+<td class="org-left">Entity Graph</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">mega_insert_entity_graph</td>
+<td class="org-left">MEGA Entity Graph</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">orange</td>
+</tr>
+
+<tr>
+<td class="org-left">load_attributes</td>
+<td class="org-left">Attributes and Values</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">load_graphs</td>
+<td class="org-left">EntityType And Attribute Graphs</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">load_dataset_specific</td>
+<td class="org-left">Dataset Specific Tables</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">mega_load_dataset_specific</td>
+<td class="org-left">MEGA Dataset Specific Tables</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">orange</td>
+</tr>
+
+<tr>
+<td class="org-left">download</td>
+<td class="org-left">Download Files</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_download</td>
+<td class="org-left">Validate Download</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_tables</td>
+<td class="org-left">Validate Tables</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">plum</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_annotation_properties</td>
+<td class="org-left">Validate Annotation Properties</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">collection_attributes</td>
+<td class="org-left">Collection (Inferred Parent/Child Relations)</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">lightgreen</td>
+</tr>
+
+<tr>
+<td class="org-left">is_mega_dataset</td>
+<td class="org-left">Is MEGA Study</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">is_mega_dataset_2</td>
+<td class="org-left">Is MEGA Study</td>
+<td class="org-left">diamond</td>
+<td class="org-left">yellow</td>
+</tr>
+
+<tr>
+<td class="org-left">mega_dataset</td>
+<td class="org-left">MEGA dataset</td>
+<td class="org-left">octagon</td>
+<td class="org-left">orange</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<div class="table" id="orgcd4a4ef">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">from</th>
+<th scope="col" class="org-left">to</th>
+<th scope="col" class="org-left">label</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">global_start</td>
+<td class="org-left">start</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">start</td>
+<td class="org-left">webdisplay_ontology</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">global_start</td>
+<td class="org-left">collections</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">webdisplay_ontology</td>
+<td class="org-left">study_classifications</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">webdisplay_ontology</td>
+<td class="org-left">validate_annotation_properties</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">study_classifications</td>
+<td class="org-left">is_mega_dataset</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">entity_types</td>
+<td class="org-left">is_mega_dataset</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">is_mega_dataset</td>
+<td class="org-left">insert_entity_graph</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">is_mega_dataset</td>
+<td class="org-left">mega_insert_entity_graph</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">webdisplay_ontology</td>
+<td class="org-left">entity_types</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">insert_entity_graph</td>
+<td class="org-left">load_attributes</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">mega_insert_entity_graph</td>
+<td class="org-left">load_attributes</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">load_attributes</td>
+<td class="org-left">load_graphs</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">load_graphs</td>
+<td class="org-left">is_mega_dataset_2</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">is_mega_dataset_2</td>
+<td class="org-left">load_dataset_specific</td>
+<td class="org-left">N</td>
+</tr>
+
+<tr>
+<td class="org-left">is_mega_dataset_2</td>
+<td class="org-left">mega_load_dataset_specific</td>
+<td class="org-left">Y</td>
+</tr>
+
+<tr>
+<td class="org-left">load_dataset_specific</td>
+<td class="org-left">download</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">load_dataset_specific</td>
+<td class="org-left">validate_tables</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_download</td>
+<td class="org-left">end</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">download</td>
+<td class="org-left">validate_download</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_tables</td>
+<td class="org-left">end</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">validate_annotation_properties</td>
+<td class="org-left">annotation_properties</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">annotation_properties</td>
+<td class="org-left">load_graphs</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">collections</td>
+<td class="org-left">collection_attributes</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">end</td>
+<td class="org-left">mega_dataset</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">mega_dataset</td>
+<td class="org-left">collection_attributes</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">collection_attributes</td>
+<td class="org-left">global_end</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4619cf4" class="outline-4">
+<h4 id="org4619cf4">graph-from-tables</h4>
+<div class="outline-text-4" id="text-org4619cf4">
+<pre class="example" id="orgbabc9dd">
+(concat
+     "//rankdir=LR;\n" ;; remove comment characters '//' for horizontal layout; add for vertical layout
+     (mapconcat
+      (lambda (x)
+        (format "%s [label=\"%s\" shape=%s style=\"filled\" fillcolor=\"%s\"]"
+                        (car x)
+                        (nth 1 x)
+                        (if (string= "" (nth 2 x)) "box" (nth 2 x))
+                        (if (string= "" (nth 3 x)) "none" (nth 3 x))
+                        )) nodes "\n")
+     "\n"
+     (mapconcat
+      (lambda (x)
+        (format "%s -&gt; %s [taillabel=\"%s\"]"
+                        (car x) (nth 1 x) (nth 2 x))) graph "\n")
+     )
+</pre>
+
+<pre class="example" id="org0691442">
+digraph {
+ $input
+}
+</pre>
+
+
+<figure id="orgcdf1f93">
+<img src="images/reflowMadness.png" alt="reflowMadness.png">
+
+</figure>
+</div>
+</div>
+</div>
+<div id="outline-container-orga4c269a" class="outline-3">
+<h3 id="orga4c269a">Other Components</h3>
+<div class="outline-text-3" id="text-orga4c269a">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> MBio and MapVEU Need a dedicated workflow Template</li>
+<li class="off"><input type='checkbox' /> Where are we loading application specific data? (datasets, SNPs, WHO Standards, &#x2026;)</li>
+<li>Which studies would be made into Mega Studies
+<ul class="org-ul">
+<li>Current use cases are all studies for Mbio and all studies for MapVEu</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgfdb2e2f" class="outline-2">
+<h2 id="orgfdb2e2f">Loading Progress</h2>
+<div class="outline-text-2" id="text-orgfdb2e2f">
+</div>
+<div id="outline-container-org90ace3d" class="outline-3">
+<h3 id="org90ace3d">Phase1 Production Loading</h3>
+<div class="outline-text-3" id="text-org90ace3d">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> work with outreach to preprocess studies targeted for beta release</li>
+<li class="on"><input type='checkbox' checked='checked' /> reload data as requested into rm41910 until passes manual qa</li>
+<li class="on"><input type='checkbox' checked='checked' /> Load into &ldquo;EDA&rdquo; schema instead of ApiDB</li>
+<li class="on"><input type='checkbox' checked='checked' /> use finalized workflow to load datasets into clean/rbld instance as they pass manual qa</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgd18a7bb" class="outline-3">
+<h3 id="orgd18a7bb">MapVEu</h3>
+<div class="outline-text-3" id="text-orgd18a7bb">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Upgrade CBIL Reader to Load studies from ISA dumps</li>
+<li class="on"><input type='checkbox' checked='checked' /> Mixed units within studies.. NO!</li>
+<li class="on"><input type='checkbox' checked='checked' /> Genotype / Phenotype Assays</li>
+<li class="off"><input type='checkbox' /> Add variables for protocols to InsertEntityGraph.pm</li>
+<li class="off"><input type='checkbox' /> Species reconciliation</li>
+<li class="off"><input type='checkbox' /> <p>
+Microsattelites
+</p>
+<pre class="example" id="org31c9076">
+If we can make variables for each microsatellite locus without ontology terms, please let me know what this should look like in the ISA-Tab.
+Alternatively we could make "proper" variables within 3-4 weeks I guess.
+</pre></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org5382602" class="outline-3">
+<h3 id="org5382602">Cross Study Comparison / Mega Study</h3>
+<div class="outline-text-3" id="text-org5382602">
+</div>
+<div id="outline-container-org8a29be6" class="outline-4">
+<h4 id="org8a29be6">YAML file to define Mega Study</h4>
+<div class="outline-text-4" id="text-org8a29be6">
+<p>
+We are using YAML format for StudyClassifications, MegaStudy and Collections
+</p>
+
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Need a mechanism to Exclude studies (or list of studies)</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-yaml"><span class="org-comment">---</span>
+<span class="org-variable-name">stable_id</span>: MegaStudyTest1
+<span class="org-variable-name">studies</span>:
+  - 2019-Lehman-abundance
+  - 2020-francis-aegypti
+<span class="org-comment">---</span>
+<span class="org-variable-name">stable_id</span>: MegaStudyTest2
+<span class="org-variable-name">project</span>: MapVEu
+
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org45fd5d2" class="outline-4">
+<h4 id="org45fd5d2">Reuse rows in $schema.entityattributes (node)</h4>
+<div class="outline-text-4" id="text-org45fd5d2">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> New Linking Table &ldquo;EntityClassification&rdquo;
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Linking Table which joins EntityAttributes to EntityType</li>
+<li class="on"><input type='checkbox' checked='checked' /> retain entity_type_id from entityattributes (original study)</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> update all appropriate queries which use &ldquo;entityattributes to also join to entityclassification</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org1b275ae" class="outline-4">
+<h4 id="org1b275ae">InsertMegaEntityGraph.pm</h4>
+<div class="outline-text-4" id="text-org1b275ae">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Insert Study EntityType and  EntityAttribute rows for Mega Study</li>
+<li class="on"><input type='checkbox' checked='checked' /> load study characteristics as attributes of new study node
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> Read from StudyCharacteristics table</li>
+</ul></li>
+<li class="on"><input type='checkbox' checked='checked' /> join new study rows in entityattributes to existing graph (ie. add row in eda.processattributes)</li>
+<li class="off"><input type='checkbox' /> do we need to specify which entity type to attach study?  currently attaching to every root node
+<ul class="org-ul">
+<li>could intersect entity type and union attribute graph??</li>
+</ul></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-plantuml">rectangle MegaStudy {
+	object Study
+	rectangle OriginalStudy {
+		object Household
+		object Participant
+		object RepeatedMeasure
+	}
+}
+Household --|&gt; Participant
+Participant --|&gt; RepeatedMeasure
+Study ..|&gt; Household
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org39ba65b" class="outline-4">
+<h4 id="org39ba65b">Units</h4>
+<div class="outline-text-4" id="text-org39ba65b">
+<p>
+We enforce that all values for attribute/entitytype/study have the same unit!
+</p>
+</div>
+
+<div id="outline-container-org6de62e9" class="outline-5">
+<h5 id="org6de62e9">MapVeu</h5>
+<div class="outline-text-5" id="text-org6de62e9">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> handle in the preprocessing for now</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org66d1a83" class="outline-5">
+<h5 id="org66d1a83">Reuse LoadAttributesFromEntityGraph.pm</h5>
+<div class="outline-text-5" id="text-org66d1a83">
+<p>
+This plugin does work to summarize the attributes.  I don&rsquo;t want to duplicate this code
+</p>
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> continue to enforce that units are consistent for each entitytype/attribute</li>
+<li class="on"><input type='checkbox' checked='checked' /> for now just fail if substudies are inconsistent for unit</li>
+<li class="off"><input type='checkbox' /> long term, Convert to Base Unit if init unit doesn&rsquo;t match mega unit</li>
+<li class="on"><input type='checkbox' checked='checked' /> add to the &ldquo;loadAttributes&rdquo; method to get the original units</li>
+<li class="on"><input type='checkbox' checked='checked' /> For Mega Study, Print to fifo only when convertunits OR study nodes</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org45578e5" class="outline-5">
+<h5 id="org45578e5">Reuse $schema.AttributeValue Rows</h5>
+<div class="outline-text-5" id="text-org45578e5">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> add unit_ontology_term_id to each row</li>
+<li class="on"><input type='checkbox' checked='checked' /> replace entity_type_id with ontology_term_id for the entitytype</li>
+<li class="on"><input type='checkbox' checked='checked' /> use ontology_term_id of the entity type + ontology_term_id of the unit to join</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgec3f932" class="outline-4">
+<h4 id="orgec3f932">Load Dataset Specific Tables</h4>
+<div class="outline-text-4" id="text-orgec3f932">
+<ul class="org-ul">
+<li class="on"><input type='checkbox' checked='checked' /> make subclass  / factor some methods because of harder joins for mega study</li>
+<li class="on"><input type='checkbox' checked='checked' /> iterate over (sub)studies and do inserts</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgf7f7dd9" class="outline-4">
+<h4 id="orgf7f7dd9">Command Lines</h4>
+<div class="outline-text-4" id="text-orgf7f7dd9">
+<pre class="example" id="org619548f">
+ga GUS::Supported::Plugin::InsertExternalDatabase --name test_ontology --commit
+ga GUS::Supported::Plugin::InsertExternalDatabaseRls --databaseName test_ontology --databaseVersion dontcare --commit
+
+ga GUS::Supported::Plugin::InsertOntologyFromTabDelim --termFile uniqueOntologyTerms.txt --relFile relationships.txt --extDbRlsSpec 'test_ontology|dontcare' --commit
+</pre>
+
+<pre class="example" id="org1c3d5cd">
+sqlplus eda@rm43647 @createEntityGraphTables.sql eda
+</pre>
+
+<pre class="example" id="org640787c">
+touch $PROJECT_HOME/GusSchema/Definition/config/gus_schema.xml
+bld GUS
+</pre>
+
+<pre class="example" id="orgb819487">
+# load external database stuff
+ga GUS::Supported::Plugin::InsertExternalDatabase --name VBP0000123 --commit
+ga GUS::Supported::Plugin::InsertExternalDatabaseRls --databaseName VBP0000123 --databaseVersion dontcare --commit
+
+ # load entity graph (no changes)
+ga ApiCommonData::Load::Plugin::InsertEntityGraph --metaDataRoot /home/jbrestel/tmp/popbio-migration/popbio-isatabs-for-JB-v2-uniform-sample-type/isatab-VBP0000123 --investigationBaseName i_investigation.txt --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --commit
+
+# load attribute and attribute value
+ga ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --ontologyExtDbRlsSpec 'test_ontology|dontcare' --logDir /home/jbrestel/tmp/popbio-migration/logdir --commit
+
+# load attributegraph and entitytypegraph
+ga ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs --logDir /home/jbrestel/tmp/popbio-migration/etag_log --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --ontologyExtDbRlsSpec 'test_ontology|dontcare' --commit
+
+# load dataset specific tables
+ ga ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph  --extDbRlsSpec 'VBP0000123|dontcare' --schema EDA --commit
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org0e59f2b" class="outline-3">
+<h3 id="org0e59f2b">DIY <a href="https://github.com/jbrestel/org-docs/tree/main/project_planning/eda_diy.org">https://github.com/jbrestel/org-docs/tree/main/project_planning/eda_diy.org</a></h3>
+</div>
+
+<div id="outline-container-orgc634cde" class="outline-3">
+<h3 id="orgc634cde">MicrobiomeDB</h3>
+<div class="outline-text-3" id="text-orgc634cde">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> performance issues with EC levels for functional shotgun data</li>
+<li class="on"><input type='checkbox' checked='checked' /> Load studies into test instance</li>
+<li class="off"><input type='checkbox' /> Undo/Reload test data as required</li>
+<li class="on"><input type='checkbox' checked='checked' /> metabolite ] Dan identified a small number of studies to load into rm41910</li>
+<li class="on"><input type='checkbox' checked='checked' /> ISALoader Assay and other Mbio things</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb54edcc" class="outline-3">
+<h3 id="orgb54edcc">Collections</h3>
+<div class="outline-text-3" id="text-orgb54edcc">
+<ul class="org-ul">
+<li>use the same file format for study classifications and collections.</li>
+<li>use a real file type which has a perl parser.</li>
+<li>allow multiple rows for the same key.</li>
+<li>allow parent/child relationships to be defined?  Could do this by duplicating the key</li>
+<li>variable/attributes are EITHER defined in ini file OR ALL leaf children are collected up</li>
+<li><p>
+YAML Seems to be a good way to go.  the whitespace issues are not too bad if the documents are made like the examples below
+</p>
+
+<p>
+See above <a href="#orgbabc9dd">1</a> for how this fits into reflow workflow
+</p></li>
+</ul>
+</div>
+
+<div id="outline-container-orgf964322" class="outline-4">
+<h4 id="orgf964322">How to handle Parent/Child?</h4>
+<div class="outline-text-4" id="text-orgf964322">
+<p>
+Config file format
+</p>
+<pre class="example" id="org0c83db0">
+[collectionExample1]
+ key1: value
+ variables: someChild,somechild2,...
+
+[collectionExample2]
+ key1: value
+ variable: someChild
+ variable : anotherChild
+
+ #This is probably not allowed
+[collectionExample3]
+ key1: value
+ variables: [someChild,
+            anotherChild] 
+</pre>
+
+<p>
+Better in YAML
+</p>
+<div class="org-src-container">
+<pre class="src src-yaml"><span class="org-comment">---</span>
+<span class="org-variable-name">name</span>: document1
+<span class="org-variable-name">stable_id</span>: value
+<span class="org-variable-name">variables</span>:
+  - someChild
+  - anotherChild
+<span class="org-comment">---</span>
+<span class="org-variable-name">name</span>: document2
+<span class="org-variable-name">stable_id</span>: otherValue
+<span class="org-variable-name">variables</span>:
+  - someChild
+  - anotherChild
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgf3968de" class="outline-4">
+<h4 id="orgf3968de">File Formats and Parsers</h4>
+<div class="outline-text-4" id="text-orgf3968de">
+</div>
+<div id="outline-container-org54eb3d7" class="outline-5">
+<h5 id="org54eb3d7">Option0: YAML::Tiny</h5>
+<div class="outline-text-5" id="text-org54eb3d7">
+<p>
+My understaning is with YAML we would need to be very careful with whitespace.  the parser will not work if the indentation is incorrect.
+</p>
+
+<p>
+I modified Steve&rsquo;s example for collections
+</p>
+<div class="org-src-container">
+<pre class="src src-yaml"><span class="org-comment">---</span>
+<span class="org-variable-name">name</span>: Z Scores
+<span class="org-variable-name">id</span>: EUPATH_000933
+<span class="org-variable-name">description</span>: a great collection
+<span class="org-variable-name">rangeMin</span>: 1
+<span class="org-variable-name">rangeMax</span>: 20
+<span class="org-variable-name">variables</span>:
+  - EUPATH_0000871
+  - EUPATH_009988
+<span class="org-comment">---</span>
+<span class="org-variable-name">name</span>: TAC Scores
+<span class="org-variable-name">id</span>: EUPATH_000767
+<span class="org-variable-name">description</span>: another collection
+<span class="org-variable-name">variables</span>:
+  - EUPATH_0003938
+  - EUPATH_0076667  
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-perl"><span class="org-constant">use</span> YAML::Tiny;
+<span class="org-type">my</span> $<span class="org-variable-name">yaml</span> = YAML::Tiny-&gt;read( <span class="org-string">'test.yaml'</span> );
+<span class="org-keyword">foreach</span> <span class="org-type">my</span> $<span class="org-variable-name">collection</span> (@$<span class="org-variable-name">yaml</span>) }
+  print Dumper $<span class="org-variable-name">collection</span>;
+}
+</pre>
+</div>
+
+<p>
+Could do something similar with study classifications
+</p>
+<div class="org-src-container">
+<pre class="src src-yaml"><span class="org-comment">---</span>
+<span class="org-variable-name">dataset</span>: ISASimple_Gates_ELICIT_rct_RSRC
+<span class="org-variable-name">Additional data</span>:
+<span class="org-variable-name">Country</span>: Tanzania
+<span class="org-variable-name">Disease</span>:
+<span class="org-variable-name">Investigation type</span>: Experimental
+<span class="org-variable-name">Population included</span>: Neonate
+<span class="org-variable-name">Project name</span>:
+<span class="org-variable-name">Sample type</span>:
+  - Blood
+  - Stool
+<span class="org-variable-name">Sex</span>:
+  - Female
+  - Male
+<span class="org-variable-name">Study design</span>: Randomized controlled/clinical trial
+<span class="org-variable-name">WHO indicator subdomain</span>:
+  - Reproductive, maternal, newborn, child and adolescent health
+  - Nutrition
+<span class="org-variable-name">Years</span>:
+  - 2017
+  - 2018
+<span class="org-comment">---</span>
+<span class="org-variable-name">dataset</span>: ISASimple_Gates_GAMIN_rct_RSRC
+<span class="org-variable-name">Additional data</span>:
+<span class="org-variable-name">Country</span>: Burkina Faso
+<span class="org-variable-name">Disease</span>:
+<span class="org-variable-name">Investigation type</span>: Experimental
+<span class="org-variable-name">Population included</span>:
+  - Neonate
+  - Infant
+  - Child
+<span class="org-variable-name">Project name</span>:
+<span class="org-variable-name">Sample type</span>:
+  - Blood
+  - Stool
+<span class="org-variable-name">Sex</span>:
+  - Female
+  - Male
+<span class="org-variable-name">Study design</span>: Randomized controlled/clinical trial
+<span class="org-variable-name">WHO indicator subdomain</span>: Reproductive, maternal, newborn, child and adolescent health
+<span class="org-variable-name">Years</span>:
+  - 2019
+  - 2020
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org58e4feb" class="outline-5">
+<h5 id="org58e4feb">Option1: Config::General</h5>
+<div class="outline-text-5" id="text-org58e4feb">
+<p>
+this is Apache Config format. Handles multiple lines with same key (makes array).
+</p>
+<pre class="example" id="org977b529">
+&lt;study ISASimple_Gates_ELICIT_rct_RSRC&gt;
+
+Additional data:
+Country: Tanzania
+Disease:
+Investigation type: Experimental
+Population included: Neonate
+Project name:
+Sample type: Blood
+Sample type: Stool
+Sex: Female
+Sex: Male
+Study design: Randomized controlled/clinical trial
+WHO indicator subdomain: Reproductive, maternal, newborn, child and adolescent health
+WHO indicator subdomain: Nutrition
+Years: 2017
+Years: 2018
+&lt;/study&gt;
+</pre>
+<div class="org-src-container">
+<pre class="src src-perl"><span class="org-constant">use</span> Config::General;
+<span class="org-type">my</span> $<span class="org-variable-name">file</span> = <span class="org-string">"some.config"</span>;
+<span class="org-type">my</span> $<span class="org-variable-name">ini</span> = Config::General-&gt;new(-ConfigFile =&gt; $<span class="org-variable-name">file</span>,
+                               -SplitPolicy =&gt; <span class="org-string">"custom"</span>,
+                               -SplitDelimiter =&gt; <span class="org-string">'\s*:\s*'</span>
+    );
+<span class="org-type">my</span> %<span class="org-underline"><span class="org-variable-name">iniHash</span></span> = $<span class="org-variable-name">ini</span>-&gt;getall();
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge037746" class="outline-5">
+<h5 id="orge037746">Option2: Config::Tiny</h5>
+<div class="outline-text-5" id="text-orge037746">
+<p>
+This is a very simple parser for ini files.  It does not allow multiple values.  User must put them on the same line and code would need to convert to array
+</p>
+
+<pre class="example" id="orgbc52b71">
+[ISASimple_Gates_ELICIT_rct_RSRC]
+Additional data=
+Country= Tanzania
+Disease=
+Investigation type= Experimental
+Population included= Neonate
+Project name=
+Sample type= ["Blood","Stool"]
+Sex= ["Female","Male"]
+Study design= Randomized controlled/clinical trial
+WHO indicator subdomain= ["Reproductive, maternal, newborn, child and adolescent health","Nutrition"]
+Years= [2017,2018]
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org7a6235b" class="outline-5">
+<h5 id="org7a6235b">Option3: <b>CBIL::Util::Ini</b></h5>
+<div class="outline-text-5" id="text-org7a6235b">
+<p>
+In house parser.  Can modify as needed. Same format as Option1 except will handle multiple values;  NOTE:  This uses &ldquo;Parse::RecDescent&rdquo; which requires the entire file to be read into memory (seems ok as these files will be small).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-perl"><span class="org-constant">use</span> CBIL::Util::Ini;
+<span class="org-type">my</span> $<span class="org-variable-name">iniFileParser</span> = CBIL::Util::Ini-&gt;new();
+<span class="org-type">my</span> $<span class="org-variable-name">iniHash</span> = $<span class="org-variable-name">iniFileParser</span>-&gt;parseFile($<span class="org-variable-name">file</span>);
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org36c07a8" class="outline-4">
+<h4 id="org36c07a8">Loader</h4>
+<div class="outline-text-4" id="text-org36c07a8">
+</div>
+<div id="outline-container-org1c2fbf1" class="outline-5">
+<h5 id="org1c2fbf1">Collection Tables</h5>
+<div class="outline-text-5" id="text-org1c2fbf1">
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">CREATE</span> <span class="org-keyword">TABLE</span> &amp;1.Collection (
+ collection_id <span class="org-keyword">NUMBER</span>(10) <span class="org-keyword">NOT</span> <span class="org-keyword">NULL</span>,
+ stable_id varchar2(50),
+ description varchar2(4000),
+ range_min <span class="org-keyword">number</span>(10),
+ range_max <span class="org-keyword">number</span>(10),
+<span class="org-keyword">PRIMARY</span> <span class="org-keyword">KEY</span> (collection_id),
+<span class="org-keyword">CONSTRAINT</span> unique_stable_id <span class="org-keyword">UNIQUE</span> (stable_id));
+
+<span class="org-keyword">CREATE</span> <span class="org-keyword">TABLE</span> &amp;1.CollectionAttribute (
+ collection_attribute_id <span class="org-keyword">NUMBER</span>(10) <span class="org-keyword">NOT</span> <span class="org-keyword">NULL</span>,
+ collection_id <span class="org-keyword">number</span>(10),
+ attribute_stable_id varchar2(50),
+<span class="org-keyword">PRIMARY</span> <span class="org-keyword">KEY</span> (collection_attribute_id));
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1cc87b6" class="outline-5">
+<h5 id="org1cc87b6">Plugins</h5>
+<div class="outline-text-5" id="text-org1cc87b6">
+<ol class="org-ol">
+<li>Load Collections from Ini File &ldquo;InsertCollection&rdquo;
+<ul class="org-ul">
+<li>Global step to load into Collections table and all &ldquo;CollectionAttributes&rdquo; which are defined in the ini file</li>
+</ul></li>
+<li>Load Parent/Child Relationships (where these were not defined in ini) &ldquo;InsertCollectionAttribute&rdquo;
+<ul class="org-ul">
+<li>Get all leaf terms descended from collection stable_id and load them into CollectionAttribute Table</li>
+</ul></li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org7eea198" class="outline-3">
+<h3 id="org7eea198">Genomics</h3>
+<div class="outline-text-3" id="text-org7eea198">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> DNASeq (SNPs and CNV)</li>
+<li class="off"><input type='checkbox' /> Host Pathogen</li>
+<li class="off"><input type='checkbox' /> Antibody Microarray (ICEMR)</li>
+<li class="off"><input type='checkbox' /> PopSet Isolate Sequences</li>
+<li class="off"><input type='checkbox' /> Single cell RNASeq ??</li>
+<li class="off"><input type='checkbox' /> Systems Biology</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="outline-container-orga034bf9" class="outline-2">
+<h2 id="orga034bf9">Data Validation</h2>
+<div class="outline-text-2" id="text-orga034bf9">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> validation of annotation properties (ad hoc or via owl file)</li>
+<li class="off"><input type='checkbox' /> add TBD qa/validation steps</li>
+</ul>
+</div>
+
+<div id="outline-container-orgc8fdf29" class="outline-3">
+<h3 id="orgc8fdf29">Reader Interface</h3>
+<div class="outline-text-3" id="text-orgc8fdf29">
+<pre class="example" id="org4c7ea4b">
+$entityType = $dataset-&gt;getEntityType($sourceId);
+@variables = $entityType-&gt;getVariables();
+$entityType-&gt;getEntityCount();
+$entityType-&gt;getStableIds();
+$entityType = $entity-&gt;getEntityType();
+$entity-&gt;getStableId();
+$entity-&gt;getValue(VariableSourceId, [string,number,date]);
+$attribute-&gt;getDisplayName(); # lots of other variable info
+$attribute-&gt;hasValues(); # lots of other variable info
+$attribute-&gt;isContinuous(); # lots of other variable info
+</pre>
+</div>
+</div>
+<div id="outline-container-orgf2737fc" class="outline-3">
+<h3 id="orgf2737fc">Readers</h3>
+<div class="outline-text-3" id="text-orgf2737fc">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Raw Data (dataset specific);  Maybe not required?</li>
+<li class="off"><input type='checkbox' /> Download File</li>
+<li class="off"><input type='checkbox' /> Dataset Specific Database Queries</li>
+<li class="off"><input type='checkbox' /> Webservices</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge1a4fa2" class="outline-3">
+<h3 id="orge1a4fa2">Tests</h3>
+<div class="outline-text-3" id="text-orge1a4fa2">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Tests can only use methods defined by the API</li>
+<li class="off"><input type='checkbox' /> The same tests will be run first on the FromProvider Files (to establish Truth) then run on the database &#x2026;
+<ul class="org-ul">
+<li>example:  &ldquo;ok($participantEntityType-&gt;getEntityCount() == 5000)&rdquo;;
+<ul class="org-ul">
+<li>This example get the counts of participants and ensures that the number it gets is 5000;</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 18 May. 2022 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gene Lists</title>
+<meta name="author" content="John Brestelli" />
+<meta name="description" content="Gene Lists" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<main id="content" class="content">
+<header>
+<h1 class="title">Gene Lists</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org0383b8b"><span class="todo IN_PROGRESS">IN PROGRESS</span> Gene List Workflow Dataset (either from provider or manually added)</a>
+<ul>
+<li><a href="#orgcb17ce2">FungiDB Clusters Example from Eve( Omeara_2020_CalCEN_UMAP)</a>
+<ul>
+<li><a href="#org54217b3">Data Loading</a></li>
+<li><a href="#org935e632">Front End</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org4394170">WGCNA</a></li>
+<li><a href="#org92c5ebd">Pathways and GO Functions</a></li>
+<li><a href="#org43baa16"><span class="todo TODO">TODO</span> User Contributed (UserDataset)</a></li>
+<li><a href="#orgf702810"><span class="todo TODO">TODO</span> VEupathDB Curated Gene Sets (UserDataset made by superuser and shared publically)</a></li>
+<li><a href="#org5753d22"><span class="todo TODO">TODO</span> RNASeq Automated Pairwise Comparisons.  DESeq Results</a></li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-org0383b8b" class="outline-2">
+<h2 id="org0383b8b"><span class="todo IN_PROGRESS">IN PROGRESS</span> Gene List Workflow Dataset (either from provider or manually added)</h2>
+<div class="outline-text-2" id="text-org0383b8b">
+</div>
+<div id="outline-container-orgcb17ce2" class="outline-3">
+<h3 id="orgcb17ce2">FungiDB Clusters Example from Eve( Omeara_2020_CalCEN_UMAP)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="AnnB">AnnB</span></span></h3>
+<div class="outline-text-3" id="text-orgcb17ce2">
+<p>
+<a href="https://redmine.apidb.org/issues/46157">https://redmine.apidb.org/issues/46157</a>
+</p>
+</div>
+
+<div id="outline-container-org54217b3" class="outline-4">
+<h4 id="org54217b3">Data Loading</h4>
+<div class="outline-text-4" id="text-org54217b3">
+<ol class="org-ol">
+<li>Make &ldquo;final&rdquo; directory input files
+yew:/eupath/data/EuPathDB/manualDelivery/FungiDB/calbSC5314/genericProfile/Omeara_2020_CalCEN_UMAP/2020-12-06/final
+<ul class="org-ul">
+<li>1 file per cluster.  each file will have one column for the gene ids</li>
+</ul></li>
+<li>Make analysisConfig.xml file
+<ul class="org-ul">
+<li><p>
+there are 2 types of names we&rsquo;ll need to define.  &ldquo;profileSetName&rdquo; = displayName for the experiment.  &ldquo;listName&rdquo; which will be for the cluster
+</p>
+
+<div class="org-src-container">
+<pre class="src src-xml"><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">xml</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">step</span> <span class="org-nxml-attribute-local-name">class</span>=<span class="org-string">"ApiCommonData::Load::GeneList"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"listName"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"Cellular localisation, protein modification"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"profileSetName"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"Omeara 2020 ..."</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+    <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">property</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"inputFile"</span> <span class="org-nxml-attribute-local-name">value</span>=<span class="org-string">"cluster1.txt"</span> <span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">step</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-text">  ...</span>
+<span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">xml</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div></li>
+</ul></li>
+
+<li><p>
+Make the Step Class
+</p>
+
+<div class="org-src-container">
+<pre class="src src-perl"><span class="org-keyword">package</span> <span class="org-function-name">ApiCommonData</span>::Load::GeneList;
+<span class="org-constant">use</span> base qw<span class="org-string">(ApiCommonData::Load::Loadable)</span>; 
+<span class="org-keyword">sub</span> <span class="org-function-name">new</span> { 
+    <span class="org-type">my</span> ($<span class="org-variable-name">class</span>, $<span class="org-variable-name">args</span>) = @<span class="org-underline"><span class="org-variable-name">_</span></span>;
+    <span class="org-type">my</span> $<span class="org-variable-name">self</span> = $<span class="org-variable-name">class</span>-&gt;SUPER::new($<span class="org-variable-name">args</span>);
+    $<span class="org-variable-name">self</span>-&gt;setSourceIdType(<span class="org-string">"gene"</span>);
+    $<span class="org-variable-name">self</span>-&gt;setProtocolName(<span class="org-string">"gene_list"</span>);
+    $<span class="org-variable-name">self</span>-&gt;setNames([$<span class="org-variable-name">self</span>-&gt;{listName}]);
+    $<span class="org-variable-name">self</span>-&gt;setFileNames([$<span class="org-variable-name">self</span>-&gt;getInputFile()]);
+    <span class="org-keyword">return</span> $<span class="org-variable-name">self</span>;
+}
+1;
+</pre>
+</div></li>
+
+<li>test by calling &ldquo;doTranscriptExpression&rdquo; and Confirm that the config file is correct
+usage:  perl doTranscriptExpression.pl &#x2013;xml_file &lt;XML&gt; &#x2013;main_directory &lt;DIR&gt; [&#x2013;input_file &lt;FILE&gt;] [&#x2013;seq_id_prefix &lt;SEQ ID PREFIX&gt;] [&#x2013;patch &lt;use this flag for a patch update&gt;] &#x2013;technology_type &ldquo;functional_data&rdquo;
+<ul class="org-ul">
+<li>the output should be a file called &ldquo;insert_study_config&rdquo;</li>
+</ul></li>
+
+<li><p>
+Tell ApiCommonData::Load::Plugin::InsertStudyResults plugin where to load this data
+</p>
+<ul class="org-ul">
+<li>Possible having only 1 column would be issue?</li>
+<li>add elsif to the &ldquo;addResults&rdquo; subroutine</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-perl"><span class="org-keyword">elsif</span> ($<span class="org-variable-name">protocolName</span> =~ <span class="org-string">/gene_list/</span>) {
+    $<span class="org-variable-name">tableString</span> = <span class="org-string">"ApiDB::NAFeatureList"</span>;
+}          
+</pre>
+</div></li>
+
+<li><p>
+create the database table ApiCommonData/Load/lib/sql/api
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">CREATE</span> <span class="org-keyword">TABLE</span> <span class="org-function-name">ApiDB.NAFeatureList</span> (
+  na_feature_list_id   <span class="org-keyword">NUMBER</span>(10) <span class="org-keyword">NOT</span> <span class="org-keyword">NULL</span>,
+  na_feature_id         <span class="org-keyword">NUMBER</span>(10) <span class="org-keyword">NOT</span> <span class="org-keyword">NULL</span>,
+  protocol_app_node_id         <span class="org-keyword">NUMBER</span>(10) <span class="org-keyword">NOT</span> <span class="org-keyword">NULL</span>,
+  MODIFICATION_DATE     <span class="org-type">DATE</span>,
+  USER_READ             <span class="org-keyword">NUMBER</span>(1),
+  USER_WRITE            <span class="org-keyword">NUMBER</span>(1),
+  GROUP_READ            <span class="org-keyword">NUMBER</span>(1),
+  GROUP_WRITE           <span class="org-keyword">NUMBER</span>(1),
+  OTHER_READ            <span class="org-keyword">NUMBER</span>(1),
+  OTHER_WRITE           <span class="org-keyword">NUMBER</span>(1),
+  ROW_USER_ID           <span class="org-keyword">NUMBER</span>(12),
+  ROW_GROUP_ID          <span class="org-keyword">NUMBER</span>(3),
+  ROW_PROJECT_ID        <span class="org-keyword">NUMBER</span>(4),
+  ROW_ALG_INVOCATION_ID <span class="org-keyword">NUMBER</span>(12),
+  <span class="org-keyword">FOREIGN</span> <span class="org-keyword">KEY</span> (na_feature_id) <span class="org-keyword">REFERENCES</span> DoTS.NaFeatureImp (na_feature_id),
+  <span class="org-keyword">FOREIGN</span> <span class="org-keyword">KEY</span> (protocol_app_node_id) <span class="org-keyword">REFERENCES</span> Study.ProtocolAppNode (protocol_app_node_id),
+  <span class="org-keyword">PRIMARY</span> <span class="org-keyword">KEY</span> (na_feature_list_id)
+);
+
+<span class="org-keyword">create</span> index apidb.nfl_ix
+  <span class="org-keyword">on</span> apidb.NaFeatureList (protocol_app_node_id, na_feature_id) tablespace indx;
+
+<span class="org-keyword">CREATE</span> <span class="org-keyword">SEQUENCE</span> <span class="org-function-name">ApiDB.NAFeatureList_sq</span>;
+
+<span class="org-keyword">GRANT</span> <span class="org-keyword">insert</span>, <span class="org-keyword">select</span>, <span class="org-keyword">update</span>, <span class="org-keyword">delete</span> <span class="org-keyword">ON</span> ApiDB.NAFeatureList <span class="org-keyword">TO</span> gus_w;
+<span class="org-keyword">GRANT</span> <span class="org-keyword">select</span> <span class="org-keyword">ON</span> ApiDB.NAFeatureList <span class="org-keyword">TO</span> gus_r;
+<span class="org-keyword">GRANT</span> <span class="org-keyword">select</span> <span class="org-keyword">ON</span> ApiDB.NAFeatureList_sq <span class="org-keyword">TO</span> gus_w;
+
+<span class="org-keyword">INSERT</span> <span class="org-keyword">INTO</span> core.TableInfo
+  (table_id, <span class="org-keyword">name</span>, table_type, primary_key_column, database_id, 
+    is_versioned, is_view, view_on_table_id, superclass_table_id, is_updatable, 
+    modification_date, user_read, user_write, group_read, group_write, 
+    other_read, other_write, row_user_id, row_group_id, row_project_id,
+    row_alg_invocation_id)
+  <span class="org-keyword">SELECT</span> core.tableinfo_sq.nextval, <span class="org-string">'NAFeatureList'</span>, <span class="org-string">'Standard'</span>, <span class="org-string">'na_feature_list_id'</span>,
+    d.database_id, 0, 0, <span class="org-string">''</span>, <span class="org-string">''</span>, 1,sysdate, 1, 1, 1, 1, 1, 1, 1, 1, p.project_id, 0
+  <span class="org-keyword">FROM</span> dual,
+       (<span class="org-keyword">SELECT</span> <span class="org-builtin">MAX</span>(project_id) <span class="org-keyword">AS</span> project_id <span class="org-keyword">FROM</span> core.ProjectInfo) p,
+       (<span class="org-keyword">SELECT</span> database_id <span class="org-keyword">FROM</span> core.DatabaseInfo <span class="org-keyword">WHERE</span> <span class="org-keyword">name</span> = <span class="org-string">'ApiDB'</span>) d
+  <span class="org-keyword">WHERE</span> <span class="org-string">'NAFeatureList'</span> <span class="org-keyword">NOT</span> <span class="org-keyword">IN</span> (<span class="org-keyword">SELECT</span> <span class="org-keyword">name</span> <span class="org-keyword">FROM</span> core.TableInfo
+  <span class="org-keyword">WHERE</span> database_id = d.database_id); 
+
+
+
+exit;
+
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-keyword">drop</span> <span class="org-keyword">table</span> <span class="org-function-name">ApiDB.NAFeatureList</span>;
+<span class="org-keyword">drop</span> <span class="org-keyword">sequence</span> <span class="org-function-name">ApiDB.NAFeatureList_sq</span>;
+
+<span class="org-keyword">DELETE</span> <span class="org-keyword">FROM</span> core.TableInfo
+<span class="org-keyword">WHERE</span> <span class="org-builtin">lower</span>(<span class="org-keyword">name</span>) = <span class="org-builtin">lower</span>(<span class="org-string">'NAFeatureList'</span>)
+  <span class="org-keyword">AND</span> database_id = (<span class="org-keyword">SELECT</span> database_id
+                     <span class="org-keyword">FROM</span> core.DatabaseInfo 
+                     <span class="org-keyword">WHERE</span> <span class="org-builtin">lower</span>(<span class="org-keyword">name</span>) = <span class="org-string">'apidb'</span>);
+
+exit;
+
+</pre>
+</div></li>
+
+<li>have JohnI run above sql to add table to all &ldquo;inc&rdquo; instances</li>
+
+<li>Let Haiming know this is ready to load;
+<ul class="org-ul">
+<li>he should load as &ldquo;generic profile&rdquo; with category/technology = &ldquo;function prediction&rdquo;</li>
+</ul></li>
+
+<li>WDK Search
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> probably need to add organism param because of organism preferences</li>
+<li class="off"><input type='checkbox' /> param query to get the protocolappnode names and ids</li>
+<li class="off"><input type='checkbox' /> param query to get the dataset name</li>
+<li class="off"><input type='checkbox' /> search form with 2 params (dataset name and list name)</li>
+<li class="off"><input type='checkbox' /> categorize the search</li>
+<li class="off"><input type='checkbox' /> add model ref so that the search is linked to the dataset</li>
+</ul></li>
+
+<li>Let Outreach/DataLoading fill in the dataset presetner xml</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org935e632" class="outline-4">
+<h4 id="org935e632">Front End</h4>
+<div class="outline-text-4" id="text-org935e632">
+<p>
+we can use something like this as an example: <a href="https://fungidb.org/fungidb/app/search/transcript/GenesByTelomereProximity">https://fungidb.org/fungidb/app/search/transcript/GenesByTelomereProximity</a>
+</p>
+
+<ol class="org-ol">
+<li><p>
+Need some mechanism for finding gene Lists which are datasets
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sql"><span class="org-comment">--option 1</span>
+<span class="org-keyword">select</span> d.<span class="org-keyword">name</span> <span class="org-keyword">as</span> term, r.external_database_release_id <span class="org-keyword">as</span> internal
+<span class="org-keyword">from</span> sres.externaldatabase d
+   , sres.externaldatabaserelease r
+<span class="org-keyword">where</span> <span class="org-builtin">lower</span>(d.<span class="org-keyword">name</span>) <span class="org-keyword">like</span> <span class="org-string">'%functional_data%'</span>
+<span class="org-keyword">and</span> d.external_database_id = r.external_database_id ;
+<span class="org-comment">--option 2</span>
+<span class="org-keyword">select</span> <span class="org-keyword">distinct</span> d.<span class="org-keyword">name</span> <span class="org-keyword">as</span> term, r.external_database_release_id  <span class="org-keyword">as</span> internal
+       <span class="org-keyword">from</span> sres.externaldatabase d
+   , sres.externaldatabaserelease r
+   , apidb.nafeaturelist fl
+   , study.studylink sl
+   , study.study s
+<span class="org-keyword">where</span> sl.protocol_app_node_id = fl.protocol_app_node_id
+<span class="org-keyword">and</span> sl.study_id=  s.study_id
+<span class="org-keyword">and</span> r.external_database_release_id = s.external_database_release_id
+<span class="org-keyword">and</span> d.external_database_id = r.external_database_id ;
+</pre>
+</div></li>
+
+<li><p>
+Use the query above to create a hidden dataset param
+</p>
+
+<p>
+ApiCommonModel/Model/lib/wdk/model/questions/params/geneParams.xml
+</p>
+
+<p>
+the queryset GeneVQ is in the same file.  it will return a &ldquo;term&rdquo; and an &ldquo;internal&rdquo;.  this should be hidden
+</p>
+
+<div class="org-src-container">
+<pre class="src src-xml"><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">flatVocabParam</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"some_unique_name_tbd"</span>
+                 <span class="org-nxml-attribute-local-name">queryRef</span>=<span class="org-string">"GeneVQ.someUniqueQueryName"</span>
+                 <span class="org-nxml-attribute-local-name">prompt</span>=<span class="org-string">"Gene List Dataset"</span>
+                 <span class="org-nxml-attribute-local-name">visible</span>=<span class="org-string">"false"</span>
+                 <span class="org-nxml-attribute-local-name">quote</span>=<span class="org-string">"false"</span>
+                 <span class="org-nxml-attribute-local-name">multiPick</span>=<span class="org-string">"false"</span> <span class="org-nxml-tag-delimiter">&gt;</span>
+   <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">help</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">TODO</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">help</span><span class="org-nxml-tag-delimiter">&gt;</span>
+ <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">flatVocabParam</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div></li>
+
+<li><p>
+Need an additional parameter which is dependent on this one
+</p>
+
+<div class="org-src-container">
+<pre class="src src-xml"> <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">filterParam</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"gene_list_param"</span>
+                 <span class="org-nxml-attribute-local-name">queryRef</span>=<span class="org-string">"GeneVQ.someOtherUniqueName"</span>
+                 <span class="org-nxml-attribute-local-name">prompt</span>=<span class="org-string">"Gene List"</span>
+                 <span class="org-nxml-attribute-local-name">visible</span>=<span class="org-string">"true"</span>
+                 <span class="org-nxml-attribute-local-name">quote</span>=<span class="org-string">"false"</span>
+                 <span class="org-nxml-attribute-local-name">multiPick</span>=<span class="org-string">"false"</span>
+                 <span class="org-nxml-attribute-local-name">dependedParamRef</span>=<span class="org-string">"geneParams.some_unique_name_tbd"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+
+   <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">visibleHelp</span><span class="org-nxml-tag-delimiter">&gt;</span><span class="org-nxml-text">OPTINAL</span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">visibleHelp</span><span class="org-nxml-tag-delimiter">&gt;</span>
+   <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">help</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-text">TODO</span>
+<span class="org-nxml-text">   </span><span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">help</span><span class="org-nxml-tag-delimiter">&gt;</span>
+ <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">filterParam</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div>
+<p>
+This query will use the values from the first query
+</p>
+<div class="org-src-container">
+<pre class="src src-xml">  <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">sqlQuery</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"XXXX"</span> <span class="org-nxml-attribute-local-name">isCacheable</span>=<span class="org-string">"false"</span><span class="org-nxml-tag-delimiter">&gt;</span>
+      <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">column</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"term"</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+      <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">column</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"internal"</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-tag-delimiter">&gt;</span>
+
+      <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">sqlParamValue</span> <span class="org-nxml-attribute-local-name">name</span>=<span class="org-string">"some_unique_name_tbd"</span> <span class="org-nxml-tag-delimiter">&gt;</span>
+      <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">sql</span><span class="org-nxml-tag-delimiter">&gt;</span>
+<span class="org-nxml-cdata-section-delimiter">&lt;![</span><span class="org-nxml-cdata-section-cdata">CDATA</span><span class="org-nxml-cdata-section-delimiter">[</span>
+<span class="org-nxml-cdata-section-content">        select distinct pan.name as term, pan.protocol_app_node_id as internal</span>
+<span class="org-nxml-cdata-section-content">        from study.protocolappnode pan, study.study s, study.studylink sl</span>
+<span class="org-nxml-cdata-section-content">         where s.external_database_release_id = $$some_unique_name_tbd$$</span>
+<span class="org-nxml-cdata-section-content">         and s.study_id = sl.study_id</span>
+<span class="org-nxml-cdata-section-content">         and sl.protocol_app_node_id = pan.protocol_app_node_id</span>
+<span class="org-nxml-cdata-section-content">     </span><span class="org-nxml-cdata-section-delimiter">]]&gt;</span>
+
+      <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-tag-slash">/</span><span class="org-nxml-element-local-name">sql</span><span class="org-nxml-tag-delimiter">&gt;</span>
+      <span class="org-nxml-tag-delimiter">&lt;</span><span class="org-nxml-element-local-name">sqlQuery</span><span class="org-nxml-tag-delimiter">&gt;</span>
+</pre>
+</div></li>
+
+<li>Make sure to include processQueries for each sqlQuery. These are used by the veupathdb portal</li>
+
+<li><p>
+New Injected Search
+</p>
+
+<p>
+a. define the template
+</p>
+
+<div class="org-src-container">
+<pre class="src src-example">[templateStart]
+name=geneListFunctional
+anchorFile=ApiCommonModel/Model/lib/wdk/model/questions/geneQuestions.xml
+prop=datasetName
+prop=datasetDisplayName
+prop=datasetShortDisplayName
+prop=projectName
+prop=buildNumberIntroduced
+prop=includeProjects
+prop=organismAbbrevDisplay
+&gt;templateTextStart&lt;
+    &lt;question name="GenesByFunctionalBlahGeneList${datasetName}" includeProjects="${includeProjects}" newBuild="${buildNumberIntroduced}"
+	 displayName="${organismAbbrevDisplay} ${datasetDisplayName} GeneList (functional blah)"
+	 shortDisplayName="${datasetShortDisplayName} (???)"
+	 queryRef="GeneId.TODO"
+	 recordClassRef="TranscriptRecordClasses.TranscriptRecordClass"&gt;
+
+	&lt;!-- param we are overriding --&gt;
+	&lt;paramRef ref="geneParams.todo_dataset_param_name"  default="${datasetName}" visible="false"/&gt;
+
+	&lt;summary&gt;
+	   &lt;![CDATA[
+	  TODO
+	  ]]&gt;
+	&lt;/summary&gt;
+
+	&lt;description&gt;
+	   &lt;![CDATA[
+  TODO
+	  ]]&gt;
+	&lt;/description&gt;
+    &lt;/question&gt;
+&gt;templateTextEnd&lt;
+
+</pre>
+</div>
+
+<p>
+b. write the injector
+</p>
+
+<p>
+Make a new java class :
+ApiCommonModel/Model/src/main/java/org/apidb/apicommon/model/datasetInjector/GeneList.pm
+</p></li>
+</ol>
+
+
+<div class="org-src-container">
+<pre class="src src-java">    <span class="org-c-annotation">@Override</span>
+    <span class="org-keyword">public</span> <span class="org-type">void</span> <span class="org-function-name">injectTemplates</span>() {
+      setShortAttribution();
+
+
+      <span class="org-type">String</span> <span class="org-variable-name">projectName</span> = getPropValue(<span class="org-string">"projectName"</span>);
+      <span class="org-comment-delimiter">//</span><span class="org-comment">String presenterId = getPropValue("presenterId");</span>
+      <span class="org-type">String</span> <span class="org-variable-name">datasetName</span> = getDatasetName();
+
+      setOrganismAbbrevFromDatasetName();
+
+     <span class="org-keyword">if</span>(getPropValueAsBoolean(<span class="org-string">"isEuPathDBSite"</span>)) {
+          setPropValue(<span class="org-string">"includeProjects"</span>, projectName + <span class="org-string">",EuPathDB,UniDB"</span>);
+      } <span class="org-keyword">else</span> {
+          setPropValue(<span class="org-string">"includeProjects"</span>, projectName + <span class="org-string">",UniDB"</span>);
+      }
+
+     <span class="org-type">String</span> <span class="org-variable-name">searchCategory</span> = <span class="org-string">"searchCategory-functional-gene-list"</span>;
+     <span class="org-type">String</span> <span class="org-variable-name">questionName</span> = <span class="org-string">"TODO"</span>;
+
+     setPropValue(<span class="org-string">"searchCategory"</span>, searchCategory);
+     setPropValue(<span class="org-string">"questionName"</span>, questionName);
+
+     injectTemplate(<span class="org-string">"YOUR_NEW_QUESTION_TEMPLATE"</span>);
+     injectTemplate(<span class="org-string">"internalGeneSearchCategory"</span>);
+    }
+
+
+<span class="org-c-annotation">@Override</span>
+  <span class="org-keyword">public</span> <span class="org-type">void</span> <span class="org-function-name">addModelReferences</span>() {
+              addWdkReference(<span class="org-string">"TranscriptRecordClasses.TranscriptRecordClass"</span>, <span class="org-string">"question"</span>,
+                              <span class="org-string">"GeneQuestions.GenesByTODO"</span> + getDatasetName());
+}
+
+
+  <span class="org-c-annotation">@Override</span>
+  <span class="org-keyword">public</span> <span class="org-type">String</span>[][] <span class="org-function-name">getPropertiesDeclaration</span>() {
+      <span class="org-type">String</span> [][] <span class="org-variable-name">declaration</span> = {
+                                 {<span class="org-string">"isEuPathDBSite"</span>, <span class="org-string">""</span>}
+                                 }
+          }
+
+
+
+
+
+</pre>
+</div>
+
+
+
+<p>
+c. add the template anchor in geneQuestions.xml
+</p>
+
+<pre class="example" id="orgcdc32e5">
+&lt;!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--&gt;
+&lt;!-- ChIP chip --&gt;
+&lt;!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--&gt;
+
+&lt;!-- TEMPLATE_ANCHOR chipchipQuestion --&gt;
+</pre>
+
+<ol class="org-ol">
+<li><p>
+Dataset Record / Dataset Presenter
+</p>
+
+<p>
+Add templateInjector xml element to FungiDB.xml (Presenter).
+</p></li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org4394170" class="outline-2">
+<h2 id="org4394170">WGCNA</h2>
+<div class="outline-text-2" id="text-org4394170">
+<p>
+wgcna analysis is described here:  <a href="https://jbrestel.github.io/org-docs/project_planning/networkAnalysis.html">Network Analysis</a>
+</p>
+</div>
+</section>
+<section id="outline-container-org92c5ebd" class="outline-2">
+<h2 id="org92c5ebd">Pathways and GO Functions</h2>
+<div class="outline-text-2" id="text-org92c5ebd">
+<p>
+We already have enrichment tools which search these lists.  Could generalize
+</p>
+</div>
+</section>
+<section id="outline-container-org43baa16" class="outline-2">
+<h2 id="org43baa16"><span class="todo TODO">TODO</span> User Contributed (UserDataset)</h2>
+</section>
+<section id="outline-container-orgf702810" class="outline-2">
+<h2 id="orgf702810"><span class="todo TODO">TODO</span> VEupathDB Curated Gene Sets (UserDataset made by superuser and shared publically)</h2>
+</section>
+<section id="outline-container-org5753d22" class="outline-2">
+<h2 id="org5753d22"><span class="todo TODO">TODO</span> RNASeq Automated Pairwise Comparisons.  DESeq Results</h2>
+<div class="outline-text-2" id="text-org5753d22">
+<ul class="org-ul">
+<li>Dataset1
+<ul class="org-ul">
+<li>Comparison A vs B</li>
+<li>Comparison A vs C</li>
+<li>Comparison B vs C</li>
+</ul></li>
+<li>Dataset2
+<ul class="org-ul">
+<li>&#x2026;</li>
+</ul></li>
+</ul>
+</div>
+</section>
+</main>
+</body>
+</html>
