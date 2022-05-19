@@ -4,35 +4,39 @@
 #+AUTHOR:    John Brestelli
 #+DESCRIPTION: EDA DIY
 #+OPTIONS:   H:5 num:nil toc:2 p:t tags:not-in-toc
+* Background / Overview
 
-* Overview
+DIY EDA will allow a user to walk up to our ClinEpi or MBio site and load a Study.
 
-Because preprocessing may change for clinep (and already has for mbio) we will store both raw and preprocessed data in iRODs.  The initial validator step will make the transformed/preprocessed files.  The Installer will check if needed files are available and create if necessary.
+- First deliverable for ClinEpi is 1:1 File per EntityType, no ontology mapping, and simple dataset description
+- Future ClinEpi releases may deal with mutliple files/entitytypes, mapping ontology terms, and other attribute info like publications, contacts...
+- We want to reuse existing plugins from EDA Load
+- We have a Parallel schema "EDA_UD"
+  - the study table has one extra field for "user_dataset_id"
+- Plugins are made to load into either schema
 
-#+name: Process Flow
+- Here is a pretty picture from DanG about [[https://veupathdb.atlassian.net/wiki/spaces/UI/pages/19661442/ClinEpi+DIY+Dataset+Import+Backend+Changes][User Datasets]]
+
+#+name: Another view of the Process Flow
 #+begin_src plantuml :file images/eda_diy.png :exports results
 start
 if(isMbio) then (yes)
   :Validate biom;
-  :preprocess biom;
  else(no)
   :Validate tab delim;
-  :preprocess tab delim;
 endif
 if(isValid) then (yes)
   :IRODs;
   rectangle Installer {
-  if(missingPreprocessedFiles) then (yes)
-    if(isMbio) then (yes)
-      :preprocess biom;
-    else(no)
-      :preprocess tab delim;
-    endif
-  else (no)
+  if(isMbio) then (yes)
+    :preprocess biom;
+  else(no)
+    :preprocess tab delim;
   endif
-   :load ontologyterms;
-   :load entity graph;
-   :load attribution;
+  :load externaldatabases;
+  :load ontologyterms;
+  :load entity graph;
+  :load studydataset;
         }
 else (no)
   :Exit and Report Errors;
@@ -41,51 +45,21 @@ endif
 stop
 #+end_src
 
-#+RESULTS: Process Flow
+#+RESULTS: Another view of the Process Flow
 [[file:images/eda_diy.png]]
 
-- [X] (Wojtek) confirm that we run "touch GusSchema/Definition/config/gus_schema.xml; bld GUS" which creates the GUS model objects
-  - [X] is there a gus.config in $GUS_HOME/congig?  does that have group/project ?
+* Validator                                                                                                       :JayH:
 
-- [X] !can joe user run a plugin (is joe user in Core.UserInfo;  ProjectUser and GroupUser tables need rows)
-  - [X] Use Reflow Workflow Step to add joe user and link to Group and Project to be run on "inc" database instance during build
+Write some python code.  The parent is in python.
 
-- [X] Assume Dependent data like Ontology Term Types are loaded by Reflow Worfklow and available to UserDataset Installer
-
-- [X] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
-  - are we able to consistently pull from docker?
-  - does singularity use the cache?
-  - currently we're using the latest version of the RServe code.  Should change that to a tags
-
-
-- [X] (JohnB) add user_dataset_id to each eda_ud table
-  - [X] sql to be run after "createEntityGraph" tables in schema installer
-
-- [X] need access to GUS_HOME on jenkins.
-  - [X] $GUS_HOME/config/gus.config specifies the database
-
-- [X] (JohnB) Create EDA_UD tables to store Attribution/Dataset info
-  - this should mirror what we have in apidbtuning.datasetpresenter
-  - begin with minimal info (name, description, ID)
-  - [X] Requires a unique id for the study/dataset.  Can we just store the user dataset id??
-
-- [X] (JayH) Need a workflow step (eda-inc and mbio) which will add joeuser and associate with row(s) in core.projectinfo and core.groupinfo
-
-- [X] (JayH) make jenkins job to make container and push to dockerhub
-
-
-* Validator
-
-Write some python code?  The parent is in python.
-
-- [X] (Wojtek) confirm fresh checkout can run and pass tests
+- [X] Wojtek has some tests for biom handler; confirm fresh checkout can run and pass tests
   - [X] add some readme text describing how to run these
 
 - [X] Confirm We will need separate validators for Mbio and ClinEpi
 
 - [X] Where does the validator code live?  is this built in a container?
 
-   [[https://github.com/VEuPathDB/dataset-handler-biom]]
+   [[github:VEuPathDB/dataset-handler-biom]]
 
    ValidationException :: User submitted a bad  file
    BaseException :: Some random error.  User should email us
@@ -93,57 +67,77 @@ Write some python code?  The parent is in python.
 - [X] mbio to use Use existing biom validator?
   - [X] Are there additional requirements for metadata table?... NO!
 
-- [X] Clinepi first deliveralbe, there will be a single file (one entity type)
-  - What can we validate?
-    - call the parser.  if it parses it we are good.
-
-- [X] (JohnB) Follow up with Ann/Dave
-  - a) uncategorized variables are ok.
-
-
-* Preprocess/Transform Script                                                                                     :JayH:
-
-
-These scripts can be called in the Validator or Installer (for legacy user datasets in IRODs)
-
-- [X] Create ontology files
-  - [X] Entity Types (mbio will have 2 rows.  ClinEpi one row per file)
-  - [X] Variables/Attributes
-
-- [X] ISASimple data file
-- [X] ISASimple ancilary files (use ontology term source_ids from above)
-  - [X] "investigation.xml" file for the study
-  - [X] ontologyMapping.xml? is this needed?
-
 * Installer
 
-- Example:  irods.builder on [[https://ws.apidb.org]]
+- exportInvestigation.pl can be called in the Validator or Installer (for legacy user datasets in IRODs)
+  - [X] Create ontology files
+    - [X] Entity Types (mbio will have 2 rows.  ClinEpi one row per file)
+    - [X] Variables/Attributes
+  - [X] ISASimple data file
+  - [X] ISASimple ancilary files (use ontology term source_ids from above)
+    - [X] "investigation.xml" file for the study
+    - [X] ontologyMapping.xml
+
+- [X] Because preprocessing SOPs change we will store raw user data in iRODs.
+  - [X] installer will process the data and make it conform to plugin specs
+
+- [ ] how to run singularity on any jenkins/server?  is singularity installed on ash?.. NO!
+  - [ ] BobB add singularity on irodsn and irodss
+
+- [X] Plugins require a GUS environment.
+  - "bld GUS" creates the perl object layer by reading from db instance specified in gus.config
+  - UserDataset installers up til now share a gus environment.  they don't make perl objects
+    - Example:  irods.builder on [[https:ws.apidb.org]]
+  - [X] create a container which has a gus environment
+    - [[github:veupathdb/dataset-installer-isasimple]]
+  - [X] can't create perl objects during docker build so for now we can stuff them in the manually
+
+- [X] one of the plugins makes a system call to singularity to run an RScript from plot.data
+  - [X] put the plot.data code in the container
+
+- [X] one of the plugins uses sql*loader
+  - [X] put the oracle instant client tools in the container
+
+- [X] need access to GUS_HOME on jenkins.
+  - [X] $GUS_HOME/config/gus.config specifies the database
+  - [X] the login/user in these gus.config files is ApidbUserDatasets
+  - [X] bind the file into the container
+
+- [X] Assume Dependent data like Ontology Term Types are loaded by Reflow Worfklow and available to UserDataset Installer.  Things like "Ontology Term Types"
+
+- [X] add user_dataset_id to appropriate eda_ud tables and add studydataset table
+  - [X] sql to be run after "createEntityGraph" tables in schema installer:  [[github:veupathdb/ApiCommonData/tree/master/Load/lib/sql/apidbschema/createEdaUdModifications.sql][createEdaUdModifications.sql]]
+  - [X] EDA_UD.StudyDataset
+    - this should mirror what we have in apidbtuning.datasetpresenter + ApiDBTuning.StudyIdDatasetId
+    - begin with minimal info (name, description, ID)
+    - [X] Requires a unique id for the study/dataset.  Will just store the user dataset id??
+
+- [X] Follow up with Ann/Dave to make sure uncategorized variables are ok.
 
 - [ ] Confirm mbio can genreate ISASimple file from biom
 
 ** Example files
 
 #+name: Household.txt
-| Household ID | Parent | h_attr1    | h_attr2      | h_attr3    |
-|--------------+--------+------------+--------------+------------+
-| hh_id1       |        | attr1_val1 | attr2_value1 | attr3_val1 |
-| hh_id2       |        | attr1_val2 | attr2_value2 | attr3_val2 |
-| hh_id3       |        | attr1_val2 | attr2_value3 | attr3_val3 |
+| Household ID | Parent | h_attr1      | h_attr2        | h_attr3      |
+|--------------+--------+--------------+----------------+--------------|
+| hh_id1       |        | h_attr1_val1 | h_attr2_value1 | h_attr3_val1 |
+| hh_id2       |        | h_attr1_val2 | h_attr2_value2 | h_attr3_val2 |
+| hh_id3       |        | h_attr1_val2 | h_attr2_value3 | h_attr3_val3 |
 
 #+name: Participant.txt
-| Household ID | Parent | h_attr1    | h_attr2      | h_attr3    |
-|--------------+--------+------------+--------------+------------|
-| p_id1        | hh_id1 | attr1_val1 | attr2_value1 | attr3_val1 |
-| p_id2        | hh_id2 | attr1_val2 | attr2_value2 | attr3_val2 |
-| p_id3        | hh_id3 | attr1_val2 | attr2_value3 | attr3_val3 |
+| Participant ID | Parent | p_attr1      | p_attr2        | p_attr3      |
+|----------------+--------+--------------+----------------+--------------|
+| p_id1          | hh_id1 | p_attr1_val1 | p_attr2_value1 | p_attr3_val1 |
+| p_id2          | hh_id2 | p_attr1_val2 | p_attr2_value2 | p_attr3_val2 |
+| p_id3          | hh_id3 | p_attr1_val2 | p_attr2_value3 | p_attr3_val3 |
 
 
 
 ** Use existing plugins / workflow
 
-bash script with the following plugins configured.  We can test in the rm41910 eda_ud schema
+bash script with the following plugins configured.
 
-- where does this bash script live in the codebase??
 *** ExternalDatabase and ExternalDatabaeRelease
 - [X] GUS::Supported::Plugin::InsertExternalDatabase
 - [X] GUS::Supported::Plugin::InsertExternalDatabaseRls
@@ -159,14 +153,13 @@ bash script with the following plugins configured.  We can test in the rm41910 e
   - [X] ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph
   - [X] No need to load StudyCharacteristics
 
-*** Insert Dataset tables :JohnB:
+*** Insert StudyDataset table                                                                                  :JohnB:
 The EDA requires a dataset record.  Steve's proposal is to create a UserDatasetPresenter table which can be installed along with other data.
 NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not simply the user dataset page.
-
 - [X] Table(s) for the Dataset
-- [ ] Create View which unions apidbtuning.datasetpresener with eda_ud.datasetpresenter
 
-* Undo for Installer!!!
+
+* Undo for Installer
 - [X] create script which manages undo (given user dataset id)
 - [X] confirm that undo mechanism can handle tables which do not have a user_dataset_id (SRes tables)
 
@@ -181,7 +174,7 @@ NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not s
      )
 #+end_src
 
-** how to delete a study
+** Steps to delete a study
 
 1. [X] find study_id and internal abbrev (input is user_dataset_id)
 2. [X] find entity_type_id and internal abbrev (input is study_id)
@@ -210,16 +203,16 @@ NOTE:  The User Dataset metadata is not sufficient as we need a wdk record not s
 22. [X] delete sres.externaldatabase (2)
 
 
-* WDK Model
+* TODO Model + other Schema
+- [ ] Create View which unions apidbtuning.datasetpresener with eda_ud.studydataset
 - [ ] For all relevant dataset record attributes and tables... need to use the View (above) which is a union of the datasetpresenter tables and the eda_ud dataset tables
-- [ ] Fix the general look of the dataset record page.  The UD version should only have the minimal info (name and description) for now
+- [ ] Create views which unions EDA.EntityType and EDA_UD.EntityType ... maybe others?
 
 
-* UX
-  Existing UX for Microbiome biom files should remain in place.  ClinEpi DIY will need to consume 1 or more tab files and the user should be able to specifiy the "parent" entity type for each file
-
-* What to do about legacy user datasets?
-versioning in user datasets is for what is stored in irods.  Add optional preprocessing/transform stept to installer.  This should give us flexibility (ie. if the raw data has not changed, we are free to switch around the installer steps)
-
-* Study access
-** TODO How does user dataset access differ from "study access"
+* Misc
+- [X] can ApidbUserDatasets user run a plugin (need ApidbUserDatasets in Core.UserInfo;  ProjectUser and GroupUser tables need rows)?
+  - [X] Add a workflow step (eda-inc and mbio) which will add ApidbUserDatasets and associate with row(s) in core.projectinfo and core.groupinfo
+- Existing UX for Microbiome biom files should remain in place.  ClinEpi DIY will need to consume 1 or more tab files and the user should be able to specifiy the "parent" entity type for each file
+- versioning in user datasets is for what is stored in irods.  Add optional preprocessing/transform stept to installer.  This should give us flexibility (ie. if the raw data has not changed, we are free to switch around the installer steps)
+- How does user dataset access differ from "study access"
+- Infra team is making a flat file dumper to help with performance.  we'll need to make these files for user datasets too.  We cannot put them in apiSiteFiles as those are sync'd.   Likely we'll copy them to a dedicated directory.
